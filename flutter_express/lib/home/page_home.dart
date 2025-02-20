@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/animation.dart';
 
 class Home extends StatelessWidget {
   final List<String> cardTitles = ["Hello", "Love", "Happy", "Cute", "Sorry"];
@@ -22,7 +23,7 @@ class Home extends StatelessWidget {
             _buildSectionTitle("Favorites"),
             _buildScrollableCards(context),
             const SizedBox(height: 30),
-            _buildSectionTitle("Phrases"),
+            _buildSectionTitle("Words/Phrases"),
             _buildPhrasesGrid(context),
           ],
         ),
@@ -47,7 +48,12 @@ class Home extends StatelessWidget {
             top: 60,
             child: const Text(
               'Good Morning!',
-              style: TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 28,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
             ),
           ),
           Positioned(
@@ -74,14 +80,23 @@ class Home extends StatelessWidget {
                 children: [
                   const Text(
                     'Welcome to ex',
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
+                    ),
                   ),
                   const Text(
                     'Press!',
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.blue),
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                      fontFamily: 'Inter',
+                    ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.waving_hand, color: Colors.orange, size: 50),
+                  WavingHandIcon(),
                 ],
               ),
             ),
@@ -96,7 +111,12 @@ class Home extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black87),
+        style: const TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+          fontFamily: 'Inter',
+        ),
       ),
     );
   }
@@ -129,11 +149,24 @@ class Home extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cardColor, // Updated color
                 borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
                   cardTitles[index],
-                  style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -176,11 +209,24 @@ class Home extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cardColor, // Updated color
                 borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
                   phrases[index],
-                  style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -188,6 +234,50 @@ class Home extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class WavingHandIcon extends StatefulWidget {
+  const WavingHandIcon({Key? key}) : super(key: key);
+
+  @override
+  _WavingHandIconState createState() => _WavingHandIconState();
+}
+
+class _WavingHandIconState extends State<WavingHandIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: -0.1, end: 0.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      child: const Icon(Icons.waving_hand, color: Colors.orange, size: 50),
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _animation.value,
+          child: child,
+        );
+      },
     );
   }
 }
@@ -254,11 +344,23 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text(
                   widget.items[currentIndex],
-                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
                 ),
               ),
             ),
@@ -273,7 +375,10 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
                 ),
-                child: const Text("Back"),
+                child: const Text(
+                  "Back",
+                  style: TextStyle(fontFamily: 'Inter'),
+                ),
               ),
               ElevatedButton(
                 onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
@@ -281,7 +386,10 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black,
                 ),
-                child: const Text("Next"),
+                child: const Text(
+                  "Next",
+                  style: TextStyle(fontFamily: 'Inter'),
+                ),
               ),
             ],
           ),

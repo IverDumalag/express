@@ -53,11 +53,11 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                 },
               ),
             ),
-            SizedBox(height: 20), // Add extra space below the text and icon
+            SizedBox(height: 15), // Add extra space below the text and icon
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.mic, color: Colors.grey, size: 60),
+                Icon(Icons.mic, color: Colors.grey, size: 55),
                 SizedBox(height: 8),
                 Text(
                   'Tap to speak',
