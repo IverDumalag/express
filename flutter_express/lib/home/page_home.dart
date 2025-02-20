@@ -14,19 +14,54 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 40),
-            _buildSectionTitle("Favorites"),
-            _buildScrollableCards(context),
-            const SizedBox(height: 30),
-            _buildSectionTitle("Words/Phrases"),
-            _buildPhrasesGrid(context),
-          ],
-        ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 40),
+                _buildSectionTitle("Favorites"),
+                _buildScrollableCards(context),
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    _buildSectionTitle("Words/Phrases"),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)), // Changed to filled icon
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('How to Use'),
+                              content: Text(
+                                '1. Tap the camera icon to enable your camera.\n'
+                                '2. Position your hand gestures within the camera view.\n'
+                                '3. The translation of your sign gestures will appear in the output container below.',
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Close'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                _buildPhrasesGrid(context),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
