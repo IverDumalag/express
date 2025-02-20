@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'feedbackpage.dart'; // Import the FeedbackPage
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
+
+  @override
+  _SettingsState createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+  bool _cameraAccess = false;
+  bool _voiceAccess = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color to white
       body: ListView(
         children: <Widget>[
           Padding(
@@ -19,25 +29,33 @@ class Settings extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.camera_alt),
+          SwitchListTile(
             title: Text(
               'Access Camera',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            onTap: () {
-              // Add your onTap code here!
+            value: _cameraAccess,
+            onChanged: (bool value) {
+              setState(() {
+                _cameraAccess = value;
+              });
             },
+            secondary: Icon(Icons.camera_alt),
+            activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
           ),
-          ListTile(
-            leading: Icon(Icons.mic),
+          SwitchListTile(
             title: Text(
               'Access Voice',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            onTap: () {
-              // Add your onTap code here!
+            value: _voiceAccess,
+            onChanged: (bool value) {
+              setState(() {
+                _voiceAccess = value;
+              });
             },
+            secondary: Icon(Icons.mic),
+            activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
           ),
           ListTile(
             leading: Icon(Icons.feedback),
@@ -46,7 +64,10 @@ class Settings extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             onTap: () {
-              // Add your onTap code here!
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FeedbackPage()),
+              );
             },
           ),
           Padding(
@@ -60,65 +81,116 @@ class Settings extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search FAQs',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderSide: BorderSide(
+                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
+                  ),
                 ),
-              ],
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderSide: BorderSide(
+                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderSide: BorderSide(
+                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
+                  ),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
             ),
-            child: Text(
+          ),
+          SizedBox(height: 16.0), // Add space gap between search bar and containers
+          ExpansionTile(
+            title: Text(
               'What is exPress?',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Text(
+                child: Text(
+                  'exPress is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+            ],
+          ),
+          ExpansionTile(
+            title: Text(
               'How does exPress work?',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Text(
+                child: Text(
+                  'exPress works by converting sign language to text and text/audio to sign language using advanced machine learning algorithms.',
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+            ],
+          ),
+          ExpansionTile(
+            title: Text(
               'How can I provide feedback?',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'You can provide feedback through the feedback section in the app settings or by contacting our support team.',
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+            ],
           ),
         ],
       ),
