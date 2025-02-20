@@ -41,6 +41,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color to white
       body: _screens[GlobalVariables.currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: GlobalVariables.currentIndex,

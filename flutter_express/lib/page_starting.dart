@@ -9,7 +9,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
- 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,6 +46,7 @@ class _StartingPageStatefulState extends State<StartingPageStateful> with Single
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color to white
       body: Stack(
         children: [
           // Add the image as a background

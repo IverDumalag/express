@@ -68,6 +68,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color to white
       body: Stack(
         children: [
           AnimatedBuilder(
@@ -103,7 +104,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'This is your Starting Point.',
+                'This is your starting point.',
                 style: TextStyle(
                   fontSize: 45,
                   fontWeight: FontWeight.w900,
