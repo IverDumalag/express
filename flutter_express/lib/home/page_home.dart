@@ -4,6 +4,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color to white
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
