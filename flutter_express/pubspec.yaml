@@ -86,5 +86,12 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
+          weight: 700
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
