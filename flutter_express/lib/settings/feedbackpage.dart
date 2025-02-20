@@ -48,6 +48,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final currentIcon = _ratingIcons[_selectedIndex];
 
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background of the page to white
       appBar: AppBar(
         title: const Text(
           'Feedback',
@@ -62,7 +63,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             Navigator.pop(context); // Handle back navigation
           },
         ),
-        backgroundColor: Color(0xFF334E7B), // Set the app bar color to 0xFF334E7B
+        backgroundColor: const Color(0xFF334E7B), // Set the app bar color to 0xFF334E7B
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -136,7 +137,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 2,
                     blurRadius: 5,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -148,7 +149,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   contentPadding: EdgeInsets.all(16.0),
                 ),
                 maxLines: 4,
-                style: TextStyle(fontFamily: 'Inter'),
+                style: const TextStyle(fontFamily: 'Inter'),
               ),
             ),
             const SizedBox(height: 24),
@@ -164,13 +165,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     content: Text(
                       'Submitted: ${_ratingLabels[_selectedIndex]} - '
                       'Comment: ${_commentController.text}',
-                      style: TextStyle(fontFamily: 'Inter'),
+                      style: const TextStyle(fontFamily: 'Inter'),
                     ),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF334E7B), // Set the button color to 0xFF334E7B
+                backgroundColor: const Color(0xFF334E7B), // Set the button color to 0xFF334E7B
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0), // Set border radius
                 ),
