@@ -22,7 +22,12 @@ class Home extends StatelessWidget {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 40),
-                _buildSectionTitle("Favorites"),
+                Row(
+                  children: [
+                    _buildSectionTitle("Favorites"),
+                    BlinkingStarIcon(),
+                  ],
+                ),
                 _buildScrollableCards(context),
                 const SizedBox(height: 30),
                 Row(
@@ -311,6 +316,56 @@ class _WavingHandIconState extends State<WavingHandIcon> with SingleTickerProvid
         return Transform.rotate(
           angle: _animation.value,
           child: child,
+        );
+      },
+    );
+  }
+}
+
+class BlinkingStarIcon extends StatefulWidget {
+  const BlinkingStarIcon({Key? key}) : super(key: key);
+
+  @override
+  _BlinkingStarIconState createState() => _BlinkingStarIconState();
+}
+
+class _BlinkingStarIconState extends State<BlinkingStarIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _controller.value,
+          child: const Icon(
+            Icons.star,
+            color: Colors.yellow,
+            size: 30,
+            shadows: [
+              Shadow(
+                color: Color(0xFF334E7B),
+                blurRadius: 2,
+                offset: Offset(0, 0),
+              ),
+            ],
+          ),
         );
       },
     );
