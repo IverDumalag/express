@@ -126,15 +126,30 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
             const SizedBox(height: 8),
 
-            // Comment TextField
-            TextField(
-              controller: _commentController,
-              decoration: const InputDecoration(
-                hintText: 'Comment here...',
-                border: OutlineInputBorder(),
+            // Comment TextField with modern look
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
-              maxLines: 4,
-              style: TextStyle(fontFamily: 'Inter'),
+              child: TextField(
+                controller: _commentController,
+                decoration: const InputDecoration(
+                  hintText: 'Comment here...',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16.0),
+                ),
+                maxLines: 4,
+                style: TextStyle(fontFamily: 'Inter'),
+              ),
             ),
             const SizedBox(height: 24),
 

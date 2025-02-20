@@ -20,13 +20,27 @@ class _SettingsState extends State<Settings> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Settings',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Settings',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 16.0), // Increase the height to add extra gap
+                Text(
+                  'Allow EXPRESS to access your camera and microphone..',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
           SwitchListTile(
@@ -45,7 +59,7 @@ class _SettingsState extends State<Settings> {
           ),
           SwitchListTile(
             title: Text(
-              'Access Voice',
+              'Access Microphone',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             value: _voiceAccess,
@@ -57,11 +71,25 @@ class _SettingsState extends State<Settings> {
             secondary: Icon(Icons.mic),
             activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
           ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Give us some feedback',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ),
           ListTile(
             leading: Icon(Icons.feedback),
             title: Text(
               'Feedback',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF334E7B), // Change text color to 0xFF334E7B
+              ),
             ),
             onTap: () {
               Navigator.push(
@@ -83,30 +111,31 @@ class _SettingsState extends State<Settings> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search FAQs',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(
-                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
                   ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(
-                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
+                ],
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search about exPress',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    borderSide: BorderSide.none,
                   ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.all(16.0),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  borderSide: BorderSide(
-                    color: Color(0xFF334E7B), // Change border color to 0xFF334E7B
-                  ),
-                ),
-                filled: true,
-                fillColor: Colors.white,
               ),
             ),
           ),
