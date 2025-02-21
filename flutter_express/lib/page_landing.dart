@@ -174,6 +174,36 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
               ],
             ),
           ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)), // Changed to filled icon
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('How to Use'),
+                      content: Text(
+                        '1. Tap the camera icon to enable your camera.\n'
+                        '2. Position your hand gestures within the camera view.\n'
+                        '3. The translation of your sign gestures will appear in the output container below.',
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('Close'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
