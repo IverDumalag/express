@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: StartingPage(),
+      home: StartingPageStateful(),
     );
   }
 }
@@ -41,36 +41,37 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _screens[GlobalVariables.currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: GlobalVariables.currentIndex,
-          onTap: (index) {
-            _changeScreen(index);
-          },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.text_fields),
-              label: 'Sign to Text',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.hearing),
-              label: 'Audio/Text to Sign',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-        ));
-    //try branch rule
+      backgroundColor: Colors.white, // Set the background color to white
+      body: _screens[GlobalVariables.currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: GlobalVariables.currentIndex,
+        onTap: (index) {
+          _changeScreen(index);
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF334E7B), // Change color to 0xFF334E7B
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.text_fields),
+            label: 'Sign to Text',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.hearing),
+            label: 'Audio/Text to Sign',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
   }
 }
