@@ -1,14 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   final List<String> cardTitles = ["Hello", "Love", "Happy", "Cute", "Sorry"];
   final Color cardColor = const Color(0xFF334E7B); // Updated color for all cards
 
   final List<String> phrases = [
     "Hello", "Thank You", "Sorry", "Good Morning",
-    "Good Night", "Please", "How are you?", "I love you",
+    "Good Night", "Please", "How are you?", "Yes",
   ];
+
+  String greetingMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _updateGreetingMessage();
+  }
+
+  void _updateGreetingMessage() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      greetingMessage = 'Good Morning!';
+    } else if (hour < 17) {
+      greetingMessage = 'Good Afternoon!';
+    } else {
+      greetingMessage = 'Good Evening!';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,74 +41,59 @@ class Home extends StatelessWidget {
     });
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Color(0xFF334E7B),
-                  Colors.white,
-                ],
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.white, // Set the background color to white
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 40),
+            Row(
               children: [
-                _buildHeader(),
-                const SizedBox(height: 40),
-                Row(
-                  children: [
-                    _buildSectionTitle("Favorites"),
-                    BlinkingStarIcon(),
-                  ],
-                ),
-                _buildScrollableCards(context),
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    _buildSectionTitle("Words/Phrases"),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)), // Changed to filled icon
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              backgroundColor: Colors.blueGrey[50],
-                              title: Text('How to Use', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF334E7B))),
-                              content: Text(
-                                'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
-                                style: TextStyle(fontFamily: 'Inter', color: Color(0xFF334E7B)),
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('Close', style: TextStyle(color: Color(0xFF334E7B))),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                _buildPhrasesGrid(context),
+                _buildSectionTitle("Favorites"),
+                BlinkingStarIcon(),
               ],
             ),
-          ),
-        ],
+            _buildScrollableCards(context),
+            const SizedBox(height: 30),
+            Row(
+              children: [
+                _buildSectionTitle("Words/Phrases"),
+                Spacer(),
+                IconButton(
+                  icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)), // Changed to filled icon
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          backgroundColor: Colors.blueGrey[50],
+                          title: Text('How to Use', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF334E7B))),
+                          content: Text(
+                            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                            style: TextStyle(fontFamily: 'Inter', color: Color(0xFF334E7B)),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('Close', style: TextStyle(color: Color(0xFF334E7B))),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+            _buildPhrasesGrid(context),
+          ],
+        ),
       ),
     );
   }
@@ -131,9 +140,9 @@ class Home extends StatelessWidget {
           Positioned(
             left: 20,
             top: 60,
-            child: const Text(
-              'Good Morning!',
-              style: TextStyle(
+            child: Text(
+              greetingMessage,
+              style: const TextStyle(
                 fontSize: 28,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -194,14 +203,41 @@ class Home extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-          fontFamily: 'Inter',
-        ),
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 10,
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -232,9 +268,9 @@ class Home extends StatelessWidget {
               width: 180,
               margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: cardColor, // Updated color
+                color: cardColor,
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.white, width: 2), // Added white border
+                border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -244,17 +280,33 @@ class Home extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  cardTitles[index],
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text(
+                      cardTitles[index],
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
+                  // Positioned interactive icons at bottom right
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Row(
+                      children: const [
+                        InteractiveSpeakerIcon(),
+                        SizedBox(width: 5),
+                        InteractiveStarIcon(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -293,9 +345,9 @@ class Home extends StatelessWidget {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: cardColor, // Updated color
+                color: cardColor,
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.white, width: 2), // Added white border
+                border: Border.all(color: Colors.white, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -305,17 +357,33 @@ class Home extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  phrases[index],
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
+              child: Stack(
+                children: [
+                  Center(
+                    child: Text(
+                      phrases[index],
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                ),
+                  // Positioned interactive icons at bottom right
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Row(
+                      children: const [
+                        InteractiveSpeakerIcon(),
+                        SizedBox(width: 5),
+                        InteractiveStarIcon(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -534,6 +602,61 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class InteractiveStarIcon extends StatefulWidget {
+  const InteractiveStarIcon({Key? key}) : super(key: key);
+
+  @override
+  _InteractiveStarIconState createState() => _InteractiveStarIconState();
+}
+
+class _InteractiveStarIconState extends State<InteractiveStarIcon> {
+  bool isStarred = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isStarred = !isStarred;
+        });
+      },
+      child: Icon(
+        isStarred ? Icons.star : Icons.star_border,
+        color: Colors.yellow,
+        size: 30,
+      ),
+    );
+  }
+}
+
+class InteractiveSpeakerIcon extends StatefulWidget {
+  const InteractiveSpeakerIcon({Key? key}) : super(key: key);
+
+  @override
+  _InteractiveSpeakerIconState createState() => _InteractiveSpeakerIconState();
+}
+
+class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
+  bool isPlaying = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isPlaying = !isPlaying;
+          // Optionally, insert your audio play/stop logic here.
+        });
+      },
+      child: Icon(
+        isPlaying ? Icons.volume_up : Icons.volume_off,
+        color: Colors.white,
+        size: 30,
       ),
     );
   }
