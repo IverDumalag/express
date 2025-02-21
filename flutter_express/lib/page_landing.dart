@@ -56,7 +56,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
     return RichText(
       text: TextSpan(
         style: TextStyle(
-          fontSize: 40,
+          fontSize: 36,
           fontFamily: 'Inter',
         ),
         children: spans,

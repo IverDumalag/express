@@ -11,6 +11,7 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   bool _cameraAccess = false;
   bool _voiceAccess = false;
+  bool _soundEffects = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +70,20 @@ class _SettingsState extends State<Settings> {
               });
             },
             secondary: Icon(Icons.mic),
+            activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
+          ),
+          SwitchListTile(
+            title: Text(
+              'Sound Effects',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            value: _soundEffects,
+            onChanged: (bool value) {
+              setState(() {
+                _soundEffects = value;
+              });
+            },
+            secondary: Icon(Icons.music_note),
             activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
           ),
           Padding(
