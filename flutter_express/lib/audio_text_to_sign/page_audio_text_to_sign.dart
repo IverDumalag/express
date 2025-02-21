@@ -8,6 +8,7 @@ class AudioTextToSignPage extends StatefulWidget {
 class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
   List<String> _userInputs = [];
   String _currentInput = '';
+  bool _isListening = false;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,22 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.mic, color: Colors.grey, size: 55),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isListening = !_isListening;
+                          // Add your voice detection logic here
+                        });
+                        if (_isListening) {
+                          _showVoiceInputPopup(context);
+                        }
+                      },
+                      child: Icon(
+                        _isListening ? Icons.mic : Icons.mic_none,
+                        color: Colors.grey,
+                        size: 55,
+                      ),
+                    ),
                     SizedBox(height: 8),
                     Text(
                       'Tap to speak',
@@ -142,6 +158,37 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showVoiceInputPopup(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Listening...',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                _currentInput,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
