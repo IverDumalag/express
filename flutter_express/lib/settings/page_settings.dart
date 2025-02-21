@@ -83,7 +83,7 @@ class _SettingsState extends State<Settings> {
                 _soundEffects = value;
               });
             },
-            secondary: Icon(Icons.music_note),
+            secondary: Icon(Icons.surround_sound,),
             activeColor: Color(0xFF334E7B), // Change active color to 0xFF334E7B
           ),
           Padding(
