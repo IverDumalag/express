@@ -12,10 +12,25 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showPopupNotice(context);
+    });
+
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Stack(
         children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [
+                  Color(0xFF334E7B),
+                  Colors.white,
+                ],
+              ),
+            ),
+          ),
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,15 +56,18 @@ class Home extends StatelessWidget {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('How to Use'),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              backgroundColor: Colors.blueGrey[50],
+                              title: Text('How to Use', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF334E7B))),
                               content: Text(
-                                '1. Tap the camera icon to enable your camera.\n'
-                                '2. Position your hand gestures within the camera view.\n'
-                                '3. The translation of your sign gestures will appear in the output container below.',
+                                'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                                style: TextStyle(fontFamily: 'Inter', color: Color(0xFF334E7B)),
                               ),
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('Close'),
+                                  child: Text('Close', style: TextStyle(color: Color(0xFF334E7B))),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -68,6 +86,33 @@ class Home extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPopupNotice(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Colors.blueGrey[50],
+          title: Text('Welcome!', style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.bold, color: Color(0xFF334E7B))),
+          content: Text(
+            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+            style: TextStyle(fontFamily: 'Inter', color: Color(0xFF334E7B)),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close', style: TextStyle(color: Color(0xFF334E7B))),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -189,6 +234,7 @@ class Home extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cardColor, // Updated color
                 borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.white, width: 2), // Added white border
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -249,6 +295,7 @@ class Home extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cardColor, // Updated color
                 borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.white, width: 2), // Added white border
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -331,6 +378,7 @@ class BlinkingStarIcon extends StatefulWidget {
 
 class _BlinkingStarIconState extends State<BlinkingStarIcon> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -339,6 +387,7 @@ class _BlinkingStarIconState extends State<BlinkingStarIcon> with SingleTickerPr
       duration: const Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
   }
 
   @override
@@ -350,10 +399,10 @@ class _BlinkingStarIconState extends State<BlinkingStarIcon> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _animation,
       builder: (context, child) {
-        return Opacity(
-          opacity: _controller.value,
+        return Transform.rotate(
+          angle: _animation.value * 2.0 * 3.141592653589793,
           child: const Icon(
             Icons.star,
             color: Colors.yellow,
@@ -442,6 +491,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     offset: Offset(0, 3),
                   ),
                 ],
+                border: Border.all(color: Colors.white, width: 2), // Added white border
               ),
               child: Center(
                 child: Text(
