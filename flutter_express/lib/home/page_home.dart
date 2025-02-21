@@ -354,19 +354,19 @@ class _WavingHandIconState extends State<WavingHandIcon> with SingleTickerProvid
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      child: const Icon(Icons.waving_hand, color: Colors.orange, size: 50),
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _animation.value,
-          child: child,
-        );
-      },
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return AnimatedBuilder(
+    animation: _animation,
+    child: const Icon(Icons.waving_hand, color: Color(0xFFE8BEAC), size: 50),
+    builder: (context, child) {
+      return Transform.rotate(
+        angle: _animation.value,
+        child: child,
+      );
+    },
+  );
+}
 }
 
 class BlinkingStarIcon extends StatefulWidget {
