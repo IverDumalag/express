@@ -677,7 +677,7 @@ class _BlinkingItemState extends State<BlinkingItem>
     final durationMs = 1500 + random.nextInt(1500);
     _controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: durationMs));
-    _animation = Tween<double>(begin: 0.0, end: 4.0).animate(
+    _animation = Tween<double>(begin: 0.0, end: 7.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
     );
     // Start with a random delay to avoid synchronization.
@@ -727,13 +727,13 @@ class _BlinkingItemState extends State<BlinkingItem>
               ? Text(
                   letter,
                   style: TextStyle(
-                      color: const Color.fromARGB(255, 211, 211, 211),
+                      color: const Color.fromARGB(255, 230, 230, 230),
                       fontSize: 35, // Increased size
                       fontWeight: FontWeight.bold),
                 )
               : Icon(
                   iconData,
-                  color: const Color.fromARGB(255, 211, 211, 211),
+                  color: const Color.fromARGB(255, 230, 230, 230),
                   size: 35, // Increased size
                 ),
         ),
