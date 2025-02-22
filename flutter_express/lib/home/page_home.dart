@@ -677,7 +677,7 @@ class _BlinkingItemState extends State<BlinkingItem>
     final durationMs = 1500 + random.nextInt(1500);
     _controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: durationMs));
-    _animation = Tween<double>(begin: 0.0, end: 7.0).animate(
+    _animation = Tween<double>(begin: 0.0, end: 4.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
     );
     // Start with a random delay to avoid synchronization.
@@ -727,13 +727,13 @@ class _BlinkingItemState extends State<BlinkingItem>
               ? Text(
                   letter,
                   style: TextStyle(
-                      color: const Color.fromARGB(255, 230, 230, 230),
+                      color: const Color.fromARGB(255, 211, 211, 211),
                       fontSize: 35, // Increased size
                       fontWeight: FontWeight.bold),
                 )
               : Icon(
                   iconData,
-                  color: const Color.fromARGB(255, 230, 230, 230),
+                  color: const Color.fromARGB(255, 211, 211, 211),
                   size: 35, // Increased size
                 ),
         ),
@@ -963,31 +963,23 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
         children: [
           Center(
             child: Container(
-              height: 250 * widget.scale,
-              width: 250 * widget.scale,
+              height: 350 * widget.scale,
+              width: 300 * widget.scale,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20 * widget.scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2 * widget.scale,
-                    blurRadius: 5 * widget.scale,
-                    offset: Offset(0, 3 * widget.scale),
-                  ),
-                ],
-                border:
-                    Border.all(color: Color(0xFF051B4E), width: 2 * widget.scale),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20 * widget.scale),
+          border:
+              Border.all(color: Color(0xFF051B4E), width: 2 * widget.scale),
               ),
               child: Center(
-                child: Text(
-                  widget.items[currentIndex],
-                  style: TextStyle(
-                    fontSize: 30 * widget.scale,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
-                  ),
-                ),
+          child: Text(
+            widget.items[currentIndex],
+            style: TextStyle(
+              fontSize: 30 * widget.scale,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter',
+            ),
+          ),
               ),
             ),
           ),
@@ -996,25 +988,37 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: currentIndex > 0 ? _goToPrevious : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  textStyle: TextStyle(
-                      fontSize: 16 * widget.scale, fontFamily: 'Inter'),
-                ),
-                child: Text("Back"),
+          onPressed: currentIndex > 0 ? _goToPrevious : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: TextStyle(
+              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5 * widget.scale),
+              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+            ),
+          ),
+          child: Text("Back"),
               ),
               ElevatedButton(
-                onPressed:
-                    currentIndex < widget.items.length - 1 ? _goToNext : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  textStyle: TextStyle(
-                      fontSize: 16 * widget.scale, fontFamily: 'Inter'),
-                ),
-                child: Text("Next"),
+          onPressed:
+            currentIndex < widget.items.length - 1 ? _goToNext : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: TextStyle(
+              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5 * widget.scale),
+              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+            ),
+          ),
+          child: Text("Next"),
               ),
             ],
           ),
