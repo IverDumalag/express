@@ -1,6 +1,20 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/animation.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Fluid LED Lighting App',
+      home: Home(),
+    );
+  }
+}
 
 class Home extends StatefulWidget {
   @override
@@ -12,8 +26,14 @@ class _HomeState extends State<Home> {
   final Color cardColor = const Color(0xFF334E7B);
 
   final List<String> phrases = [
-    "Hello", "Thank You", "Sorry", "Good Morning",
-    "Good Night", "Please", "How are you?", "Yes",
+    "Hello",
+    "Thank You",
+    "Sorry",
+    "Good Morning",
+    "Good Night",
+    "Please",
+    "How are you?",
+    "Yes",
   ];
 
   String greetingMessage = '';
@@ -71,139 +91,188 @@ class _HomeState extends State<Home> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Note: _showPopupNotice is now only called in initState.
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 40),
-            Row(
-              children: [
-                _buildSectionTitle("Favorites"),
-                BlinkingStarIcon(),
-              ],
-            ),
-            _buildScrollableCards(context),
-            const SizedBox(height: 30),
-            Row(
-              children: [
-                _buildSectionTitle("Words/Phrases"),
-                Spacer(),
-                IconButton(
-                  icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          backgroundColor: Colors.blueGrey[50],
-                          title: Text(
-                            'How to Use',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF334E7B),
-                            ),
-                          ),
-                          content: Text(
-                            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF334E7B),
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text(
-                                'Close',
-                                style: TextStyle(color: Color(0xFF334E7B)),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-            _buildPhrasesGrid(context),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showPopupNotice(BuildContext context) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.blueGrey[50],
-          title: Text(
-            'Welcome!',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF334E7B),
-            ),
-          ),
-          content: Text(
-            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF334E7B),
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Close',
-                style: TextStyle(color: Color(0xFF334E7B)),
+      barrierDismissible: true,
+      barrierLabel: "Popup",
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) {
+        return Align(
+          alignment: Alignment.center,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Welcome!",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF334E7B),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    "This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF334E7B),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text("Got it"),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1,
+          child: ScaleTransition(
+            scale: anim1,
+            child: child,
+          ),
         );
       },
     );
   }
 
-  Widget _buildHeader() {
+  /// Helper: compute a scale factor based on a base width (375 is the medium screen width).
+  double scaleFactor(BuildContext context) {
+    final baseWidth = 375.0;
+    return MediaQuery.of(context).size.width / baseWidth;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = scaleFactor(context);
+    return Scaffold(
+      // Use a transparent background so our blinking background shows through.
+      backgroundColor: Colors.transparent,
+      // Wrap your main content in a Stack with the blinking background below.
+      body: Stack(
+        children: [
+          // The animated background widget.
+          BlinkingBackground(itemCount: 15),
+          // Main scrollable content.
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(scale),
+                SizedBox(height: 40 * scale),
+                Row(
+                  children: [
+                    _buildSectionTitle("Favorites", scale),
+                    BlinkingStarIcon(scale: scale),
+                  ],
+                ),
+                _buildScrollableCards(context, scale),
+                SizedBox(height: 30 * scale),
+                Row(
+                  children: [
+                    _buildSectionTitle("Words/Phrases", scale),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(Icons.help,
+                          size: 30 * scale, color: Color(0xFF334E7B)),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(20 * scale),
+                              ),
+                              backgroundColor: Colors.blueGrey[50],
+                              title: Text(
+                                'How to Use',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF334E7B),
+                                  fontSize: 18 * scale,
+                                ),
+                              ),
+                              content: Text(
+                                'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFF334E7B),
+                                  fontSize: 16 * scale,
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text(
+                                    'Close',
+                                    style: TextStyle(
+                                        color: Color(0xFF334E7B),
+                                        fontSize: 16 * scale),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                _buildPhrasesGrid(context, scale),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(double scale) {
     return Container(
-      height: 300,
-      decoration: const BoxDecoration(
+      height: 300 * scale,
+      decoration: BoxDecoration(
         color: Color(0xFF2E5C9A),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(230),
-          bottomRight: Radius.circular(230),
+          bottomLeft: Radius.circular(230 * scale),
+          bottomRight: Radius.circular(230 * scale),
         ),
       ),
       child: Stack(
         children: [
           Positioned(
-            left: 20,
-            top: 60,
+            left: 20 * scale,
+            top: 60 * scale,
             child: Text(
               greetingMessage,
-              style: const TextStyle(
-                fontSize: 28,
+              style: TextStyle(
+                fontSize: 28 * scale,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
@@ -211,21 +280,21 @@ class _HomeState extends State<Home> {
             ),
           ),
           Positioned(
-            left: 20,
-            top: 110,
-            right: 20,
+            left: 20 * scale,
+            top: 110 * scale,
+            right: 20 * scale,
             child: Container(
-              height: 150,
-              padding: const EdgeInsets.all(16),
+              height: 150 * scale,
+              padding: EdgeInsets.all(16 * scale),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16 * scale),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
+                    spreadRadius: 1 * scale,
+                    blurRadius: 6 * scale,
+                    offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
@@ -239,16 +308,15 @@ class _HomeState extends State<Home> {
                       });
                     },
                     children: [
-                      _buildSlide('Welcome to ex', 'Press!'),
-                      _buildSlide('Discover', 'New Features!'),
-                      _buildSlide('Stay', 'Connected!'),
+                      _buildSlide('Welcome to ex', 'Press!', scale),
+                      _buildSlide('Discover', 'New Features!', scale),
+                      _buildSlide('Stay', 'Connected!', scale),
                     ],
                   ),
-                  // Page indicator at the bottom-right.
                   Positioned(
-                    bottom: 8,
-                    right: 8,
-                    child: _buildPageIndicator(),
+                    bottom: 8 * scale,
+                    right: 8 * scale,
+                    child: _buildPageIndicator(scale),
                   ),
                 ],
               ),
@@ -259,14 +327,14 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildPageIndicator() {
+  Widget _buildPageIndicator(double scale) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(_numSlides, (index) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 2),
-          width: 8,
-          height: 8,
+          margin: EdgeInsets.symmetric(horizontal: 2 * scale),
+          width: 8 * scale,
+          height: 8 * scale,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _currentPage == index ? Colors.blue : Colors.grey,
@@ -276,8 +344,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Modified _buildSlide now wraps its content in a GestureDetector.
-  Widget _buildSlide(String text1, String text2) {
+  Widget _buildSlide(String text1, String text2, double scale) {
     return GestureDetector(
       onTap: () {
         if (text1 == 'Discover' && text2 == 'New Features!') {
@@ -291,66 +358,66 @@ class _HomeState extends State<Home> {
             MaterialPageRoute(builder: (context) => AudioTextSignScreen()),
           );
         }
-        // Optionally add behavior for other slides.
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             text1,
-            style: const TextStyle(
-              fontSize: 25,
+            style: TextStyle(
+              fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter',
             ),
           ),
           Text(
             text2,
-            style: const TextStyle(
-              fontSize: 25,
+            style: TextStyle(
+              fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
               color: Colors.blue,
               fontFamily: 'Inter',
             ),
           ),
-          const Spacer(),
-          WavingHandIcon(),
+          Spacer(),
+          WavingHandIcon(scale: scale),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, double scale) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
       child: Stack(
         children: [
           Positioned(
             left: 0,
             right: 0,
-            top: 10,
+            top: 10 * scale,
             child: Container(
-              height: 40,
+              height: 40 * scale,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10 * scale),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
+                    spreadRadius: 2 * scale,
+                    blurRadius: 5 * scale,
+                    offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: EdgeInsets.symmetric(
+                horizontal: 20 * scale, vertical: 10 * scale),
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 25,
+              style: TextStyle(
+                fontSize: 25 * scale,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
                 fontFamily: 'Inter',
@@ -362,12 +429,13 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildScrollableCards(BuildContext context) {
+  Widget _buildScrollableCards(BuildContext context, double scale) {
     return SizedBox(
-      height: 250,
+      height: 250 * scale,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding:
+            EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
         itemCount: cardTitles.length,
         itemBuilder: (context, index) {
           return GestureDetector(
@@ -380,23 +448,24 @@ class _HomeState extends State<Home> {
                     color: cardColor,
                     index: index,
                     items: cardTitles,
+                    scale: scale,
                   ),
                 ),
               );
             },
             child: Container(
-              width: 180,
-              margin: const EdgeInsets.only(right: 10),
+              width: 180 * scale,
+              margin: EdgeInsets.only(right: 10 * scale),
               decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Color(0xFF051B4E), width: 2),
+                borderRadius: BorderRadius.circular(15 * scale),
+                border: Border.all(color: Color(0xFF051B4E), width: 2 * scale),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
+                    spreadRadius: 2 * scale,
+                    blurRadius: 5 * scale,
+                    offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
@@ -405,8 +474,8 @@ class _HomeState extends State<Home> {
                   Center(
                     child: Text(
                       cardTitles[index],
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: 20 * scale,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Inter',
@@ -415,22 +484,22 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   Positioned(
-                    bottom: 8,
-                    right: 8,
+                    bottom: 8 * scale,
+                    right: 8 * scale,
                     child: Row(
-                      children: const [
-                        InteractiveSpeakerIcon(),
-                        SizedBox(width: 5),
-                        InteractiveStarIcon(),
+                      children: [
+                        InteractiveSpeakerIcon(scale: scale),
+                        SizedBox(width: 5 * scale),
+                        InteractiveStarIcon(scale: scale),
                       ],
                     ),
                   ),
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: 8 * scale,
+                    right: 8 * scale,
                     child: Container(
-                      width: 20,
-                      height: 20,
+                      width: 20 * scale,
+                      height: 20 * scale,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white.withOpacity(0.5),
@@ -446,16 +515,17 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildPhrasesGrid(BuildContext context) {
+  Widget _buildPhrasesGrid(BuildContext context, double scale) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding:
+          EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 10 * scale),
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+          crossAxisSpacing: 10 * scale,
+          mainAxisSpacing: 10 * scale,
           childAspectRatio: 1,
         ),
         itemCount: phrases.length,
@@ -470,6 +540,7 @@ class _HomeState extends State<Home> {
                     color: cardColor,
                     index: index,
                     items: phrases,
+                    scale: scale,
                   ),
                 ),
               );
@@ -477,14 +548,14 @@ class _HomeState extends State<Home> {
             child: Container(
               decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Color(0xFF051B4E), width: 2),
+                borderRadius: BorderRadius.circular(15 * scale),
+                border: Border.all(color: Color(0xFF051B4E), width: 2 * scale),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
+                    spreadRadius: 2 * scale,
+                    blurRadius: 5 * scale,
+                    offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
@@ -493,8 +564,8 @@ class _HomeState extends State<Home> {
                   Center(
                     child: Text(
                       phrases[index],
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: TextStyle(
+                        fontSize: 20 * scale,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Inter',
@@ -503,22 +574,22 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   Positioned(
-                    bottom: 8,
-                    right: 8,
+                    bottom: 8 * scale,
+                    right: 8 * scale,
                     child: Row(
-                      children: const [
-                        InteractiveSpeakerIcon(),
-                        SizedBox(width: 5),
-                        InteractiveStarIcon(),
+                      children: [
+                        InteractiveSpeakerIcon(scale: scale),
+                        SizedBox(width: 5 * scale),
+                        InteractiveStarIcon(scale: scale),
                       ],
                     ),
                   ),
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: 8 * scale,
+                    right: 8 * scale,
                     child: Container(
-                      width: 20,
-                      height: 20,
+                      width: 20 * scale,
+                      height: 20 * scale,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white.withOpacity(0.5),
@@ -535,8 +606,149 @@ class _HomeState extends State<Home> {
   }
 }
 
+// -------------------------
+// Blinking Background Widgets
+// -------------------------
+
+class BlinkingBackground extends StatefulWidget {
+  final int itemCount;
+  BlinkingBackground({this.itemCount = 10});
+
+  @override
+  _BlinkingBackgroundState createState() => _BlinkingBackgroundState();
+}
+
+class _BlinkingBackgroundState extends State<BlinkingBackground> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        // Allow touches to pass through.
+        child: Stack(
+          children:
+              List.generate(widget.itemCount, (index) => BlinkingItem()),
+        ),
+      ),
+    );
+  }
+}
+
+// Each blinking item now uses a random start delay and duration,
+// plus a combined fade and scale transition for a smoother effect.
+// The font/icon size and position are adjusted for a larger appearance.
+class BlinkingItem extends StatefulWidget {
+  @override
+  _BlinkingItemState createState() => _BlinkingItemState();
+}
+
+class _BlinkingItemState extends State<BlinkingItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  // Whether to show a letter or an icon.
+  bool showLetter = true;
+  String letter = "A";
+  IconData? iconData;
+  double left = 0;
+  double top = 0;
+
+  final List<String> letters =
+      List.generate(26, (index) => String.fromCharCode(index + 65));
+  // Updated icon list: music and ear/speaker icons only.
+  final List<IconData> icons = [
+    Icons.music_note,
+    Icons.headset,
+    Icons.hearing,
+    Icons.speaker,
+  ];
+
+  final math.Random random = math.Random();
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial random properties after the first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setRandomProperties();
+      setState(() {});
+    });
+    // Randomize duration between 1.5 to 3 seconds.
+    final durationMs = 1500 + random.nextInt(1500);
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: durationMs));
+    _animation = Tween<double>(begin: 0.0, end: 4.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+    );
+    // Start with a random delay to avoid synchronization.
+    Future.delayed(Duration(milliseconds: random.nextInt(1500)), () {
+      if (mounted) _controller.forward();
+    });
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _setRandomProperties();
+        _controller.forward();
+      }
+    });
+  }
+
+  void _setRandomProperties() {
+    final size = MediaQuery.of(context).size;
+    // Adjusted for larger items (subtract 80 instead of 50).
+    left = random.nextDouble() * (size.width - 80);
+    top = random.nextDouble() * (size.height - 80);
+    // Randomly choose between letter and icon.
+    showLetter = random.nextBool();
+    if (showLetter) {
+      letter = letters[random.nextInt(letters.length)];
+    } else {
+      iconData = icons[random.nextInt(icons.length)];
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: left,
+      top: top,
+      child: FadeTransition(
+        opacity: _animation,
+        child: ScaleTransition(
+          scale: _animation,
+          child: showLetter
+              ? Text(
+                  letter,
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 211, 211, 211),
+                      fontSize: 35, // Increased size
+                      fontWeight: FontWeight.bold),
+                )
+              : Icon(
+                  iconData,
+                  color: const Color.fromARGB(255, 211, 211, 211),
+                  size: 35, // Increased size
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+// -------------------------
+// Other Animated Widgets (unchanged)
+// -------------------------
+
 class WavingHandIcon extends StatefulWidget {
-  const WavingHandIcon({Key? key}) : super(key: key);
+  final double scale;
+  const WavingHandIcon({Key? key, required this.scale}) : super(key: key);
 
   @override
   _WavingHandIconState createState() => _WavingHandIconState();
@@ -551,7 +763,7 @@ class _WavingHandIconState extends State<WavingHandIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true);
     _animation = Tween<double>(begin: -0.1, end: 0.1).animate(
@@ -569,7 +781,8 @@ class _WavingHandIconState extends State<WavingHandIcon>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      child: const Icon(Icons.waving_hand, color: Colors.orange, size: 50),
+      child:
+          Icon(Icons.waving_hand, color: Colors.orange, size: 50 * widget.scale),
       builder: (context, child) {
         return Transform.rotate(
           angle: _animation.value,
@@ -581,7 +794,8 @@ class _WavingHandIconState extends State<WavingHandIcon>
 }
 
 class BlinkingStarIcon extends StatefulWidget {
-  const BlinkingStarIcon({Key? key}) : super(key: key);
+  final double scale;
+  const BlinkingStarIcon({Key? key, required this.scale}) : super(key: key);
 
   @override
   _BlinkingStarIconState createState() => _BlinkingStarIconState();
@@ -596,7 +810,7 @@ class _BlinkingStarIconState extends State<BlinkingStarIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true);
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
@@ -614,15 +828,15 @@ class _BlinkingStarIconState extends State<BlinkingStarIcon>
       animation: _animation,
       builder: (context, child) {
         return Transform.rotate(
-          angle: _animation.value * 2.0 * 3.141592653589793,
-          child: const Icon(
+          angle: _animation.value * 2.0 * math.pi,
+          child: Icon(
             Icons.star,
             color: Colors.yellow,
-            size: 30,
+            size: 30 * widget.scale,
             shadows: [
               Shadow(
                 color: Color(0xFF334E7B),
-                blurRadius: 2,
+                blurRadius: 2 * widget.scale,
                 offset: Offset(0, 0),
               ),
             ],
@@ -633,11 +847,68 @@ class _BlinkingStarIconState extends State<BlinkingStarIcon>
   }
 }
 
+class InteractiveStarIcon extends StatefulWidget {
+  final double scale;
+  const InteractiveStarIcon({Key? key, required this.scale}) : super(key: key);
+
+  @override
+  _InteractiveStarIconState createState() => _InteractiveStarIconState();
+}
+
+class _InteractiveStarIconState extends State<InteractiveStarIcon> {
+  bool isStarred = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isStarred = !isStarred;
+        });
+      },
+      child: Icon(
+        isStarred ? Icons.star : Icons.star_border,
+        color: Colors.yellow,
+        size: 30 * widget.scale,
+      ),
+    );
+  }
+}
+
+class InteractiveSpeakerIcon extends StatefulWidget {
+  final double scale;
+  const InteractiveSpeakerIcon({Key? key, required this.scale}) : super(key: key);
+
+  @override
+  _InteractiveSpeakerIconState createState() => _InteractiveSpeakerIconState();
+}
+
+class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
+  bool isLoud = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isLoud = !isLoud;
+        });
+      },
+      child: Icon(
+        isLoud ? Icons.speaker : Icons.speaker_phone,
+        color: Colors.white,
+        size: 30 * widget.scale,
+      ),
+    );
+  }
+}
+
 class CardDetailScreen extends StatefulWidget {
   final String title;
   final Color color;
   final int index;
   final List<String> items;
+  final double scale;
 
   const CardDetailScreen({
     Key? key,
@@ -645,6 +916,7 @@ class CardDetailScreen extends StatefulWidget {
     required this.color,
     required this.index,
     required this.items,
+    required this.scale,
   }) : super(key: key);
 
   @override
@@ -681,7 +953,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
     return Scaffold(
       backgroundColor: widget.color,
       appBar: AppBar(
-        title: Text(widget.items[currentIndex]),
+        title: Text(widget.items[currentIndex],
+            style: TextStyle(fontSize: 20 * widget.scale)),
         backgroundColor: widget.color,
         elevation: 0,
       ),
@@ -690,58 +963,62 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
         children: [
           Center(
             child: Container(
-              height: 250,
-              width: 250,
+              height: 350 * widget.scale,
+              width: 300 * widget.scale,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-                border: Border.all(color: Color(0xFF051B4E), width: 2),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20 * widget.scale),
+          border:
+              Border.all(color: Color(0xFF051B4E), width: 2 * widget.scale),
               ),
               child: Center(
-                child: Text(
-                  widget.items[currentIndex],
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
-                  ),
-                ),
+          child: Text(
+            widget.items[currentIndex],
+            style: TextStyle(
+              fontSize: 30 * widget.scale,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Inter',
+            ),
+          ),
               ),
             ),
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: 30 * widget.scale),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: currentIndex > 0 ? _goToPrevious : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                ),
-                child: const Text(
-                  "Back",
-                  style: TextStyle(fontFamily: 'Inter'),
-                ),
+          onPressed: currentIndex > 0 ? _goToPrevious : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: TextStyle(
+              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5 * widget.scale),
+              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+            ),
+          ),
+          child: Text("Back"),
               ),
               ElevatedButton(
-                onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                ),
-                child: const Text(
-                  "Next",
-                  style: TextStyle(fontFamily: 'Inter'),
-                ),
+          onPressed:
+            currentIndex < widget.items.length - 1 ? _goToNext : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            textStyle: TextStyle(
+              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5 * widget.scale),
+              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+            ),
+          ),
+          child: Text("Next"),
               ),
             ],
           ),
@@ -751,62 +1028,6 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
   }
 }
 
-class InteractiveStarIcon extends StatefulWidget {
-  const InteractiveStarIcon({Key? key}) : super(key: key);
-
-  @override
-  _InteractiveStarIconState createState() => _InteractiveStarIconState();
-}
-
-class _InteractiveStarIconState extends State<InteractiveStarIcon> {
-  bool isStarred = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isStarred = !isStarred;
-        });
-      },
-      child: Icon(
-        isStarred ? Icons.star : Icons.star_border,
-        color: Colors.yellow,
-        size: 30,
-      ),
-    );
-  }
-}
-
-class InteractiveSpeakerIcon extends StatefulWidget {
-  const InteractiveSpeakerIcon({Key? key}) : super(key: key);
-
-  @override
-  _InteractiveSpeakerIconState createState() => _InteractiveSpeakerIconState();
-}
-
-class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
-  bool isLoud = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isLoud = !isLoud;
-          // Insert logic to switch to loud speaker mode if needed.
-        });
-      },
-      child: Icon(
-        isLoud ? Icons.speaker : Icons.speaker_phone,
-        color: Colors.white,
-        size: 30,
-      ),
-    );
-  }
-}
-
-// New screen: Sign to Text.
 class SignToTextScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -825,7 +1046,6 @@ class SignToTextScreen extends StatelessWidget {
   }
 }
 
-// New screen: Audio/Text to Sign.
 class AudioTextSignScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
