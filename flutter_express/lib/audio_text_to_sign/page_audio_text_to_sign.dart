@@ -56,7 +56,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                     },
                   ),
                 ),
-                SizedBox(height: 15), // Add extra space below the text and icon
+                SizedBox(height: 15), // Extra space below the text and icon
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -87,7 +87,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20), // Add extra space below the text and icon
+                SizedBox(height: 20), // Extra space below the text and icon
                 Padding(
                   padding: const EdgeInsets.only(bottom: 40.0), // Move the TextField up
                   child: Container(
@@ -164,29 +164,59 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
   void _showVoiceInputPopup(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Allows the bottom sheet to use full screen height
+      backgroundColor: Colors.transparent, // Makes the rounded corners visible
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Listening...',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+        return DraggableScrollableSheet(
+          initialChildSize: 0.3,
+          minChildSize: 0.2,
+          maxChildSize: 0.8,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
-                _currentInput,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Listening...',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        _currentInput,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      // You can add more widgets here (e.g., a close button or additional info)
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
