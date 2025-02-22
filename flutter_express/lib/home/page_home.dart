@@ -961,66 +961,72 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-            child: Container(
-              height: 350 * widget.scale,
-              width: 300 * widget.scale,
-              decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20 * widget.scale),
-          border:
-              Border.all(color: Color(0xFF051B4E), width: 2 * widget.scale),
-              ),
-              child: Center(
-          child: Text(
-            widget.items[currentIndex],
-            style: TextStyle(
-              fontSize: 30 * widget.scale,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Inter',
-            ),
-          ),
-              ),
-            ),
-          ),
-          SizedBox(height: 30 * widget.scale),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          
+            SizedBox(height: 20 * widget.scale),
+            Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-          onPressed: currentIndex > 0 ? _goToPrevious : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            textStyle: TextStyle(
-              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
-            padding: EdgeInsets.symmetric(
-              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5 * widget.scale),
-              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
-            ),
-          ),
-          child: Text("Back"),
+              Text(
+              widget.items[currentIndex],
+              style: TextStyle(
+                fontSize: 30 * widget.scale,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+                color: Colors.white,
               ),
-              ElevatedButton(
-          onPressed:
-            currentIndex < widget.items.length - 1 ? _goToNext : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            textStyle: TextStyle(
-              fontSize: 20 * widget.scale, fontFamily: 'Inter'),
-            padding: EdgeInsets.symmetric(
-              horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5 * widget.scale),
-              side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
-            ),
-          ),
-          child: Text("Next"),
               ),
+              SizedBox(width: 10 * widget.scale),
+              InteractiveSpeakerIcon(scale: widget.scale),
             ],
+            ),
+            SizedBox(height: 20 * widget.scale), // Added space between text and container
+          Center(
+        child: Container(
+          height: 350 * widget.scale,
+          width: 300 * widget.scale,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/nerd.png'),
+              fit: BoxFit.fitHeight,
+            ),
+            borderRadius: BorderRadius.circular(20 * widget.scale),
+            border: Border.all(color: Color(0xFF051B4E), width: 2 * widget.scale),
+          ),
+        ),
+          ),
+          SizedBox(height: 60 * widget.scale),
+          Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+            onPressed: currentIndex > 0 ? _goToPrevious : null,
+            style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          textStyle: TextStyle(fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+          padding: EdgeInsets.symmetric(horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5 * widget.scale),
+            side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+          ),
+            ),
+            child: Text("Back"),
+          ),
+          ElevatedButton(
+            onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
+            style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          textStyle: TextStyle(fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+          padding: EdgeInsets.symmetric(horizontal: 24 * widget.scale, vertical: 12 * widget.scale),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5 * widget.scale),
+            side: BorderSide(color: Color(0xFF051B4E), width: 2 * widget.scale),
+          ),
+            ),
+            child: Text("Next"),
+          ),
+        ],
           ),
         ],
       ),
