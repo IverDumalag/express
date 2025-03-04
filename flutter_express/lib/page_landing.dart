@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'main.dart';
+import '../0_components/help_widget.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -159,9 +160,10 @@ class _LandingPageState extends State<LandingPage>
                     child: ElevatedButton(
                       onPressed: () async {
                         final audioPlayer = AudioPlayer();
-                        
+
                         try {
-                          await audioPlayer.play(AssetSource('sounds/button_pressed.mp3'));
+                          await audioPlayer
+                              .play(AssetSource('sounds/button_pressed.mp3'));
                         } catch (e) {
                           print("Error playing sound: $e");
                         }
@@ -169,7 +171,8 @@ class _LandingPageState extends State<LandingPage>
                         if (mounted) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => MainScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => MainScreen()),
                           );
                         }
                       },
@@ -198,35 +201,11 @@ class _LandingPageState extends State<LandingPage>
           Positioned(
             top: 16 * scale,
             right: 16 * scale,
-            child: IconButton(
-              icon: Icon(Icons.help,
-                  size: 30 * scale, color: Color(0xFF334E7B)),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('How to Use',
-                          style: TextStyle(fontSize: 20 * scale)),
-                      content: Text(
-                        '1. Tap the camera icon to enable your camera.\n'
-                        '2. Position your hand gestures within the camera view.\n'
-                        '3. The translation of your sign gestures will appear in the output container below.',
-                        style: TextStyle(fontSize: 16 * scale),
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('Close',
-                              style: TextStyle(fontSize: 16 * scale)),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+            child: HelpIconWidget(
+              helpTitle: 'How to Use',
+              helpText: '1. Tap the camera icon to enable your camera.\n'
+                  '2. Position your hand gestures within the camera view.\n'
+                  '3. The translation of your sign gestures will appear in the output container below.',
             ),
           ),
         ],
