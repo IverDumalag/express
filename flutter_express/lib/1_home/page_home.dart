@@ -107,24 +107,37 @@ class _HomeState extends State<Home> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Phrase'),
+          title: Text(
+            'Add Phrase',
+            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          ),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 TextField(
                   controller: wordsController,
-                  decoration: InputDecoration(labelText: 'Words'),
+                  decoration: InputDecoration(
+                    labelText: 'Add any words you like',
+                    labelStyle: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 17),
                 ),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white, fontSize: 17),
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             TextButton(
-              child: Text('Add'),
+              child: Text(
+                'Add',
+                style: TextStyle(color: Colors.white, fontSize: 17),
+              ),
               onPressed: () async {
                 final filePath = await FileSearchService.findBestMatchFile(
                     wordsController.text, 'assets/dataset/');
@@ -138,6 +151,10 @@ class _HomeState extends State<Home> {
               },
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          backgroundColor: Color(0xFF334E7B),
         );
       },
     );

@@ -163,12 +163,28 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Phrase'),
-        content: Text('Are you sure you want to delete this phrase?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        backgroundColor: Color(0xFF334E7B),
+        title: Row(
+          children: [
+            Text(
+              'Delete Phrase',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 10),
+            Icon(Icons.delete, color: Colors.white),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete this phrase?',
+          style: TextStyle(color: Colors.white, fontSize: 17),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -176,7 +192,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text('Delete'),
+            child: Text('Yes, I am sure', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
