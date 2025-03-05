@@ -7,9 +7,9 @@ import 'waving_hand.dart';
 import 'spinning_star.dart';
 import '../main.dart';
 import '../global_variables.dart';
-import 'blinking_background.dart';
 import 'home_cards.dart';
 import '../00_services/database_services.dart';
+import '../00_services/file_search_services.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -102,8 +102,6 @@ class _HomeState extends State<Home> {
 
   Future<void> _showAddPhraseDialog(BuildContext context) async {
     final TextEditingController wordsController = TextEditingController();
-    final TextEditingController signLanguageController =
-        TextEditingController();
 
     return showDialog<void>(
       context: context,
@@ -117,32 +115,25 @@ class _HomeState extends State<Home> {
                   controller: wordsController,
                   decoration: InputDecoration(labelText: 'Words'),
                 ),
-                TextField(
-                  controller: signLanguageController,
-                  decoration: InputDecoration(labelText: 'Sign Language'),
-                ),
               ],
             ),
           ),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.pop(context),
             ),
             TextButton(
               child: Text('Add'),
-              onPressed: () {
+              onPressed: () async {
+                final filePath = await FileSearchService.findBestMatchFile(
+                    wordsController.text, 'assets/dataset/');
+                debugPrint('here: $filePath');
+
                 _databaseService.addPhrase(
-                  wordsController.text,
-                  0,
-                  signLanguageController.text,
-                );
-                Navigator.of(context).pop();
-                setState(() {
-                  _needsRefresh = true;
-                });
+                    wordsController.text, 0, filePath ?? '');
+                setState(() => _needsRefresh = true);
+                Navigator.pop(context);
                 widget.onRefresh();
               },
             ),
@@ -174,7 +165,6 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          BlinkingBackground(itemCount: 15),
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,6 +189,22 @@ class _HomeState extends State<Home> {
                       final favoritePhrases = snapshot.data!
                           .where((phrase) => phrase['favorite'] == 1)
                           .toList();
+                      if (favoritePhrases.isEmpty) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                          child: Container(
+                            margin: EdgeInsets.only(top: 10 * scale),
+                            color: Colors.grey.withOpacity(0.5),
+                            child: Text(
+                              'Still Empty Nothing to be Found Here ^_^',
+                              style: TextStyle(
+                                fontSize: 18 * scale,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       return Favorite_Words_Phrases_Cards(
                         data: favoritePhrases,
                         cardColor: cardColor,
@@ -235,6 +241,22 @@ class _HomeState extends State<Home> {
                     } else {
                       _needsRefresh = false;
                       final allPhrases = snapshot.data!;
+                      if (allPhrases.isEmpty) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                          child: Container(
+                            margin: EdgeInsets.only(top: 10 * scale),
+                            color: Colors.grey.withOpacity(0.5),
+                            child: Text(
+                              'Still Empty Nothing to be Found Here ^_^',
+                              style: TextStyle(
+                                fontSize: 18 * scale,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       return Words_Phrases_Cards(
                         data: allPhrases,
                         cardColor: cardColor,
