@@ -9,14 +9,7 @@ class SignToTextPage extends StatelessWidget {
         children: [
           // Gradient background
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF334E7B), Color(0xFF334E7B), Colors.white],
-                stops: [0.0, 0.3, 1.0],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-              ),
-            ),
+            color: Colors.white,
           ),
           Center(
             child: Column(

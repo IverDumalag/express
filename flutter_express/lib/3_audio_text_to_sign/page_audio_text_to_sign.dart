@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../0_components/help_widget.dart';
+import '../00_services/database_services.dart';
+import '../00_services/file_search_services.dart';
+import '../1_home/home_cards.dart';
 
 class AudioTextToSignPage extends StatefulWidget {
   @override
@@ -7,124 +12,190 @@ class AudioTextToSignPage extends StatefulWidget {
 }
 
 class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
-  List<String> _userInputs = [];
-  String _currentInput = '';
+  final DatabaseService _dbService = DatabaseService.instance;
+  final TextEditingController _textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  List<Map<String, dynamic>> _phrases = [];
   bool _isListening = false;
+  late stt.SpeechToText _speech;
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+    _initializeSpeech();
+    _loadPhrases();
+  }
+
+  Future<void> _initializeSpeech() async {
+    bool available = await _speech.initialize(
+      onStatus: (status) => print('onStatus: $status'),
+      onError: (error) => print('onError: $error'),
+    );
+    if (!available) {
+      print("Speech recognition not available");
+    }
+  }
+
+  Future<void> _loadPhrases() async {
+    final phrases = await _dbService.getAudioTextPhrases();
+    setState(() => _phrases = phrases.reversed.toList());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  Future<void> _handleSubmit(String text) async {
+    if (text.isEmpty) return;
+    final filePath =
+        await FileSearchService.findBestMatchFile(text, 'assets/dataset/');
+    _dbService.addAudioTextPhrase(text, filePath ?? '');
+    _textController.clear();
+    await _loadPhrases();
+  }
+
+  Future<void> _toggleRecording() async {
+    if (!await Permission.microphone.isGranted) {
+      final status = await Permission.microphone.request();
+      if (!status.isGranted) return;
+    }
+
+    setState(() => _isListening = !_isListening);
+    if (_isListening) {
+      _startListening();
+    } else {
+      _stopListening();
+    }
+  }
+
+  void _startListening() async {
+    await _speech.listen(
+      onResult: (result) => setState(() {
+        _textController.text = result.recognizedWords;
+      }),
+      listenFor: Duration(seconds: 30),
+    );
+  }
+
+  void _stopListening() async {
+    await _speech.stop();
+    if (_textController.text.isNotEmpty) {
+      await _handleSubmit(_textController.text);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              children: <Widget>[
+              children: [
                 Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    itemCount: _userInputs.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            _currentInput,
-                            style: TextStyle(
-                              fontSize: 50,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
-                            ),
-                          ),
-                        );
-                      } else {
-                        int reversedIndex = _userInputs.length - index;
-                        return Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            _userInputs[reversedIndex],
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        );
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      const double itemHeight = 90.0;
+                      final double listViewHeight = constraints.maxHeight;
+                      int selectedIndex = 0;
+
+                      // Check if the ScrollController is attached and there are phrases
+                      if (_scrollController.hasClients && _phrases.isNotEmpty) {
+                        double offset = _scrollController.offset;
+                        selectedIndex =
+                            ((offset + listViewHeight) / itemHeight).floor();
+                        selectedIndex =
+                            selectedIndex.clamp(0, _phrases.length - 1);
                       }
+
+                      return ListView.builder(
+                        controller: _scrollController,
+                        itemCount: _phrases.length,
+                        padding: EdgeInsets.only(
+                            bottom: 20.0, top: 40.0), // Added margin top 20
+                        itemBuilder: (context, index) {
+                          final phrase = _phrases[index];
+                          final bool isSelected = index == selectedIndex;
+
+                          return GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CardDetailScreen(
+                                  title: phrase['words'],
+                                  color: Color(0xFF334E7B),
+                                  index: index,
+                                  items: _phrases,
+                                  scale: 1.0,
+                                  onDelete: (entryId) async {
+                                    await _dbService
+                                        .deleteAudioTextPhrase(entryId);
+                                    _loadPhrases();
+                                  },
+                                  entryId: phrase['entry_id'],
+                                ),
+                              ),
+                            ),
+                            child: Container(
+                              height: itemHeight,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                phrase['words'],
+                                textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontSize: isSelected ? 64 : 48,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.black
+                                      : Colors.grey[700],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     },
                   ),
                 ),
-                SizedBox(height: 15), // Extra space below the text and icon
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _isListening = !_isListening;
-                          // Add your voice detection logic here
-                        });
-                        if (_isListening) {
-                          _showVoiceInputPopup(context);
-                        }
-                      },
-                      child: Icon(
-                        _isListening ? Icons.mic : Icons.mic_none,
-                        color: Colors.grey,
-                        size: 55,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Tap to speak',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                        fontSize: 35, // Adjust the font size as needed
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20), // Extra space below the text and icon
-                Padding(
-                  padding: const EdgeInsets.only(
-                      bottom: 40.0), // Move the TextField up
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                Container(
+                  height: 120,
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.all(20),
+                  child: GestureDetector(
+                    onTap: _toggleRecording,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: _isListening
+                                ? Colors.red[100]
+                                : Colors.grey[200],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color: _isListening ? Colors.red : Colors.grey[600],
+                            size: 32,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Tap to speak',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 24,
+                          ),
                         ),
                       ],
                     ),
-                    child: TextField(
-                      onChanged: (text) {
-                        setState(() {
-                          _currentInput = text;
-                        });
-                      },
-                      onSubmitted: (text) {
-                        setState(() {
-                          _userInputs.add(text);
-                          _currentInput = '';
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Type to say something',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16.0),
-                      ),
-                    ),
                   ),
                 ),
+                _buildInputSection(),
               ],
             ),
           ),
@@ -132,10 +203,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
             top: 16,
             right: 16,
             child: HelpIconWidget(
-              helpTitle: 'How to Use',
-              helpText: '1. Tap the camera icon to enable your camera.\n'
-                  '2. Position your hand gestures within the camera view.\n'
-                  '3. The translation of your sign gestures will appear in the output container below.',
+              helpTitle: 'Audio/Text Input',
+              helpText: '1. Type or speak to convert to sign language\n'
+                  '2. Tap entries to view details\n'
+                  '3. Swipe left to delete entries',
             ),
           ),
         ],
@@ -143,65 +214,48 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     );
   }
 
-  void _showVoiceInputPopup(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows the bottom sheet to use full screen height
-      backgroundColor: Colors.transparent, // Makes the rounded corners visible
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.3,
-          minChildSize: 0.2,
-          maxChildSize: 0.8,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return Container(
+  Widget _buildInputSection() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 40.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
-                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                  ),
+                ],
               ),
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Listening...',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        _currentInput,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      // You can add more widgets here (e.g., a close button or additional info)
-                    ],
+              child: TextField(
+                controller: _textController,
+                onSubmitted: _handleSubmit,
+                decoration: InputDecoration(
+                  hintText: 'Type to say something...',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.all(16),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () => _handleSubmit(_textController.text),
                   ),
                 ),
               ),
-            );
-          },
-        );
-      },
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _speech.stop();
+    _scrollController.dispose();
+    super.dispose();
   }
 }

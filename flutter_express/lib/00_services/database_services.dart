@@ -13,6 +13,12 @@ class DatabaseService {
   final String col_created_at = 'created_at';
   final String col_updated_at = 'updated_at';
 
+  final String tbl_audiotext_name = 'tbl_audiotext_phrases_words';
+  final String col_audiotext_entry_id = 'entry_id';
+  final String col_audiotext_words = 'words';
+  final String col_audiotext_sign_language = 'sign_language';
+  final String col_audiotext_created_at = 'created_at';
+
   DatabaseService._constructor();
 
   Future<Database> get database async {
@@ -38,6 +44,14 @@ class DatabaseService {
           $col_updated_at TIMESTAMP NOT NULL
         )
         ''');
+        await db.execute('''
+        CREATE TABLE $tbl_audiotext_name (
+          $col_audiotext_entry_id VARCHAR(100) PRIMARY KEY,
+          $col_audiotext_words VARCHAR(100) NOT NULL,
+          $col_audiotext_sign_language VARCHAR(100), 
+          $col_audiotext_created_at TIMESTAMP NOT NULL
+        )
+        ''');
       },
     );
   }
@@ -58,9 +72,32 @@ class DatabaseService {
     );
   }
 
+  void addAudioTextPhrase(String words, String sign_language) async {
+    final db = await database;
+    final String entry_id = '$words${DateTime.now().toIso8601String()}';
+    await db.insert(
+      tbl_audiotext_name,
+      {
+        col_audiotext_entry_id: entry_id,
+        col_audiotext_words: words,
+        col_audiotext_sign_language: sign_language,
+        col_audiotext_created_at: DateTime.now().toIso8601String(),
+      },
+    );
+  }
+
   Future<List<Map<String, dynamic>>> getPhrases() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(tbl_name);
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getAudioTextPhrases() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.query(
+      tbl_audiotext_name,
+      orderBy: '$col_audiotext_created_at DESC',
+    );
     return result;
   }
 
@@ -82,6 +119,15 @@ class DatabaseService {
     await db.delete(
       tbl_name,
       where: '$col_entry_id = ?',
+      whereArgs: [entry_id],
+    );
+  }
+
+  Future<void> deleteAudioTextPhrase(String entry_id) async {
+    final db = await database;
+    await db.delete(
+      tbl_audiotext_name,
+      where: '$col_audiotext_entry_id = ?',
       whereArgs: [entry_id],
     );
   }
