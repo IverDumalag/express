@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_express/0_components/media_viewer.dart';
 
 class InteractiveStarIcon extends StatefulWidget {
   final double scale;
@@ -49,11 +50,13 @@ class _InteractiveStarIconState extends State<InteractiveStarIcon> {
 class InteractiveSpeakerIcon extends StatefulWidget {
   final double scale;
   final String text;
+  final Color color;
 
   const InteractiveSpeakerIcon({
     Key? key,
     required this.scale,
     required this.text,
+    required this.color,
   }) : super(key: key);
 
   @override
@@ -68,6 +71,11 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
   void initState() {
     super.initState();
     flutterTts.awaitSpeakCompletion(true);
+    flutterTts.setCompletionHandler(() {
+      setState(() {
+        isLoud = false;
+      });
+    });
   }
 
   @override
@@ -95,7 +103,7 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
       },
       child: Icon(
         isLoud ? Icons.speaker : Icons.speaker_phone,
-        color: Colors.white,
+        color: widget.color,
         size: 30 * widget.scale,
       ),
     );
@@ -106,7 +114,7 @@ class CardDetailScreen extends StatefulWidget {
   final String title;
   final Color color;
   final int index;
-  final List<String> items;
+  final List<Map<String, dynamic>> items;
   final double scale;
   final Function(String) onDelete;
   final String entryId;
@@ -177,16 +185,23 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Extract the current phrase map
+    final currentPhrase = widget.items[currentIndex];
+    final displayText = currentPhrase['words'] as String;
+    final signLanguagePath = currentPhrase['sign_language'] as String;
+
     return Scaffold(
-      backgroundColor: widget.color,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.items[currentIndex],
-            style: TextStyle(fontSize: 20 * widget.scale)),
-        backgroundColor: widget.color,
+        title: Text(
+          'Back',
+          style: TextStyle(fontSize: 20 * widget.scale, color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: Icon(Icons.delete, color: Colors.black),
             onPressed: _deletePhrase,
           ),
         ],
@@ -195,81 +210,88 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(height: 20 * widget.scale),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                widget.items[currentIndex],
-                style: TextStyle(
-                  fontSize: 30 * widget.scale,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Inter',
-                  color: Colors.white,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  displayText,
+                  style: TextStyle(
+                    fontSize: 30 * widget.scale,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                    color: Color(0xFF2354C7),
+                  ),
                 ),
-              ),
-              SizedBox(width: 10 * widget.scale),
-              InteractiveSpeakerIcon(
-                  scale: widget.scale, text: widget.items[currentIndex]),
-            ],
+                SizedBox(width: 10 * widget.scale),
+                InteractiveSpeakerIcon(
+                  scale: widget.scale,
+                  text: displayText,
+                  color: Color(0xFF2354C7),
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 20 * widget.scale),
-          Center(
-            child: Container(
-              height: 350 * widget.scale,
-              width: 300 * widget.scale,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/nerd.png'),
-                  fit: BoxFit.fitHeight,
-                ),
-                borderRadius: BorderRadius.circular(20 * widget.scale),
-                border: Border.all(
-                    color: Color(0xFF051B4E), width: 2 * widget.scale),
-              ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+            child: MediaViewer(
+              filePath: signLanguagePath,
+              scale: widget.scale,
             ),
           ),
           SizedBox(height: 60 * widget.scale),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: currentIndex > 0 ? _goToPrevious : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  textStyle: TextStyle(
-                      fontSize: 20 * widget.scale, fontFamily: 'Inter'),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 24 * widget.scale,
-                      vertical: 12 * widget.scale),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5 * widget.scale),
-                    side: BorderSide(
-                        color: Color(0xFF051B4E), width: 2 * widget.scale),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: currentIndex > 0 ? _goToPrevious : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF334E7B),
+                      foregroundColor: Colors.white,
+                      textStyle: TextStyle(
+                          fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 24 * widget.scale,
+                          vertical: 12 * widget.scale),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5 * widget.scale),
+                        side: BorderSide(
+                            color: Colors.white, width: 2 * widget.scale),
+                      ),
+                    ),
+                    child: Text("Previous"),
                   ),
                 ),
-                child: Text("Back"),
-              ),
-              ElevatedButton(
-                onPressed:
-                    currentIndex < widget.items.length - 1 ? _goToNext : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  textStyle: TextStyle(
-                      fontSize: 20 * widget.scale, fontFamily: 'Inter'),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 24 * widget.scale,
-                      vertical: 12 * widget.scale),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5 * widget.scale),
-                    side: BorderSide(
-                        color: Color(0xFF051B4E), width: 2 * widget.scale),
+                SizedBox(width: 10 * widget.scale),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: currentIndex < widget.items.length - 1
+                        ? _goToNext
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF334E7B),
+                      foregroundColor: Colors.white,
+                      textStyle: TextStyle(
+                          fontSize: 20 * widget.scale, fontFamily: 'Inter'),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 24 * widget.scale,
+                          vertical: 12 * widget.scale),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5 * widget.scale),
+                        side: BorderSide(
+                            color: Colors.white, width: 2 * widget.scale),
+                      ),
+                    ),
+                    child: Text("Next"),
                   ),
                 ),
-                child: Text("Next"),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -332,7 +354,8 @@ class Words_Phrases_Cards extends StatelessWidget {
                     title: displayText,
                     color: cardColor,
                     index: index,
-                    items: data.map((e) => e['words'] as String).toList(),
+                    // Pass the whole data list instead of just words
+                    items: data,
                     scale: scale,
                     onDelete: onDelete,
                     entryId: entryId,
@@ -373,7 +396,11 @@ class Words_Phrases_Cards extends StatelessWidget {
                     right: 8 * scale,
                     child: Row(
                       children: [
-                        InteractiveSpeakerIcon(scale: scale, text: displayText),
+                        InteractiveSpeakerIcon(
+                          scale: scale,
+                          text: displayText,
+                          color: Colors.white,
+                        ),
                         SizedBox(width: 5 * scale),
                         InteractiveStarIcon(
                           scale: scale,
@@ -421,7 +448,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
     required this.data,
     required this.cardColor,
     required this.scale,
-    this.horizontalCardHeight = 300,
+    this.horizontalCardHeight = 250,
     this.cardWidth = 180,
     required this.onFavoriteToggle,
     required this.onDelete,
@@ -452,7 +479,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                     title: displayText,
                     color: cardColor,
                     index: index,
-                    items: data.map((e) => e['words'] as String).toList(),
+                    items: data,
                     scale: scale,
                     onDelete: onDelete,
                     entryId: entryId,
@@ -466,7 +493,9 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(15 * scale),
-                border: Border.all(color: Color(0xFF051B4E), width: 2 * scale),
+                border: Border.all(
+                    color: Color.fromARGB(255, 253, 253, 253),
+                    width: 2 * scale),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.5),
@@ -495,7 +524,11 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                     right: 8 * scale,
                     child: Row(
                       children: [
-                        InteractiveSpeakerIcon(scale: scale, text: displayText),
+                        InteractiveSpeakerIcon(
+                          scale: scale,
+                          text: displayText,
+                          color: Colors.white,
+                        ),
                         SizedBox(width: 5 * scale),
                         InteractiveStarIcon(
                           scale: scale,

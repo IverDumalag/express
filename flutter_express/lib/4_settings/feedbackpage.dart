@@ -54,16 +54,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
           'Feedback',
           style: TextStyle(
             fontFamily: 'Inter',
-            color: Colors.white, // Set text color to white
+            color: Color.fromARGB(255, 0, 0, 0), // Set text color to white
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white), // Set arrow back color to white
+          icon: const Icon(Icons.arrow_back,
+              color: Color.fromARGB(
+                  255, 0, 0, 0)), // Set arrow back color to white
           onPressed: () {
             Navigator.pop(context); // Handle back navigation
           },
         ),
-        backgroundColor: const Color(0xFF334E7B), // Set the app bar color to 0xFF334E7B
+        backgroundColor: const Color.fromARGB(
+            255, 255, 255, 255), // Set the app bar color to 0xFF334E7B
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -171,9 +174,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF334E7B), // Set the button color to 0xFF334E7B
+                backgroundColor: const Color(
+                    0xFF334E7B), // Set the button color to 0xFF334E7B
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0), // Set border radius
+                  borderRadius:
+                      BorderRadius.circular(12.0), // Set border radius
                 ),
                 elevation: 5, // Add drop shadow
                 shadowColor: Colors.grey.withOpacity(0.5), // Set shadow color

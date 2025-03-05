@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
 
@@ -13,6 +14,30 @@ class _SettingsState extends State<Settings> {
   bool _cameraAccess = false;
   bool _voiceAccess = false;
   bool _soundEffects = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+  }
+
+  Future<void> _checkPermissions() async {
+    final cameraStatus = await Permission.camera.status;
+    final microphoneStatus = await Permission.microphone.status;
+
+    if (!cameraStatus.isGranted) {
+      await Permission.camera.request();
+    }
+
+    if (!microphoneStatus.isGranted) {
+      await Permission.microphone.request();
+    }
+
+    setState(() {
+      _cameraAccess = cameraStatus.isGranted;
+      _voiceAccess = microphoneStatus.isGranted;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +76,14 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             value: _cameraAccess,
-            onChanged: (bool value) {
-              setState(() {
-                _cameraAccess = value;
-              });
+            onChanged: (bool value) async {
+              if (value) {
+                final status = await Permission.camera.request();
+                setState(() => _cameraAccess = status.isGranted);
+              } else {
+                openAppSettings();
+              }
+              _checkPermissions();
             },
             secondary: Icon(Icons.camera_alt),
             activeColor: Color(0xFF334E7B),
@@ -65,10 +94,14 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             value: _voiceAccess,
-            onChanged: (bool value) {
-              setState(() {
-                _voiceAccess = value;
-              });
+            onChanged: (value) async {
+              if (value) {
+                final status = await Permission.microphone.request();
+                setState(() => _voiceAccess = status.isGranted);
+              } else {
+                openAppSettings();
+              }
+              _checkPermissions();
             },
             secondary: Icon(Icons.mic),
             activeColor: Color(0xFF334E7B),
