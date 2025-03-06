@@ -173,7 +173,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               'Delete Phrase',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 5),
             Icon(Icons.delete, color: Colors.white),
           ],
         ),
@@ -428,18 +428,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Positioned(
-                    top: 8 * scale,
-                    right: 8 * scale,
-                    child: Container(
-                      width: 20 * scale,
-                      height: 20 * scale,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                    ),
-                  ),
+                
                 ],
               ),
             ),

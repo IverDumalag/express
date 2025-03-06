@@ -147,7 +147,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                 phrase['words'],
                                 textAlign: TextAlign.right,
                                 style: TextStyle(
-                                  fontSize: isSelected ? 64 : 48,
+                                  fontSize: isSelected ? 58 : 38,
                                   fontWeight: FontWeight.w600,
                                   color: isSelected
                                       ? Colors.black
@@ -173,13 +173,13 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           padding: EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             color: _isListening
-                                ? Colors.red[100]
+                                ? Colors.indigo[800]
                                 : Colors.grey[200],
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             _isListening ? Icons.mic : Icons.mic_none,
-                            color: _isListening ? Colors.red : Colors.grey[600],
+                            color: _isListening ? Colors.white : Colors.grey[600],
                             size: 32,
                           ),
                         ),
@@ -216,19 +216,19 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
 
   Widget _buildInputSection() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 40.0),
+      padding: const EdgeInsets.only(bottom: 5.0),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(5),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 1,
-                    blurRadius: 5,
+                    spreadRadius: 3,
+                    blurRadius: 2,
                   ),
                 ],
               ),

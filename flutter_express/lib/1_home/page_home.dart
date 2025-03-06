@@ -210,15 +210,14 @@ class _HomeState extends State<Home> {
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20 * scale),
                           child: Container(
-                            margin: EdgeInsets.only(top: 10 * scale),
-                            color: Colors.grey.withOpacity(0.5),
-                            child: Text(
-                              'Still Empty Nothing to be Found Here ^_^',
-                              style: TextStyle(
-                                fontSize: 18 * scale,
-                                color: Colors.grey,
-                              ),
+                          margin: EdgeInsets.only(top: 10 * scale),
+                          child: Text(
+                            'Still empty, nothing to be found here ^_^',
+                            style: TextStyle(
+                            fontSize: 18 * scale,
+                            color: Colors.grey,
                             ),
+                          ),
                           ),
                         );
                       }
@@ -236,15 +235,20 @@ class _HomeState extends State<Home> {
                 Row(
                   children: [
                     _buildSectionTitle("Words/Phrases", scale),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () => _showAddPhraseDialog(context),
+                    Padding(
+                      padding: EdgeInsets.only(left: 50 * scale), // Adjust the left padding as needed
+                      child: IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () => _showAddPhraseDialog(context),
+                      ),
                     ),
-                    HelpIconWidget(
-                      helpTitle: 'How to Use',
-                      helpText:
-                          'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                    Padding(
+                      padding: EdgeInsets.only(left: 10 * scale), // Adjust the left padding as needed
+                      child: HelpIconWidget(
+                        helpTitle: 'How to Use',
+                        helpText:
+                            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                      ),
                     ),
                   ],
                 ),
@@ -291,6 +295,7 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+  
 
   Widget _buildHeader(double scale) {
     return Container(
@@ -325,14 +330,18 @@ class _HomeState extends State<Home> {
               height: 150 * scale,
               padding: EdgeInsets.all(16 * scale),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 1 * scale,
-                    blurRadius: 6 * scale,
-                    offset: Offset(0, 3 * scale),
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(16 * scale),
+              border: Border.all(
+                color: Colors.black,
+                width: 1 * scale,
+              ),
+              boxShadow: [
+                BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 1 * scale,
+                blurRadius: 6 * scale,
+                offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
@@ -347,8 +356,8 @@ class _HomeState extends State<Home> {
                     },
                     children: [
                       _buildSlide('Welcome to ex', 'Press!', scale),
-                      _buildSlide('Discover', 'New Features!', scale),
-                      _buildSlide('Stay', 'Connected!', scale),
+                      _buildSlide('Discover', 'Our Features!', scale),
+                      _buildSlide('Have', 'Fun!', scale),
                     ],
                   ),
                   Positioned(
@@ -385,7 +394,7 @@ class _HomeState extends State<Home> {
   Widget _buildSlide(String text1, String text2, double scale) {
     return GestureDetector(
       onTap: () {
-        if (text1 == 'Discover' && text2 == 'New Features!') {
+        if (text1 == 'Discover' && text2 == 'Our Features!') {
           GlobalVariables.currentIndex = 1;
           Navigator.push(
             context,
@@ -406,7 +415,7 @@ class _HomeState extends State<Home> {
             text1,
             style: TextStyle(
               fontSize: 20 * scale,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w900,
               fontFamily: 'Inter',
             ),
           ),
@@ -429,42 +438,14 @@ class _HomeState extends State<Home> {
   Widget _buildSectionTitle(String title, double scale) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 10 * scale,
-            child: Container(
-              height: 40 * scale,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2 * scale,
-                    blurRadius: 5 * scale,
-                    offset: Offset(0, 3 * scale),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: 20 * scale, vertical: 10 * scale),
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 25 * scale,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                fontFamily: 'Inter',
-              ),
-            ),
-          ),
-        ],
+      child: Text(
+        title,
+        style: TextStyle(
+            fontSize: 25 * scale,
+            fontWeight: FontWeight.w900,
+          color: Colors.black87,
+          fontFamily: 'Inter',
+        ),
       ),
     );
   }

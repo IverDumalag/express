@@ -26,8 +26,8 @@ class SignToTextPage extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 5),
+                        blurRadius: 3,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -53,8 +53,8 @@ class SignToTextPage extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 5),
+                        blurRadius: 3,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
