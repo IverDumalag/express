@@ -116,7 +116,7 @@ class _LandingPageState extends State<LandingPage>
             child: Padding(
               padding: EdgeInsets.all(16 * scale),
               child: Text(
-                'This is your starting point.',
+                '',
                 style: TextStyle(
                   fontSize: 45 * scale,
                   fontWeight: FontWeight.w900,
