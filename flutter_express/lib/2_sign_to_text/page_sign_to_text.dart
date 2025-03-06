@@ -20,14 +20,14 @@ class SignToTextPage extends StatelessWidget {
                   height: MediaQuery.of(context).size.height * 0.4,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(5),
                     border: Border.all(color: Color(0xFF334E7B), width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 5),
+                        blurRadius: 3,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -44,17 +44,17 @@ class SignToTextPage extends StatelessWidget {
                 SizedBox(height: 20),
                 Container(
                   width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.2,
+                  height: MediaQuery.of(context).size.height * 0.3,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(5),
                     border: Border.all(color: Color(0xFF334E7B), width: 2),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
                         spreadRadius: 2,
-                        blurRadius: 6,
-                        offset: Offset(0, 5),
+                        blurRadius: 3,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),

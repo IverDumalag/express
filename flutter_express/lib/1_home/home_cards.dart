@@ -163,12 +163,28 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Phrase'),
-        content: Text('Are you sure you want to delete this phrase?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        backgroundColor: Color(0xFF334E7B),
+        title: Row(
+          children: [
+            Text(
+              'Delete Phrase',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 5),
+            Icon(Icons.delete, color: Colors.white),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete this phrase?',
+          style: TextStyle(color: Colors.white, fontSize: 17),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () {
@@ -176,7 +192,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            child: Text('Delete'),
+            child: Text('Yes, I am sure', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -412,18 +428,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Positioned(
-                    top: 8 * scale,
-                    right: 8 * scale,
-                    child: Container(
-                      width: 20 * scale,
-                      height: 20 * scale,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                    ),
-                  ),
+                
                 ],
               ),
             ),
