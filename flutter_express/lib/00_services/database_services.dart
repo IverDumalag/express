@@ -52,6 +52,40 @@ class DatabaseService {
           $col_audiotext_created_at TIMESTAMP NOT NULL
         )
         ''');
+
+        // Insert initial data
+        await db.insert(tbl_name, {
+          col_entry_id: 'hello${DateTime.now().toIso8601String()}',
+          col_words: 'Hello',
+          col_favorite: 0,
+          col_sign_language: 'assets/dataset/hello.MOV',
+          col_created_at: DateTime.now().toIso8601String(),
+          col_updated_at: DateTime.now().toIso8601String(),
+        });
+        await db.insert(tbl_name, {
+          col_entry_id: 'goodmorning${DateTime.now().toIso8601String()}',
+          col_words: 'Good Morning',
+          col_favorite: 0,
+          col_sign_language: 'assets/dataset/goodmorning.MOV',
+          col_created_at: DateTime.now().toIso8601String(),
+          col_updated_at: DateTime.now().toIso8601String(),
+        });
+        await db.insert(tbl_name, {
+          col_entry_id: 'goodafternoon${DateTime.now().toIso8601String()}',
+          col_words: 'Good Afternoon',
+          col_favorite: 0,
+          col_sign_language: 'assets/dataset/goodafternoon.MOV',
+          col_created_at: DateTime.now().toIso8601String(),
+          col_updated_at: DateTime.now().toIso8601String(),
+        });
+        await db.insert(tbl_name, {
+          col_entry_id: 'goodevening${DateTime.now().toIso8601String()}',
+          col_words: 'Good Evening',
+          col_favorite: 0,
+          col_sign_language: 'assets/dataset/goodevening.MOV',
+          col_created_at: DateTime.now().toIso8601String(),
+          col_updated_at: DateTime.now().toIso8601String(),
+        });
       },
     );
   }
