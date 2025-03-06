@@ -25,7 +25,8 @@ class StartingPageStateful extends StatefulWidget {
   _StartingPageStatefulState createState() => _StartingPageStatefulState();
 }
 
-class _StartingPageStatefulState extends State<StartingPageStateful> with SingleTickerProviderStateMixin {
+class _StartingPageStatefulState extends State<StartingPageStateful>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -59,10 +60,16 @@ class _StartingPageStatefulState extends State<StartingPageStateful> with Single
               );
             },
           ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [SizedBox(height: 50)],
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 10.0), // Adjust the padding as needed
+              child: Image.asset(
+                'assets/images/expressLOGO.png', // Replace with your logo path
+                width: 350, // Adjust the width as needed
+                height: 350, // Adjust the height as needed
+              ),
             ),
           ),
         ],
@@ -95,7 +102,8 @@ class _StartingPageStatefulState extends State<StartingPageStateful> with Single
                     ],
                   ),
                 ),
-                const SizedBox(width: 10), // Add some space between the text and image
+                const SizedBox(
+                    width: 10), // Add some space between the text and image
                 Image.asset(
                   'assets/images/bgdesignstarting.png', // Replace with your image path
                   width: 50, // Adjust the width as needed
@@ -154,10 +162,11 @@ class CirclePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = const Color(0xFF051B4E)
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 40.0; // Set the stroke width to create a donut shape
 
     final radius = 70.0;
-    final x = size.width * animationValue;
+    final x = size.width * (0.5 + 0.5 * cos(animationValue * 2 * pi));
     final y = size.height * (0.5 + 0.5 * sin(animationValue * 2 * pi));
 
     canvas.drawCircle(Offset(x, y), radius, paint);
@@ -166,10 +175,11 @@ class CirclePainter extends CustomPainter {
       ..color = const Color(0xFF2354C7)
       ..style = PaintingStyle.fill;
 
-    final x2 = size.width * (1 - animationValue);
+    final smallRadius = 40.0; // Smaller radius for the solid circle
+    final x2 = size.width * (0.5 - 0.5 * cos(animationValue * 2 * pi));
     final y2 = size.height * (0.5 - 0.5 * sin(animationValue * 2 * pi));
 
-    canvas.drawCircle(Offset(x2, y2), radius, paint2);
+    canvas.drawCircle(Offset(x2, y2), smallRadius, paint2);
   }
 
   @override
