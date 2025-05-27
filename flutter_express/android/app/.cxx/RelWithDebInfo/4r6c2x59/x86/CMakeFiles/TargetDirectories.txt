@@ -1,2 +1,0 @@
-C:/xampp/htdocs/express/flutter_express/android/app/.cxx/RelWithDebInfo/4r6c2x59/x86/CMakeFiles/edit_cache.dir
-C:/xampp/htdocs/express/flutter_express/android/app/.cxx/RelWithDebInfo/4r6c2x59/x86/CMakeFiles/rebuild_cache.dir

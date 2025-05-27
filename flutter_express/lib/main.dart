@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'page_starting.dart';
+import 'package:flutter_express/4_settings/archived_cards.dart';
+import 'page_landing.dart';
 import 'global_variables.dart';
 import '1_home/page_home.dart';
 import '2_sign_to_text/page_sign_to_text.dart';
 import '3_audio_text_to_sign/page_audio_text_to_sign.dart';
 import '4_settings/page_settings.dart';
+import 'intro_p1.dart';
+import 'intro_p2.dart';
+import 'intro_p3.dart';
+import 'login.dart';
+import 'register.dart';
+import '5_profile/page_profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,8 +23,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPaintSizeEnabled = false;
     return MaterialApp(
-      home: StartingPageStateful(),
+      initialRoute: '/intro1',
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/intro1': (context) => IntroP1(),
+        '/intro2': (context) => IntroP2(),
+        '/intro3': (context) => IntroP3(),
+        '/login': (context) => Login(),
+        '/register': (context) => Register(),
+        '/landing': (context) => LandingPage(),
+        '/main': (context) => MainScreen(),
+        '/profile': (context) => PageProfile(),
+        '/archive': (context) => ArchivedCardsPage(),
+      },
     );
   }
 }
@@ -41,9 +59,10 @@ class _MainScreenState extends State<MainScreen> {
 
   late final List<Widget> _screens = [
     Home(onRefresh: _refreshData),
-    SignToTextPage(),
     AudioTextToSignPage(),
+    SignToTextPage(),
     Settings(),
+    PageProfile(),
   ];
 
   void _changeScreen(int index) {
@@ -79,16 +98,20 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.text_fields, size: 30),
-            label: 'Sign to Text',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.hearing, size: 30),
             label: 'Audio/Text to Sign',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.text_fields, size: 30),
+            label: 'Sign to Text',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.settings, size: 30),
             label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person, size: 30), // Profile icon
+            label: 'Profile',
           ),
         ],
       ),

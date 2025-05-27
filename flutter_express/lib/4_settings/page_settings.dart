@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_express/global_variables.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
 
@@ -13,7 +15,6 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   bool _cameraAccess = false;
   bool _voiceAccess = false;
-  bool _soundEffects = false;
 
   @override
   void initState() {
@@ -106,48 +107,78 @@ class _SettingsState extends State<Settings> {
             secondary: Icon(Icons.mic),
             activeColor: Color(0xFF334E7B),
           ),
-          SwitchListTile(
-            title: Text(
-              'Sound Effects',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            value: _soundEffects,
-            onChanged: (bool value) {
-              setState(() {
-                _soundEffects = value;
-              });
-            },
-            secondary: Icon(
-              Icons.surround_sound,
-            ),
-            activeColor: Color(0xFF334E7B),
-          ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Give us some feedback',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16,
-                color: Colors.grey,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF334E7B),
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+              icon: Icon(Icons.feedback),
+              label: Text("Give Us Feedback! It Helps!"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FeedbackPage()),
+                );
+              },
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.feedback),
-            title: Text(
-              'Feedback',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF334E7B),
-              ),
+          // Archive
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FeedbackPage()),
-              );
-            },
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF2354C7),
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: Icon(Icons.archive),
+              label: Text("Archive"),
+              onPressed: () {
+                Navigator.pushNamed(context, '/archive');
+              },
+            ),
+          ),
+          // Logout
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700],
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: Icon(Icons.logout),
+              label: Text("Logout"),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+                UserSession.user = null;
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),

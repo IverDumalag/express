@@ -2,24 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../0_components/help_widget.dart';
+import '../0_components/popup_information.dart';
 import 'popup_home_welcome.dart';
 import 'waving_hand.dart';
 import 'spinning_star.dart';
 import '../main.dart';
 import '../global_variables.dart';
 import 'home_cards.dart';
-import '../00_services/database_services.dart';
-import '../00_services/file_search_services.dart';
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Fluid LED Lighting App',
-      home: Home(onRefresh: () {}),
-    );
-  }
-}
+import '../00_services/api_services.dart';
 
 class Home extends StatefulWidget {
   final VoidCallback onRefresh;
@@ -31,10 +21,20 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final DatabaseService _databaseService = DatabaseService.instance;
   final Color cardColor = const Color(0xFF334E7B);
 
   String greetingMessage = '';
+  String search = '';
+  String sortBy = 'date-new';
+  String activeTab = 'wave';
+  bool showFilter = false;
+  bool loading = true;
+  bool showAddModal = false;
+  bool addLoading = false;
+  String addInput = '';
+
+  List<Map<String, dynamic>> cards = [];
+  List<Map<String, dynamic>> filteredCards = [];
 
   late final PageController _pageController;
   int _currentPage = 0;
@@ -44,12 +44,16 @@ class _HomeState extends State<Home> {
   bool _popupShown = false;
   bool _needsRefresh = true;
 
+  String userFullName = '';
+
   @override
   void initState() {
     super.initState();
     _updateGreetingMessage();
-    _pageController = PageController(initialPage: _currentPage);
+    _fetchCards();
+    _setUserFullName();
 
+    _pageController = PageController(initialPage: _currentPage);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _popupShown = prefs.getBool('popupShown') ?? false;
@@ -78,15 +82,92 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  void _setUserFullName() {
+    final user = UserSession.user;
+    if (user != null) {
+      final fName = user['f_name'] ?? '';
+      final mName = user['m_name'] ?? '';
+      final lName = user['l_name'] ?? '';
+      userFullName = [
+        fName,
+        mName,
+        lName,
+      ].where((s) => s.trim().isNotEmpty).join(' ');
+    }
+  }
+
   void _updateGreetingMessage() {
     final hour = DateTime.now().hour;
-    if (hour < 12) {
-      greetingMessage = 'Good Morning!';
-    } else if (hour < 17) {
-      greetingMessage = 'Good Afternoon!';
-    } else {
-      greetingMessage = 'Good Evening!';
+    final user = UserSession.user;
+    String name = '';
+    if (user != null) {
+      final fName = user['f_name'] ?? '';
+      name = fName.toString().trim().isNotEmpty ? fName : '';
     }
+    if (hour < 12) {
+      greetingMessage = 'Good Morning${name.isNotEmpty ? ', $name' : ''}!';
+    } else if (hour < 17) {
+      greetingMessage = 'Good Afternoon${name.isNotEmpty ? ', $name' : ''}!';
+    } else {
+      greetingMessage = 'Good Evening${name.isNotEmpty ? ', $name' : ''}!';
+    }
+  }
+
+  Future<void> _fetchCards() async {
+    setState(() => loading = true);
+    final userId = UserSession.user?['user_id']?.toString() ?? "";
+    final data = await ApiService.fetchCards(userId);
+    setState(() {
+      cards = data.where((c) => c['status'] == 'active').toList();
+      loading = false;
+    });
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    List<Map<String, dynamic>> result = List.from(cards);
+    if (activeTab == 'favorite') {
+      result = result.where((c) => c['is_favorite'] == 1).toList();
+    }
+    if (search.trim().isNotEmpty) {
+      result = result
+          .where(
+            (c) => (c['words'] ?? '').toString().toLowerCase().contains(
+              search.toLowerCase(),
+            ),
+          )
+          .toList();
+    }
+    int naturalCompare(String a, String b) =>
+        a.toLowerCase().compareTo(b.toLowerCase());
+    if (sortBy == 'alpha') {
+      result.sort(
+        (a, b) => naturalCompare(
+          (a['words'] ?? '').toString(),
+          (b['words'] ?? '').toString(),
+        ),
+      );
+    } else if (sortBy == 'alpha-rev') {
+      result.sort(
+        (a, b) => naturalCompare(
+          (b['words'] ?? '').toString(),
+          (a['words'] ?? '').toString(),
+        ),
+      );
+    } else if (sortBy == 'date-new') {
+      result.sort(
+        (a, b) => DateTime.parse(
+          b['created_at'],
+        ).compareTo(DateTime.parse(a['created_at'])),
+      );
+    } else if (sortBy == 'date-old') {
+      result.sort(
+        (a, b) => DateTime.parse(
+          a['created_at'],
+        ).compareTo(DateTime.parse(b['created_at'])),
+      );
+    }
+    setState(() => filteredCards = result);
   }
 
   void _showPopupNotice(BuildContext context) async {
@@ -95,84 +176,117 @@ class _HomeState extends State<Home> {
     await prefs.setBool('popupShown', true);
   }
 
-  double scaleFactor(BuildContext context) {
-    final baseWidth = 375.0;
-    return MediaQuery.of(context).size.width / baseWidth;
-  }
-
-  Future<void> _showAddPhraseDialog(BuildContext context) async {
-    final TextEditingController wordsController = TextEditingController();
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Add Phrase',
-            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-          ),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                TextField(
-                  controller: wordsController,
-                  decoration: InputDecoration(
-                    labelText: 'Add any words you like',
-                    labelStyle: TextStyle(color: Colors.white, fontSize: 17),
-                  ),
-                  style: TextStyle(color: Colors.white, fontSize: 17),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 17),
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: Text(
-                'Add',
-                style: TextStyle(color: Colors.white, fontSize: 17),
-              ),
-              onPressed: () async {
-                final filePath = await FileSearchService.findBestMatchFile(
-                    wordsController.text, 'assets/dataset/');
-                debugPrint('here: $filePath');
-
-                _databaseService.addPhrase(
-                    wordsController.text, 0, filePath ?? '');
-                setState(() => _needsRefresh = true);
-                Navigator.pop(context);
-                widget.onRefresh();
-              },
-            ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-          ),
-          backgroundColor: Color(0xFF334E7B),
-        );
-      },
+  void _showFeedbackPopup(String message, String type) async {
+    await PopupInformation.show(
+      context,
+      title: type == "success"
+          ? "Success!"
+          : type == "error"
+          ? "Error"
+          : "Information",
+      message: message,
     );
   }
 
-  Future<void> _toggleFavorite(String entryId, bool isFavorite) async {
-    await _databaseService.updateFavorite(entryId, isFavorite ? 1 : 0);
-    setState(() {
-      _needsRefresh = true;
-    });
+  Future<void> _handleAddWord() async {
+    if (addInput.trim().isEmpty) return;
+    setState(() => addLoading = true);
+
+    final normalizedInput = addInput.trim().toLowerCase();
+    if (cards.any(
+      (c) =>
+          (c['words'] ?? '').toString().trim().toLowerCase() == normalizedInput,
+    )) {
+      _showFeedbackPopup("Duplicate entry not allowed.", "error");
+      setState(() => addLoading = false);
+      return;
+    }
+
+    String signLanguageUrl = '';
+    int isMatch = 0;
+    bool matchFound = false;
+    try {
+      final searchJson = await ApiService.trySearch(addInput);
+      if (searchJson?['public_id'] != null &&
+          searchJson?['all_files'] is List) {
+        final file = (searchJson!['all_files'] as List).firstWhere(
+          (f) => f['public_id'] == searchJson['public_id'],
+          orElse: () => null,
+        );
+        if (file != null) {
+          signLanguageUrl = file['url'];
+          isMatch = 1;
+          matchFound = true;
+        }
+      }
+      final userId = UserSession.user?['user_id']?.toString() ?? "";
+      final insertJson = await ApiService.addCard(
+        userId: userId,
+        words: addInput,
+        signLanguageUrl: signLanguageUrl,
+        isMatch: isMatch,
+      );
+      if (insertJson['status'] == 201 || insertJson['status'] == "201") {
+        setState(() {
+          cards.insert(0, {
+            'entry_id': insertJson['entry_id'],
+            'words': addInput,
+            'sign_language': signLanguageUrl,
+            'is_favorite': 0,
+            'created_at': DateTime.now().toIso8601String(),
+            'status': 'active',
+          });
+          addInput = '';
+          showAddModal = false;
+          _needsRefresh = true; // Trigger refresh for Words/Phrases section
+        });
+        _applyFilters();
+        _showFeedbackPopup(
+          matchFound
+              ? "Match Found!"
+              : "No match found, but added to your list.",
+          matchFound ? "success" : "info",
+        );
+      } else {
+        _showFeedbackPopup("Failed to add.", "error");
+      }
+    } catch (e) {
+      _showFeedbackPopup("Error adding word/phrase.", "error");
+    }
+    setState(() => addLoading = false);
   }
 
-  Future<void> _deletePhrase(String entryId) async {
-    await _databaseService.deletePhrase(entryId);
+  Future<void> _handleArchive(String entryId) async {
+    await ApiService.updateStatus(entryId: entryId, status: "archived");
     setState(() {
-      _needsRefresh = true;
+      cards.removeWhere((c) => c['entry_id'] == entryId);
+      _needsRefresh = true; // Trigger refresh for Words/Phrases section
     });
-    widget.onRefresh();
+    _applyFilters();
+    _showFeedbackPopup("Archived!", "info");
+  }
+
+  Future<void> _handleFavorite(String entryId, bool isFavorite) async {
+    // Call your API to update favorite status
+    await ApiService.updateFavoriteStatus(
+      entryId: entryId,
+      isFavorite: isFavorite ? 1 : 0,
+    );
+    setState(() {
+      cards = cards.map((c) {
+        if (c['entry_id'] == entryId) {
+          return {...c, 'is_favorite': isFavorite ? 1 : 0};
+        }
+        return c;
+      }).toList();
+      _needsRefresh = true; // Trigger refresh for both sections
+    });
+    _applyFilters(); // Re-apply filters to update favorite list if activeTab is 'favorite'
+  }
+
+  double scaleFactor(BuildContext context) {
+    final baseWidth = 375.0;
+    return MediaQuery.of(context).size.width / baseWidth;
   }
 
   @override
@@ -186,6 +300,50 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // --- USER NAME, GREETING, HELP ICON SECTION ---
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: 30 * scale,
+                    left: 20 * scale,
+                    right: 20 * scale,
+                    bottom: 10 * scale,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userFullName,
+                              style: TextStyle(
+                                fontSize: 22 * scale,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF334E7B),
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                            SizedBox(height: 4 * scale),
+                            Text(
+                              greetingMessage,
+                              style: TextStyle(
+                                fontSize: 16 * scale,
+                                color: Colors.black87,
+                                fontFamily: 'Inter',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      HelpIconWidget(
+                        helpTitle: 'How to Use',
+                        helpText:
+                            'This section displays all your saved words and phrases. You can search, filter, add new entries, mark them as favorites, or archive them.',
+                      ),
+                    ],
+                  ),
+                ),
                 _buildHeader(scale),
                 SizedBox(height: 40 * scale),
                 Row(
@@ -195,29 +353,37 @@ class _HomeState extends State<Home> {
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _needsRefresh ? _databaseService.getPhrases() : null,
+                  future: _needsRefresh
+                      ? ApiService.fetchCards(
+                          UserSession.user?['user_id']?.toString() ?? "",
+                        )
+                      : null,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                      return Center(child: Text('Error: ${snapshot.error}'));
                     } else {
                       _needsRefresh = false;
                       final favoritePhrases = snapshot.data!
-                          .where((phrase) => phrase['favorite'] == 1)
+                          .where(
+                            (phrase) =>
+                                phrase['is_favorite'] == 1 &&
+                                phrase['status'] == 'active',
+                          )
                           .toList();
                       if (favoritePhrases.isEmpty) {
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20 * scale),
                           child: Container(
-                          margin: EdgeInsets.only(top: 10 * scale),
-                          child: Text(
-                            'Still empty, nothing to be found here ^_^',
-                            style: TextStyle(
-                            fontSize: 18 * scale,
-                            color: Colors.grey,
+                            margin: EdgeInsets.only(top: 10 * scale),
+                            child: Text(
+                              'Still empty, nothing to be found here ^_^',
+                              style: TextStyle(
+                                fontSize: 18 * scale,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
                           ),
                         );
                       }
@@ -225,51 +391,179 @@ class _HomeState extends State<Home> {
                         data: favoritePhrases,
                         cardColor: cardColor,
                         scale: scale,
-                        onFavoriteToggle: _toggleFavorite,
-                        onDelete: _deletePhrase,
+                        onFavoriteToggle: _handleFavorite,
+                        onDelete: _handleArchive,
                       );
                     }
                   },
                 ),
                 SizedBox(height: 30 * scale),
-                Row(
-                  children: [
-                    _buildSectionTitle("Words/Phrases", scale),
-                    Padding(
-                      padding: EdgeInsets.only(left: 50 * scale), // Adjust the left padding as needed
-                      child: IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () => _showAddPhraseDialog(context),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildSectionTitle("Words/Phrases", scale),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.add, color: Color(0xFF334E7B)),
+                                onPressed: () =>
+                                    setState(() => showAddModal = true),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.filter_list,
+                                  color: Color(0xFF334E7B),
+                                ),
+                                onPressed: () {
+                                  setState(() => showFilter = !showFilter);
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10 * scale), // Adjust the left padding as needed
-                      child: HelpIconWidget(
-                        helpTitle: 'How to Use',
-                        helpText:
-                            'This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.',
+                      SizedBox(height: 10 * scale),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: "Search...",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFF334E7B),
+                                  ),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: Color(0xFF334E7B),
+                                ),
+                              ),
+                              onChanged: (v) {
+                                setState(() => search = v);
+                                _applyFilters();
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10 * scale,
+                          ), // Add spacing for dropdowns
+                          if (showFilter) // Only show filter dropdowns if showFilter is true
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: sortBy,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF334E7B),
+                                    ),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: "date-new",
+                                    child: Text("Newest"),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "date-old",
+                                    child: Text("Oldest"),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "alpha",
+                                    child: Text("A-Z"),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "alpha-rev",
+                                    child: Text("Z-A"),
+                                  ),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => sortBy = v!);
+                                  _applyFilters();
+                                },
+                              ),
+                            ),
+                          SizedBox(
+                            width: 10 * scale,
+                          ), // Add spacing for dropdowns
+                          if (showFilter) // Only show filter dropdowns if showFilter is true
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                value: activeTab,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF334E7B),
+                                    ),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: "wave",
+                                    child: Text("All"),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "favorite",
+                                    child: Text("Favorite"),
+                                  ),
+                                ],
+                                onChanged: (v) {
+                                  setState(() => activeTab = v!);
+                                  _applyFilters();
+                                },
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _needsRefresh ? _databaseService.getPhrases() : null,
+                  future: _needsRefresh
+                      ? ApiService.fetchCards(
+                          UserSession.user?['user_id']?.toString() ?? "",
+                        )
+                      : null,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+                      return Center(child: Text('Error: ${snapshot.error}'));
                     } else {
                       _needsRefresh = false;
-                      final allPhrases = snapshot.data!;
-                      if (allPhrases.isEmpty) {
+                      // Ensure filteredCards is populated based on fresh data
+                      // This might cause a slight delay, but ensures consistency
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _fetchCards(); // Re-fetch to apply filters based on latest data
+                      });
+
+                      if (filteredCards.isEmpty) {
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 20 * scale),
                           child: Container(
                             margin: EdgeInsets.only(top: 10 * scale),
-                            color: Colors.grey.withOpacity(0.5),
                             child: Text(
-                              'Still Empty Nothing to be Found Here ^_^',
+                              'No matching words or phrases found. Try adjusting your search or filters.',
                               style: TextStyle(
                                 fontSize: 18 * scale,
                                 color: Colors.grey,
@@ -279,23 +573,67 @@ class _HomeState extends State<Home> {
                         );
                       }
                       return Words_Phrases_Cards(
-                        data: allPhrases,
+                        data:
+                            filteredCards, // Use filteredCards for this section
                         cardColor: cardColor,
                         scale: scale,
-                        onFavoriteToggle: _toggleFavorite,
-                        onDelete: _deletePhrase,
+                        onFavoriteToggle: _handleFavorite,
+                        onDelete: _handleArchive,
                       );
                     }
                   },
                 ),
+                SizedBox(height: 20 * scale), // Add some bottom padding
               ],
             ),
           ),
+          if (showAddModal)
+            AlertDialog(
+              title: Text(
+                "Add Word/Phrase",
+                style: TextStyle(color: Color(0xFF334E7B)),
+              ),
+              content: TextField(
+                decoration: InputDecoration(
+                  hintText: "Enter word or phrase",
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Color(0xFF334E7B)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                  ),
+                ),
+                onChanged: (v) => addInput = v,
+                style: TextStyle(color: Color(0xFF334E7B)),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: addLoading ? null : _handleAddWord,
+                  child: addLoading
+                      ? CircularProgressIndicator()
+                      : Text("Add", style: TextStyle(color: Color(0xFF2E5C9A))),
+                ),
+                TextButton(
+                  onPressed: () => setState(() => showAddModal = false),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              backgroundColor: Colors.white,
+              elevation: 5,
+            ),
         ],
       ),
     );
   }
-  
 
   Widget _buildHeader(double scale) {
     return Container(
@@ -330,18 +668,15 @@ class _HomeState extends State<Home> {
               height: 150 * scale,
               padding: EdgeInsets.all(16 * scale),
               decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
-              borderRadius: BorderRadius.circular(16 * scale),
-              border: Border.all(
-                color: Colors.black,
-                width: 1 * scale,
-              ),
-              boxShadow: [
-                BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 1 * scale,
-                blurRadius: 6 * scale,
-                offset: Offset(0, 3 * scale),
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(16 * scale),
+                border: Border.all(color: Colors.black, width: 1 * scale),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 1 * scale,
+                    blurRadius: 6 * scale,
+                    offset: Offset(0, 3 * scale),
                   ),
                 ],
               ),
@@ -400,7 +735,7 @@ class _HomeState extends State<Home> {
             context,
             MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
           );
-        } else if (text1 == 'Stay' && text2 == 'Connected!') {
+        } else if (text1 == 'Have' && text2 == 'Fun!') {
           GlobalVariables.currentIndex = 2;
           Navigator.push(
             context,
@@ -419,12 +754,13 @@ class _HomeState extends State<Home> {
               fontFamily: 'Inter',
             ),
           ),
+          SizedBox(width: 5 * scale),
           Text(
             text2,
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: Color(0xFF2E5C9A),
               fontFamily: 'Inter',
             ),
           ),
@@ -436,16 +772,13 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSectionTitle(String title, double scale) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-      child: Text(
-        title,
-        style: TextStyle(
-            fontSize: 25 * scale,
-            fontWeight: FontWeight.w900,
-          color: Colors.black87,
-          fontFamily: 'Inter',
-        ),
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 25 * scale,
+        fontWeight: FontWeight.w900,
+        color: Colors.black87,
+        fontFamily: 'Inter',
       ),
     );
   }
