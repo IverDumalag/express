@@ -115,8 +115,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                       return ListView.builder(
                         controller: _scrollController,
                         itemCount: _phrases.length,
-                        padding: EdgeInsets.only(
-                            bottom: 20.0, top: 40.0), // Added margin top 20
+                        padding: EdgeInsets.only(bottom: 20.0, top: 40.0),
                         itemBuilder: (context, index) {
                           final phrase = _phrases[index];
                           final bool isSelected = index == selectedIndex;
@@ -179,7 +178,8 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           ),
                           child: Icon(
                             _isListening ? Icons.mic : Icons.mic_none,
-                            color: _isListening ? Colors.white : Colors.grey[600],
+                            color:
+                                _isListening ? Colors.white : Colors.grey[600],
                             size: 32,
                           ),
                         ),
