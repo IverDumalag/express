@@ -13,6 +13,7 @@ import 'intro_p3.dart';
 import 'login.dart';
 import 'register.dart';
 import '5_profile/page_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,8 +24,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPaintSizeEnabled = false;
     return MaterialApp(
-      initialRoute: '/intro1',
       debugShowCheckedModeBanner: false,
+      home: InitialRouteDecider(),
       routes: {
         '/intro1': (context) => IntroP1(),
         '/intro2': (context) => IntroP2(),
@@ -36,6 +37,37 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => PageProfile(),
         '/archive': (context) => ArchivedCardsPage(),
       },
+    );
+  }
+}
+
+class InitialRouteDecider extends StatefulWidget {
+  @override
+  State<InitialRouteDecider> createState() => _InitialRouteDeciderState();
+}
+
+class _InitialRouteDeciderState extends State<InitialRouteDecider> {
+  @override
+  void initState() {
+    super.initState();
+    _checkIntro();
+  }
+
+  Future<void> _checkIntro() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenIntro = prefs.getBool('seenIntro') ?? false;
+    if (seenIntro) {
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      Navigator.pushReplacementNamed(context, '/intro1');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -110,7 +142,7 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Settings',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30), // Profile icon
+            icon: Icon(Icons.person, size: 30),
             label: 'Profile',
           ),
         ],
