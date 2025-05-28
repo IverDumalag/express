@@ -229,14 +229,14 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
                                     color: isSelected
-                                        ? Colors.indigo
+                                        ? const Color(0xFF334E7B)
                                         : Colors.grey[300]!,
                                     width: isSelected ? 2 : 1,
                                   ),
                                   boxShadow: [
                                     if (isSelected)
                                       BoxShadow(
-                                        color: Colors.indigo.withOpacity(0.1),
+                                        color: Color(0xFF334E7B),
                                         blurRadius: 8,
                                         offset: Offset(0, 2),
                                       ),
@@ -249,7 +249,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                       fontSize: isSelected ? 32 : 22,
                                       fontWeight: FontWeight.w600,
                                       color: isSelected
-                                          ? Colors.indigo[900]
+                                            ? const Color(0xFF334E7B)
                                           : Colors.grey[800],
                                     ),
                                   ),
@@ -275,10 +275,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   decoration: BoxDecoration(
                     color: Colors.indigo[50],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.indigo, width: 1.5),
+                    border: Border.all(color: Color(0xFF334E7B), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.indigo.withOpacity(0.08),
+                      color: Color(0xFF334E7B).withOpacity(0.08),
                         blurRadius: 8,
                         offset: Offset(0, 2),
                       ),
@@ -300,7 +300,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.send, color: Colors.indigo),
+                        icon: Icon(Icons.send, color: Color(0xFF334E7B)),
                         onPressed: () => _handleSubmit(_textController.text),
                       ),
                     ],
@@ -319,7 +319,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           padding: EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             color: _isListening
-                                ? Colors.indigo[800]
+                                ? const Color(0xFF334E7B)
                                 : Colors.grey[200],
                             shape: BoxShape.circle,
                           ),

@@ -40,7 +40,7 @@ class AudioCardDetailScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 28 * scale,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2354C7),
+                      color: Color(0xFF334E7B),
                     ),
                   ),
                 ),
@@ -48,7 +48,7 @@ class AudioCardDetailScreen extends StatelessWidget {
                 InteractiveSpeakerIcon(
                   scale: scale,
                   text: displayText,
-                  color: Color(0xFF2354C7),
+                  color: Color(0xFF334E7B),
                 ),
               ],
             ),
