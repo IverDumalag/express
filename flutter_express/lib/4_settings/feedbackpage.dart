@@ -106,7 +106,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 28),
+            Image.asset(
+              'assets/images/smiley.png',
+              height: 120,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 32),
             Text(
               'Help us to improve',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -163,7 +169,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF334E7B),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
                 elevation: 5,
                 shadowColor: Colors.grey.withOpacity(0.5),

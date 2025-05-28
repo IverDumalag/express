@@ -145,7 +145,7 @@ class _SettingsState extends State<Settings> {
                           foregroundColor: Colors.white,
                           minimumSize: Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(4), 
                           ),
                           elevation: 0,
                         ),
@@ -198,7 +198,7 @@ class _SettingsState extends State<Settings> {
                           foregroundColor: Colors.white,
                           minimumSize: Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(4), // changed from 8 to 4
                           ),
                           elevation: 0,
                         ),
@@ -289,7 +289,7 @@ class _SettingsState extends State<Settings> {
                 foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(4), // changed from 10 to 4
                 ),
                 elevation: 2,
               ),
