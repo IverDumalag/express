@@ -20,7 +20,7 @@ class _PageProfileState extends State<PageProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final themeBlue = const Color(0xFF2354C7);
+    final themeBlue = const Color(0xFF334E7B); 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -37,32 +37,96 @@ class _PageProfileState extends State<PageProfile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Removed CircleAvatar here
                     SizedBox(height: screenHeight * 0.03),
-                    Text(
-                      "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.07,
-                        fontWeight: FontWeight.bold,
-                        color: themeBlue,
-                      ),
-                      textAlign: TextAlign.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Your Name:",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: themeBlue,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: screenHeight * 0.01),
-                    Text(
-                      user!['email'] ?? '',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.045,
-                        color: Colors.blueGrey[700],
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: themeBlue.withOpacity(0.4), width: 1.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                            children: [
+                            Expanded(
+                              child: Text(
+                              "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.06,
+                                fontWeight: FontWeight.bold,
+                                color: themeBlue,
+                                letterSpacing: 0.5,
+                              ),
+                              textAlign: TextAlign.left,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(Icons.check_circle, color: themeBlue, size: screenWidth * 0.07),
+                          ],
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: screenHeight * 0.04),
+                    SizedBox(height: screenHeight * 0.015),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Your Email:",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: themeBlue,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: themeBlue.withOpacity(0.4), width: 1.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          user!['email'] ?? '',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.045,
+                            color: Colors.blueGrey[700],
+                            letterSpacing: 0.2,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.03),
                     Card(
                       color: Colors.white,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -89,7 +153,7 @@ class _PageProfileState extends State<PageProfile> {
                             ),
                             Divider(),
                             _profileItem(
-                              icon: Icons.account_circle_outlined,
+                              icon: Icons.account_circle,
                               label: "Last Name",
                               value: user!['l_name'] ?? '',
                               themeBlue: themeBlue,
@@ -168,26 +232,35 @@ class _PageProfileState extends State<PageProfile> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: themeBlue, size: screenWidth * 0.06),
           SizedBox(width: screenWidth * 0.04),
           Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: screenWidth * 0.045,
-                color: Colors.blueGrey[800],
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.045,
+                    color: Colors.blueGrey[800],
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.045,
+                    color: themeBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                ),
+              ],
             ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: screenWidth * 0.045,
-              color: themeBlue,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.right,
           ),
         ],
       ),
@@ -209,9 +282,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController lNameController;
   late TextEditingController birthdateController;
   late TextEditingController sexController;
-  late TextEditingController passwordController;
 
   bool loading = false;
+  final List<String> sexOptions = ['Male', 'Female', 'Other'];
 
   @override
   void initState() {
@@ -223,7 +296,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       text: widget.user['birthdate'] ?? '',
     );
     sexController = TextEditingController(text: widget.user['sex'] ?? '');
-    passwordController = TextEditingController();
   }
 
   @override
@@ -233,57 +305,187 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     lNameController.dispose();
     birthdateController.dispose();
     sexController.dispose();
-    passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickBirthdate() async {
+    DateTime? initialDate;
+    try {
+      initialDate = DateTime.parse(birthdateController.text);
+    } catch (_) {
+      initialDate = DateTime(2000, 1, 1);
+    }
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      birthdateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeBlue = const Color(0xFF2354C7);
+    final themeBlue = const Color(0xFF334E7B); // Changed from 0xFF2354C7 to 0xFF334E7B
     final screenWidth = MediaQuery.of(context).size.width;
 
     return AlertDialog(
-      title: const Text("Edit Profile"),
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            TextField(
-              controller: fNameController,
-              decoration: const InputDecoration(labelText: "First Name"),
-            ),
-            TextField(
-              controller: mNameController,
-              decoration: const InputDecoration(labelText: "Middle Name"),
-            ),
-            TextField(
-              controller: lNameController,
-              decoration: const InputDecoration(labelText: "Last Name"),
-            ),
-            TextField(
-              controller: birthdateController,
-              decoration: const InputDecoration(labelText: "Birthdate"),
-            ),
-            TextField(
-              controller: sexController,
-              decoration: const InputDecoration(labelText: "Sex"),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: "New Password (optional)",
+      backgroundColor: const Color(0xFF334E7B), // Set modal background to #334E7B
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      title: Row(
+        children: [
+          Icon(Icons.edit, color: Colors.white), // Icon contrast
+          const SizedBox(width: 8),
+          const Text(
+            "Edit Profile",
+            style: TextStyle(color: Colors.white), // Title contrast
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: screenWidth > 420 ? 400 : screenWidth * 0.95,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: fNameController,
+                style: const TextStyle(color: Colors.white), // Input text
+                decoration: InputDecoration(
+                  labelText: "First Name",
+                  labelStyle: const TextStyle(color: Colors.white70), // Label contrast
+                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                ),
               ),
-              obscureText: true,
-            ),
-          ],
+              const SizedBox(height: 14),
+              TextField(
+                controller: mNameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Middle Name",
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: lNameController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Last Name",
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              GestureDetector(
+                onTap: _pickBirthdate,
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: birthdateController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: "Birthdate",
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      prefixIcon: Icon(Icons.cake, color: Colors.white70),
+                      suffixIcon: Icon(Icons.calendar_today, color: Colors.white70),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.white24),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                value: sexOptions.contains(sexController.text) ? sexController.text : null,
+                items: sexOptions
+                    .map((sex) => DropdownMenuItem(
+                          value: sex,
+                          child: Text(sex, style: const TextStyle(color: Colors.white)), // Set dropdown item text color to white
+                        ))
+                    .toList(),
+                onChanged: (val) {
+                  sexController.text = val ?? '';
+                  setState(() {});
+                },
+                dropdownColor: const Color(0xFF334E7B), // Match modal background for dropdown
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: "Sex",
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: Icon(Icons.wc, color: Colors.white70),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white24),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white),
+                  ),
+                ),
+              ),
+
+             
+   
+            ],
+          ),
         ),
       ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       actions: [
         TextButton(
           onPressed: loading ? null : () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white, // Button text contrast
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           child: const Text("Cancel"),
         ),
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: themeBlue),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: themeBlue,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
           onPressed: loading
               ? null
               : () async {
@@ -304,9 +506,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     lName: lNameController.text.trim(),
                     sex: sexController.text.trim(),
                     birthdate: birthdateController.text.trim(),
-                    password: passwordController.text.isNotEmpty
-                        ? passwordController.text
-                        : null,
+                    
                   );
                   setState(() => loading = false);
                   if (result['status'] == 200 || result['status'] == "200") {
@@ -332,7 +532,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: Color(0xFF334E7B), // Spinner color for contrast
                   ),
                 )
               : const Text("Save"),
