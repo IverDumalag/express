@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -47,7 +48,7 @@ class _SettingsState extends State<Settings> {
       body: Stack(
         children: [
           ListView(
-            padding: EdgeInsets.only(bottom: 80), // Add padding for logout button space
+            padding: EdgeInsets.only(bottom: 80),
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -65,7 +66,7 @@ class _SettingsState extends State<Settings> {
                     ),
                     SizedBox(height: 16.0),
                     Text(
-                      'Allow EXPRESS to access your camera and microphone..',
+                      'Allow exPress to access your camera and microphone..',
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 16,
@@ -116,45 +117,102 @@ class _SettingsState extends State<Settings> {
                   horizontal: 16.0,
                   vertical: 8.0,
                 ),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF334E7B),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF334E7B).withOpacity(0.10),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFF334E7B).withOpacity(0.18),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: Icon(Icons.feedback, color: Color(0xFF334E7B)),
+                        label: Text(
+                          "Give Us Feedback! It Helps!",
+                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => FeedbackPage()),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                  icon: Icon(Icons.feedback),
-                  label: Text("Give Us Feedback! It Helps!"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => FeedbackPage()),
-                    );
-                  },
                 ),
               ),
-              // Archive
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16.0,
                   vertical: 8.0,
                 ),
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF334E7B),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF334E7B).withOpacity(0.10),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFF334E7B).withOpacity(0.18),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
+                        label: Text(
+                          "Archive",
+                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/archive');
+                        },
+                      ),
                     ),
                   ),
-                  icon: Icon(Icons.archive),
-                  label: Text("Archive"),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/archive');
-                  },
                 ),
               ),
               Padding(
@@ -227,15 +285,19 @@ class _SettingsState extends State<Settings> {
             bottom: 16,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                elevation: 2,
               ),
-              icon: Icon(Icons.logout),
-              label: Text("Logout"),
+              icon: Icon(Icons.logout, color: Colors.white),
+              label: Text(
+                "Logout",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
