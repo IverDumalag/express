@@ -38,6 +38,17 @@ class _PageProfileState extends State<PageProfile> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: screenHeight * 0.03),
+                    Text(
+                      "My Profile",
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.08,
+                        fontWeight: FontWeight.bold,
+                        color: themeBlue,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: screenHeight * 0.01),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
