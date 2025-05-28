@@ -69,20 +69,50 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Feedback',
-          style: TextStyle(fontFamily: 'Inter', color: Colors.black),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              'Back',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: Color(0xFF334E7B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.white,
+        centerTitle: false,
+        elevation: 1,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Feedback',
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                  fontFamily: 'Inter',
+                ),
+              ),
+            ),
+            SizedBox(height: 28),
+            Image.asset(
+              'assets/images/smiley.png',
+              height: 120,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 32),
             Text(
               'Help us to improve',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -139,7 +169,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF334E7B),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
                 elevation: 5,
                 shadowColor: Colors.grey.withOpacity(0.5),

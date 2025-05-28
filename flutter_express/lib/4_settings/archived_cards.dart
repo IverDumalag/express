@@ -60,23 +60,29 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
     final scale = _scaleFactor(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Archived Cards',
-          style: TextStyle(
-            color: Color(0xFF2354C7),
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Inter',
-          ),
+
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              'Back',
+              style: TextStyle(
+                color: Color(0xFF334E7B),
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.white,
         elevation: 1,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF2354C7)),
+          icon: Icon(Icons.arrow_back, color: Color(0xFF334E7B)),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: true,
+        centerTitle: false, 
       ),
-      backgroundColor: Color(0xFFF5F8FF),
+      backgroundColor: Colors.white,
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _archivedCards.isEmpty
@@ -90,83 +96,102 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                 ),
               ),
             )
-          : ListView.builder(
-              padding: EdgeInsets.all(16 * scale),
-              itemCount: _archivedCards.length,
-              itemBuilder: (context, index) {
-                final card = _archivedCards[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 16 * scale),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16 * scale),
-                    border: Border.all(color: Color(0xFF2354C7), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF2354C7).withOpacity(0.08),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  child: Text(
+                    'Archived',
+                    style: TextStyle(
+                      color: Color(0xFF334E7B),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 36,
+                      fontFamily: 'Inter',
+                    ),
                   ),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20 * scale,
-                      vertical: 12 * scale,
-                    ),
-                    title: Text(
-                      card['words'] ?? '',
-                      style: TextStyle(
-                        fontSize: 22 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2354C7),
-                      ),
-                    ),
-                    subtitle: Text(
-                      card['created_at'] ?? '',
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        color: Colors.blueGrey,
-                      ),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: Colors.red[700],
-                        size: 28 * scale,
-                      ),
-                      tooltip: 'Delete',
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text('Delete Card'),
-                            content: Text(
-                              'Are you sure you want to permanently delete this card?',
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(16 * scale),
+                    itemCount: _archivedCards.length,
+                    itemBuilder: (context, index) {
+                      final card = _archivedCards[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 16 * scale),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10), 
+                          border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xFF2354C7).withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx, false),
-                                child: Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx, true),
-                                child: Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                          ],
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 20 * scale,
+                            vertical: 12 * scale,
                           ),
-                        );
-                        if (confirm == true) {
-                          await _deleteCard(card['entry_id'].toString());
-                        }
-                      },
-                    ),
+                          title: Text(
+                            card['words'] ?? '',
+                            style: TextStyle(
+                              fontSize: 22 * scale,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2354C7),
+                            ),
+                          ),
+                          subtitle: Text(
+                            card['created_at'] ?? '',
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red[700],
+                              size: 28 * scale,
+                            ),
+                            tooltip: 'Delete',
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: Text('Delete Card'),
+                                  content: Text(
+                                    'Are you sure you want to permanently delete this card?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, false),
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(ctx, true),
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirm == true) {
+                                await _deleteCard(card['entry_id'].toString());
+                              }
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
     );
   }
