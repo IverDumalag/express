@@ -69,7 +69,10 @@ class _LoginState extends State<Login> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24 * scale, vertical: 36 * scale),
+          padding: EdgeInsets.symmetric(
+            horizontal: 24 * scale,
+            vertical: 36 * scale,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -102,10 +105,14 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v == null || v.isEmpty ? 'Enter email' : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'Enter email' : null,
                   onSaved: (v) => email = v!.trim(),
                 ),
                 SizedBox(height: 16 * scale),
@@ -118,10 +125,15 @@ class _LoginState extends State<Login> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                        _passwordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -131,34 +143,14 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   obscureText: !_passwordVisible,
-                  validator: (v) => v == null || v.isEmpty ? 'Enter password' : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'Enter password' : null,
                   onSaved: (v) => password = v!,
-                ),
-
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: const Color(0xFF334E7B),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14 * scale,
-                      ),
-                    ),
-                  ),
                 ),
 
                 if (error != null) ...[
                   SizedBox(height: 16 * scale),
-                  Text(
-                    error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
+                  Text(error!, style: const TextStyle(color: Colors.red)),
                 ],
                 SizedBox(height: 24 * scale),
 
@@ -176,7 +168,9 @@ class _LoginState extends State<Login> {
                     ),
                     child: loading
                         ? const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           )
                         : Text(
                             'Login',
