@@ -1,84 +1,52 @@
 import 'package:flutter/material.dart';
-import '../0_components/help_widget.dart';
+import 'package:camera/camera.dart';
+import 'dart:async';
 
-class SignToTextPage extends StatelessWidget {
+class SignToTextPage extends StatefulWidget {
+  @override
+  _SignToTextPageState createState() => _SignToTextPageState();
+}
+
+class _SignToTextPageState extends State<SignToTextPage> {
+  CameraController? _cameraController;
+  List<CameraDescription>? cameras;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    cameras = await availableCameras();
+    _cameraController = CameraController(
+      cameras!.first,
+      ResolutionPreset.medium,
+    );
+    await _cameraController!.initialize();
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient background
-          Container(
-            color: Colors.white,
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: Color(0xFF334E7B), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 3,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
+          // Camera preview
+          _cameraController != null && _cameraController!.value.isInitialized
+              ? Center(
+                  child: AspectRatio(
+                    aspectRatio: _cameraController!.value.aspectRatio,
+                    child: CameraPreview(_cameraController!),
                   ),
-                  child: Center(
-                    child: IconButton(
-                      icon: Icon(Icons.camera_alt,
-                          size: 50, color: Colors.black54),
-                      onPressed: () {
-                        // Add your onPressed code here to enable the camera
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: Color(0xFF334E7B), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 3,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Translation Output',
-                      style: TextStyle(fontSize: 24, color: Colors.black54),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Use the customizable HelpIconWidget here
-          Positioned(
-            top: 16,
-            right: 16,
-            child: HelpIconWidget(
-              helpTitle: 'How to Use',
-              helpText: '1. Tap the camera icon to enable your camera.\n'
-                  '2. Position your hand gestures within the camera view.\n'
-                  '3. The translation of your sign gestures will appear in the output container below.',
-            ),
-          ),
+                )
+              : Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -249,7 +249,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                       fontSize: isSelected ? 32 : 22,
                                       fontWeight: FontWeight.w600,
                                       color: isSelected
-                                            ? const Color(0xFF334E7B)
+                                          ? const Color(0xFF334E7B)
                                           : Colors.grey[800],
                                     ),
                                   ),
@@ -278,7 +278,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                     border: Border.all(color: Color(0xFF334E7B), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                      color: Color(0xFF334E7B).withOpacity(0.08),
+                        color: Color(0xFF334E7B).withOpacity(0.08),
                         blurRadius: 8,
                         offset: Offset(0, 2),
                       ),
