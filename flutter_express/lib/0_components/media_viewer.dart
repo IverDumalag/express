@@ -5,14 +5,20 @@ class MediaViewer extends StatelessWidget {
   final String filePath;
   final double scale;
 
-  const MediaViewer({required this.filePath, required this.scale});
+  const MediaViewer({Key? key, required this.filePath, required this.scale})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (filePath.endsWith('.MOV')) {
-      return _VideoAssetPlayer(filePath: filePath);
-    } else if (filePath.endsWith('.png') || filePath.endsWith('.jpg')) {
-      return _ImageAssetViewer(filePath: filePath);
+    if (filePath.isEmpty) {
+      return _NoMatchFound();
+    } else if (filePath.toLowerCase().endsWith('.mp4') ||
+        filePath.toLowerCase().endsWith('.mov')) {
+      return _VideoPlayerWidget(filePath: filePath);
+    } else if (filePath.toLowerCase().endsWith('.png') ||
+        filePath.toLowerCase().endsWith('.jpg') ||
+        filePath.toLowerCase().endsWith('.jpeg')) {
+      return _ImageViewer(filePath: filePath);
     } else {
       return _NoMatchFound();
     }
@@ -29,7 +35,11 @@ class _NoMatchFound extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('No Match Found in our Dataset'),
+            Text(
+              'No Match Found or Unsupported Media',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -38,7 +48,9 @@ class _NoMatchFound extends StatelessWidget {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text('Feedback or Search'),
-                      content: Text('This is a popup for feedback or search.'),
+                      content: Text(
+                        'This is a popup for feedback or search. You can integrate your logic here.',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -60,54 +72,105 @@ class _NoMatchFound extends StatelessWidget {
   }
 }
 
-class _ImageAssetViewer extends StatelessWidget {
+class _ImageViewer extends StatelessWidget {
   final String filePath;
 
-  const _ImageAssetViewer({required this.filePath});
+  const _ImageViewer({Key? key, required this.filePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ClipRect(
-        child: SizedBox(
-          width: 300,
-          height: 300,
-          child: FittedBox(
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-            child: Image.asset(filePath),
-          ),
-        ),
+      child: SizedBox(
+        // Use SizedBox to give explicit dimensions to the image container
+        width: 300,
+        height: 300,
+        child: filePath.startsWith('http') || filePath.startsWith('https')
+            ? Image.network(
+                filePath,
+                fit: BoxFit
+                    .contain, // Fit the image within the SizedBox, maintaining aspect ratio
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.broken_image,
+                    size: 100,
+                    color: Colors.grey,
+                  );
+                },
+              )
+            : Image.asset(
+                filePath,
+                fit: BoxFit
+                    .contain, // Fit the image within the SizedBox, maintaining aspect ratio
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error, size: 100, color: Colors.grey);
+                },
+              ),
       ),
     );
   }
 }
 
-class _VideoAssetPlayer extends StatefulWidget {
+class _VideoPlayerWidget extends StatefulWidget {
   final String filePath;
 
-  const _VideoAssetPlayer({required this.filePath});
+  const _VideoPlayerWidget({Key? key, required this.filePath})
+    : super(key: key);
 
   @override
-  __VideoAssetPlayerState createState() => __VideoAssetPlayerState();
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
 
-class __VideoAssetPlayerState extends State<_VideoAssetPlayer> {
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   late VideoPlayerController _controller;
   double _playbackSpeed = 1.0;
   final List<double> _speedOptions = [0.5, 1.0, 1.5, 2.0];
 
-  final double displayWidth = 300;
+  final double displayWidth = 300; // Fixed width for video player
   final double progressBarThickness = 20.0;
   final double circleDiameter = 20.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(widget.filePath)
-      ..initialize().then((_) => setState(() {}));
+    if (widget.filePath.startsWith('http') ||
+        widget.filePath.startsWith('https')) {
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(widget.filePath),
+      );
+    } else {
+      _controller = VideoPlayerController.asset(widget.filePath);
+    }
+
+    _controller
+        .initialize()
+        .then((_) {
+          if (mounted) {
+            setState(() {});
+          }
+        })
+        .catchError((error) {
+          print("Error initializing video: $error");
+          if (mounted) {
+            // Optionally display an error message on the UI
+            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load video')));
+          }
+        });
+
     _controller.addListener(() {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -120,26 +183,26 @@ class __VideoAssetPlayerState extends State<_VideoAssetPlayer> {
   @override
   Widget build(BuildContext context) {
     if (!_controller.value.isInitialized) {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: SizedBox(
+          width: displayWidth,
+          height: 300,
+          child: const CircularProgressIndicator(),
+        ),
+      );
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Center(
-          child: ClipRect(
-            child: SizedBox(
-              width: displayWidth,
-              height: 300,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                alignment: Alignment.center,
-                child: SizedBox(
-                  width: _controller.value.size.width,
-                  height: _controller.value.size.height,
-                  child: VideoPlayer(_controller),
-                ),
-              ),
+          child: SizedBox(
+            // This SizedBox provides the bounded constraints
+            width: displayWidth,
+            height: 300, // Fixed height for video container
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
             ),
           ),
         ),
@@ -195,13 +258,18 @@ class _CustomProgressBar extends StatelessWidget {
   final double circleDiameter;
 
   const _CustomProgressBar({
+    Key? key,
     required this.controller,
     required this.width,
     required this.height,
     required this.circleDiameter,
-  });
+  }) : super(key: key);
 
   void _seekToRelativePosition(Offset localPosition) {
+    if (!controller.value.isInitialized ||
+        controller.value.duration == Duration.zero)
+      return;
+
     final newRatio = localPosition.dx / width;
     final clampedRatio = newRatio.clamp(0.0, 1.0);
     final duration = controller.value.duration;
@@ -214,7 +282,7 @@ class _CustomProgressBar extends StatelessWidget {
     final durationMs = controller.value.duration.inMilliseconds;
     final positionMs = controller.value.position.inMilliseconds;
     final progressRatio = durationMs > 0 ? positionMs / durationMs : 0.0;
-    final double redBarWidth = progressRatio * width;
+    final double filledBarWidth = progressRatio * width;
 
     return GestureDetector(
       onTapDown: (details) {
@@ -226,31 +294,39 @@ class _CustomProgressBar extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        margin: EdgeInsets.symmetric(vertical: 10),
+        margin: const EdgeInsets.symmetric(vertical: 10),
         child: Stack(
+          alignment: Alignment.centerLeft,
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey,
+                color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
             Container(
-              width: redBarWidth,
+              width: filledBarWidth,
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: Colors.blue,
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
             Positioned(
-              left: redBarWidth - circleDiameter / 2,
-              top: (height - circleDiameter) / 2,
+              left: filledBarWidth - circleDiameter / 2,
               child: Container(
                 width: circleDiameter,
                 height: circleDiameter,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
+                  border: Border.all(color: Colors.blue, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 3,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
               ),
             ),

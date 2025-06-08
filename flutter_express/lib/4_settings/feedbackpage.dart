@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_express/global_variables.dart';
+import '../00_services/api_services.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key}) : super(key: key);
@@ -8,193 +10,187 @@ class FeedbackPage extends StatefulWidget {
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
-  // Keep track of which rating is selected. Let's default to "Satisfied" (index 3).
-  int _selectedIndex = 3;
+  final TextEditingController _mainConcernController = TextEditingController();
+  final TextEditingController _detailsController = TextEditingController();
+  bool _loading = false;
 
-  // A controller for the comments TextField
-  final TextEditingController _commentController = TextEditingController();
-
-  // You can adjust the labels to match your preferred text
-  final List<String> _ratingLabels = [
-    'Very Dissatisfied',
-    'Dissatisfied',
-    'Neutral',
-    'Satisfied',
-    'Very Satisfied',
-  ];
-
-  // Corresponding icons from Flutter's Material library
-  final List<IconData> _ratingIcons = [
-    Icons.sentiment_very_dissatisfied,
-    Icons.sentiment_dissatisfied,
-    Icons.sentiment_neutral,
-    Icons.sentiment_satisfied,
-    Icons.sentiment_very_satisfied,
-  ];
-
-  // Some colors for each icon (optional)
-  final List<Color> _ratingColors = [
-    Colors.red,
-    Colors.orange,
-    Colors.amber,
-    Colors.lightGreen,
-    Colors.green,
+  final List<String> _mainConcernOptions = [
+    "Word/Phrases No Match",
+    "Bug Found",
+    "Suggestion",
   ];
 
   @override
-  Widget build(BuildContext context) {
-    final currentColor = _ratingColors[_selectedIndex];
-    final currentLabel = _ratingLabels[_selectedIndex];
-    final currentIcon = _ratingIcons[_selectedIndex];
+  void dispose() {
+    _mainConcernController.dispose();
+    _detailsController.dispose();
+    super.dispose();
+  }
 
+  Future<void> _submitFeedback() async {
+    final user = UserSession.user;
+    if (user == null) return;
+
+    final mainConcern = _mainConcernController.text.trim();
+    final details = _detailsController.text.trim();
+
+    if (mainConcern.isEmpty || details.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    final result = await ApiService.submitFeedback(
+      userId: user['user_id'].toString(),
+      email: user['email'] ?? '',
+      mainConcern: mainConcern,
+      details: details,
+    );
+
+    setState(() => _loading = false);
+
+    if (result['status'] == 201 || result['status'] == "201") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Feedback submitted successfully!')),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Submission failed.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background of the page to white
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Feedback',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            color: Color.fromARGB(255, 0, 0, 0), // Set text color to white
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              'Back',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: Color(0xFF334E7B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back,
-              color: Color.fromARGB(
-                  255, 0, 0, 0)), // Set arrow back color to white
-          onPressed: () {
-            Navigator.pop(context); // Handle back navigation
-          },
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: const Color.fromARGB(
-            255, 255, 255, 255), // Set the app bar color to 0xFF334E7B
+        backgroundColor: Colors.white,
+        centerTitle: false,
+        elevation: 1,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Large icon and label for the currently selected rating
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  currentIcon,
-                  color: currentColor,
-                  size: 80,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Feedback',
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                  fontFamily: 'Inter',
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  currentLabel,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 20,
-                    color: currentColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 24),
-
-            // Row of smaller icons that the user can tap to select rating
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(_ratingIcons.length, (index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  child: Column(
-                    children: [
-                      Icon(
-                        _ratingIcons[index],
-                        color: _ratingColors[index],
-                        size: 40,
-                      ),
-                    ],
-                  ),
-                );
-              }),
+            SizedBox(height: 28),
+            Image.asset(
+              'assets/images/smiley.png',
+              height: 120,
+              fit: BoxFit.contain,
             ),
-            const SizedBox(height: 32),
-
-            // "Help us improve" text
+            SizedBox(height: 32),
             Text(
               'Help us to improve',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontFamily: 'Inter',
-                    fontSize: 27,
-                    fontWeight: FontWeight.w900,
-                  ),
+                fontFamily: 'Inter',
+                fontSize: 27,
+                fontWeight: FontWeight.w900,
+              ),
             ),
-            const SizedBox(height: 8),
-
-            // Comment TextField with modern look
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+            const SizedBox(height: 16),
+            // Dropdown + TextField for Main Concern
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text == '') {
+                  return _mainConcernOptions;
+                }
+                return _mainConcernOptions.where((String option) {
+                  return option.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  );
+                });
+              },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onEditingComplete) {
+                    _mainConcernController.text = controller.text;
+                    controller.addListener(() {
+                      _mainConcernController.text = controller.text;
+                    });
+                    return TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        labelText: 'Main Concern',
+                        border: OutlineInputBorder(),
+                      ),
+                      onEditingComplete: onEditingComplete,
+                    );
+                  },
+              onSelected: (String selection) {
+                _mainConcernController.text = selection;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _detailsController,
+              decoration: InputDecoration(
+                labelText: 'Details',
+                border: OutlineInputBorder(),
               ),
-              child: TextField(
-                controller: _commentController,
-                decoration: const InputDecoration(
-                  hintText: 'Comment here...',
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(16.0),
-                ),
-                maxLines: 4,
-                style: const TextStyle(fontFamily: 'Inter'),
-              ),
+              maxLines: 4,
             ),
             const SizedBox(height: 24),
-
-            // Submit button
             ElevatedButton(
-              onPressed: () {
-                // Handle submit action
-                // You can read _selectedIndex for rating,
-                // and _commentController.text for user comment
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Submitted: ${_ratingLabels[_selectedIndex]} - '
-                      'Comment: ${_commentController.text}',
-                      style: const TextStyle(fontFamily: 'Inter'),
-                    ),
-                  ),
-                );
-              },
+              onPressed: _loading ? null : _submitFeedback,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(
-                    0xFF334E7B), // Set the button color to 0xFF334E7B
+                backgroundColor: const Color(0xFF334E7B),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12.0), // Set border radius
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
-                elevation: 5, // Add drop shadow
-                shadowColor: Colors.grey.withOpacity(0.5), // Set shadow color
+                elevation: 5,
+                shadowColor: Colors.grey.withOpacity(0.5),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                child: Text(
-                  'Submit',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.white, // Set text color to white
-                    fontWeight: FontWeight.w900, // Set text to bold
-                    fontSize: 20.0, // Increase text size
-                  ),
-                ),
-              ),
+              child: _loading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 12.0,
+                      ),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20.0,
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),

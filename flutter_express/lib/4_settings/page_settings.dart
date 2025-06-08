@@ -1,5 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_express/global_variables.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
 
@@ -13,7 +16,6 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   bool _cameraAccess = false;
   bool _voiceAccess = false;
-  bool _soundEffects = false;
 
   @override
   void initState() {
@@ -43,172 +45,268 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Settings',
+      body: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.only(bottom: 80),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF334E7B), 
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    Text(
+                      'Allow exPress to access your camera and microphone..',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SwitchListTile(
+                title: Text(
+                  'Access Camera',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                value: _cameraAccess,
+                onChanged: (bool value) async {
+                  if (value) {
+                    final status = await Permission.camera.request();
+                    setState(() => _cameraAccess = status.isGranted);
+                  } else {
+                    openAppSettings();
+                  }
+                  _checkPermissions();
+                },
+                secondary: Icon(Icons.camera_alt),
+                activeColor: Color(0xFF334E7B),
+              ),
+              SwitchListTile(
+                title: Text(
+                  'Access Microphone',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                value: _voiceAccess,
+                onChanged: (value) async {
+                  if (value) {
+                    final status = await Permission.microphone.request();
+                    setState(() => _voiceAccess = status.isGranted);
+                  } else {
+                    openAppSettings();
+                  }
+                  _checkPermissions();
+                },
+                secondary: Icon(Icons.mic),
+                activeColor: Color(0xFF334E7B),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF334E7B).withOpacity(0.10),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFF334E7B).withOpacity(0.18),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4), 
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: Icon(Icons.feedback, color: Color(0xFF334E7B)),
+                        label: Text(
+                          "Give Us Feedback! It Helps!",
+                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => FeedbackPage()),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF334E7B).withOpacity(0.10),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFF334E7B).withOpacity(0.18),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4), // changed from 8 to 4
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
+                        label: Text(
+                          "Archive",
+                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/archive');
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'FAQs',
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
+                    color: Color(0xFF334E7B),
                   ),
                 ),
-                SizedBox(height: 16.0),
-                Text(
-                  'Allow EXPRESS to access your camera and microphone..',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 16,
-                    color: Colors.grey,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search about exPress',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: EdgeInsets.all(16.0),
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          SwitchListTile(
-            title: Text(
-              'Access Camera',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            value: _cameraAccess,
-            onChanged: (bool value) async {
-              if (value) {
-                final status = await Permission.camera.request();
-                setState(() => _cameraAccess = status.isGranted);
-              } else {
-                openAppSettings();
-              }
-              _checkPermissions();
-            },
-            secondary: Icon(Icons.camera_alt),
-            activeColor: Color(0xFF334E7B),
-          ),
-          SwitchListTile(
-            title: Text(
-              'Access Microphone',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            value: _voiceAccess,
-            onChanged: (value) async {
-              if (value) {
-                final status = await Permission.microphone.request();
-                setState(() => _voiceAccess = status.isGranted);
-              } else {
-                openAppSettings();
-              }
-              _checkPermissions();
-            },
-            secondary: Icon(Icons.mic),
-            activeColor: Color(0xFF334E7B),
-          ),
-          SwitchListTile(
-            title: Text(
-              'Sound Effects',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            value: _soundEffects,
-            onChanged: (bool value) {
-              setState(() {
-                _soundEffects = value;
-              });
-            },
-            secondary: Icon(
-              Icons.surround_sound,
-            ),
-            activeColor: Color(0xFF334E7B),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Give us some feedback',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 16,
-                color: Colors.grey,
               ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.feedback),
-            title: Text(
-              'Feedback',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF334E7B),
+              SizedBox(height: 16.0),
+              FAQItem(
+                question: 'What is exPress?',
+                answer:
+                    'exPress is a mobile application designed to allow abled people to connect within '
+                    'deaf-mute communities seamlessly and vice-versa. With features like sign language '
+                    'to text and text/audio to sign language conversion.',
               ),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FeedbackPage()),
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'FAQs',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
+              FAQItem(
+                question: 'How does exPress work?',
+                answer:
+                    'exPress works by converting sign language to text and text/audio to sign language '
+                    'using advanced machine learning algorithms.',
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
+              FAQItem(
+                question: 'How can I provide feedback?',
+                answer:
+                    'You can provide feedback through the feedback section in the app settings or by '
+                    'contacting our support team.',
               ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search about exPress',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    borderSide: BorderSide.none,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.all(16.0),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4), // changed from 10 to 4
                 ),
+                elevation: 2,
               ),
+              icon: Icon(Icons.logout, color: Colors.white),
+              label: Text(
+                "Logout",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+                UserSession.user = null;
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/login', (route) => false);
+              },
             ),
-          ),
-          SizedBox(height: 16.0),
-          FAQItem(
-            question: 'What is exPress?',
-            answer:
-                'exPress is a mobile application designed to allow abled people to connect within '
-                'deaf-mute communities seamlessly and vice-versa. With features like sign language '
-                'to text and text/audio to sign language conversion.',
-          ),
-          FAQItem(
-            question: 'How does exPress work?',
-            answer:
-                'exPress works by converting sign language to text and text/audio to sign language '
-                'using advanced machine learning algorithms.',
-          ),
-          FAQItem(
-            question: 'How can I provide feedback?',
-            answer:
-                'You can provide feedback through the feedback section in the app settings or by '
-                'contacting our support team.',
           ),
         ],
       ),

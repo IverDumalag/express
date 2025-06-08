@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'main.dart';
 import '../0_components/help_widget.dart';
 
 class LandingPage extends StatefulWidget {
@@ -47,25 +46,29 @@ class _LandingPageState extends State<LandingPage>
     List<TextSpan> spans = [];
     for (int i = 0; i < parts.length; i++) {
       if (parts[i].isNotEmpty) {
-        spans.add(TextSpan(
-          text: parts[i],
-          style: TextStyle(
-            color: Color(0xFFBEBEBE),
-            fontSize: 36 * scale,
-            fontFamily: 'Inter',
+        spans.add(
+          TextSpan(
+            text: parts[i],
+            style: TextStyle(
+              color: Color(0xFFBEBEBE),
+              fontSize: 36 * scale,
+              fontFamily: 'Inter',
+            ),
           ),
-        ));
+        );
       }
       if (i != parts.length - 1) {
-        spans.add(TextSpan(
-          text: 'exPress',
-          style: TextStyle(
-            color: Color(0xFF2354C7),
-            fontWeight: FontWeight.bold,
-            fontSize: 36 * scale,
-            fontFamily: 'Inter',
+        spans.add(
+          TextSpan(
+            text: 'exPress',
+            style: TextStyle(
+              color: Color(0xFF2354C7),
+              fontWeight: FontWeight.bold,
+              fontSize: 36 * scale,
+              fontFamily: 'Inter',
+            ),
           ),
-        ));
+        );
       }
     }
     return RichText(
@@ -93,16 +96,16 @@ class _LandingPageState extends State<LandingPage>
 
               return Stack(
                 children: [
-                  // Current Text using RichText
+                  // Current Text using RichText (bottom to top)
                   Positioned(
-                    top: position * size.height,
+                    bottom: position * size.height,
                     left: 16 * scale,
                     right: 16 * scale,
                     child: buildDescription(_descriptions[currentIndex], scale),
                   ),
-                  // Next Text using RichText
+                  // Next Text using RichText (bottom to top)
                   Positioned(
-                    top: (position - 1.0) * size.height,
+                    bottom: (position - 1.0) * size.height,
                     left: 16 * scale,
                     right: 16 * scale,
                     child: buildDescription(_descriptions[nextIndex], scale),
@@ -162,18 +165,15 @@ class _LandingPageState extends State<LandingPage>
                         final audioPlayer = AudioPlayer();
 
                         try {
-                          await audioPlayer
-                              .play(AssetSource('sounds/button_pressed.mp3'));
+                          await audioPlayer.play(
+                            AssetSource('sounds/button_pressed.mp3'),
+                          );
                         } catch (e) {
                           print("Error playing sound: $e");
                         }
 
                         if (mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainScreen()),
-                          );
+                          Navigator.pushNamed(context, '/main');
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -202,10 +202,17 @@ class _LandingPageState extends State<LandingPage>
             top: 16 * scale,
             right: 16 * scale,
             child: HelpIconWidget(
-              helpTitle: 'How to Use',
-              helpText: '1. Tap the camera icon to enable your camera.\n'
-                  '2. Position your hand gestures within the camera view.\n'
-                  '3. The translation of your sign gestures will appear in the output container below.',
+              helpTitle:
+                  'exPress: Vision-Enabled TensorFlow App For Deaf and Abled Individuals',
+              helpText:
+                  'A Capstone Project submitted to the Faculty of the\n'
+                  'National University College of Computing and Information Technologies\n'
+                  'in Partial Fulfillment of the requirements for the Degree of\n'
+                  'Bachelor of Science in Information Technology\n\n'
+                  'Researchers and Developers:\n\n'
+                  'Dumalag, Iver Marl\n'
+                  'Garcia, Alyssa Umiko\n'
+                  'Ross, Angel Aisha',
             ),
           ),
         ],
