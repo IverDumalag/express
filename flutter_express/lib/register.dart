@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '00_services/api_services.dart';
 import '0_components/popup_information.dart';
 
@@ -23,22 +25,112 @@ class _RegisterState extends State<Register> {
   String? error;
   String? success;
 
-  final birthdateController = TextEditingController();
+  // OTP related variables
+  bool otpStep = false;
+  String otpCode = '';
+  String sentOtp = '';
+  bool otpLoading = false;
+  int resendTimer = 0;
 
-  void _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (password != confirmPassword) {
+  final birthdateController = TextEditingController();
+  final otpController = TextEditingController();
+
+  // Generate random 6-digit OTP
+  String generateOTP() {
+    return (100000 + (900000 * (DateTime.now().millisecond / 1000)).floor())
+        .toString();
+  }
+
+  // Send OTP using the Node.js backend
+  Future<void> sendOTP() async {
+    if (email.trim().isEmpty) {
       setState(() {
-        error = "Passwords do not match";
+        error = "Please enter your email first.";
       });
       return;
     }
+
+    setState(() {
+      otpLoading = true;
+      error = null;
+    });
+
+    final otp = generateOTP();
+    setState(() {
+      sentOtp = otp;
+    });
+
+    try {
+      const otpUrl = 'https://express-nodejs-nc12.onrender.com/send-otp';
+      final response = await http.post(
+        Uri.parse(otpUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'to': email.trim(), 'otp': otp}),
+      );
+
+      final result = jsonDecode(response.body);
+
+      if (result['success'] == true) {
+        await PopupInformation.show(
+          context,
+          title: "OTP Sent",
+          message: "Verification code sent to $email. Please check your email.",
+        );
+        setState(() {
+          otpStep = true;
+        });
+        startResendTimer();
+      } else {
+        throw Exception(result['message'] ?? 'Failed to send OTP');
+      }
+    } catch (e) {
+      await PopupInformation.show(
+        context,
+        title: "Error",
+        message: "Failed to send OTP. Please try again.",
+      );
+    } finally {
+      setState(() {
+        otpLoading = false;
+      });
+    }
+  }
+
+  // Start resend timer
+  void startResendTimer() {
+    setState(() {
+      resendTimer = 60;
+    });
+
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        setState(() {
+          resendTimer--;
+        });
+        return resendTimer > 0;
+      }
+      return false;
+    });
+  }
+
+  // Verify OTP and proceed with registration
+  Future<void> verifyOTPAndRegister() async {
+    if (otpCode != sentOtp) {
+      await PopupInformation.show(
+        context,
+        title: "Error",
+        message: "Invalid OTP. Please try again.",
+      );
+      return;
+    }
+
+    // OTP verified, proceed with registration
     setState(() {
       loading = true;
       error = null;
-      success = null;
     });
-    _formKey.currentState!.save();
+
     try {
       final result = await ApiService.register(
         email: email,
@@ -49,14 +141,13 @@ class _RegisterState extends State<Register> {
         sex: sex,
         birthdate: birthdate,
       );
+
       if (result['status'] == 201) {
-        setState(() {
-          success = "Registration successful! Please login.";
-        });
         await PopupInformation.show(
           context,
           title: "Registration Successful",
-          message: "You can now login.",
+          message:
+              "Your account has been created successfully! You can now login.",
           onOk: () {
             Navigator.pushReplacementNamed(context, '/login');
           },
@@ -70,9 +161,44 @@ class _RegisterState extends State<Register> {
       setState(() {
         error = 'Network error';
       });
+    } finally {
+      setState(() {
+        loading = false;
+      });
     }
+  }
+
+  void _submit() async {
+    if (!otpStep) {
+      // First step: Validate form and send OTP
+      if (!_formKey.currentState!.validate()) return;
+      if (password != confirmPassword) {
+        setState(() {
+          error = "Passwords do not match";
+        });
+        return;
+      }
+      _formKey.currentState!.save();
+      await sendOTP();
+    } else {
+      // Second step: Verify OTP and register
+      if (otpCode.length != 6) {
+        setState(() {
+          error = "Please enter the 6-digit OTP code";
+        });
+        return;
+      }
+      await verifyOTPAndRegister();
+    }
+  }
+
+  // Go back to form step
+  void goBackToForm() {
     setState(() {
-      loading = false;
+      otpStep = false;
+      otpCode = '';
+      sentOtp = '';
+      otpController.clear();
     });
   }
 
@@ -87,6 +213,10 @@ class _RegisterState extends State<Register> {
     bool readOnly = false,
     Widget? suffixIcon,
   }) {
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 400;
+    final fontSize = isSmallScreen ? 16.0 : 18.0;
+
     return TextFormField(
       obscureText: obscure,
       keyboardType: keyboardType,
@@ -95,13 +225,16 @@ class _RegisterState extends State<Register> {
       controller: controller,
       onTap: onTap,
       readOnly: readOnly,
-      style: const TextStyle(fontSize: 20),
+      style: TextStyle(fontSize: fontSize),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(fontSize: 20),
+        hintStyle: TextStyle(fontSize: fontSize),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 16 : 24,
+          vertical: isSmallScreen ? 16 : 22,
+        ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
         suffixIcon: suffixIcon,
       ),
@@ -110,166 +243,379 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+    final isSmallScreen = screenWidth < 400;
+    final isMediumScreen = screenWidth >= 400 && screenWidth < 600;
+    final isLargeScreen = screenWidth >= 600;
+
+    // Responsive sizes
+    final horizontalPadding = isSmallScreen
+        ? 16.0
+        : (isMediumScreen ? 20.0 : 24.0);
+    final containerPadding = isSmallScreen
+        ? 20.0
+        : (isMediumScreen ? 28.0 : 32.0);
+    final titleSize = isSmallScreen ? 28.0 : (isMediumScreen ? 32.0 : 36.0);
+    final subtitleSize = isSmallScreen ? 16.0 : (isMediumScreen ? 18.0 : 20.0);
+    final spacing = isSmallScreen ? 16.0 : 20.0;
+    final buttonPadding = isSmallScreen ? 18.0 : 24.0;
+    final buttonFontSize = isSmallScreen ? 18.0 : 22.0;
+
+    // Container width constraints
+    final maxWidth = isLargeScreen ? 500.0 : double.infinity;
+
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/continue_us.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/continue_us.png', fit: BoxFit.cover),
           ),
           SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 40),
-                child: IntrinsicHeight(
-                  child: Container(
-                    padding: const EdgeInsets.all(28),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.92),
-                      borderRadius: BorderRadius.circular(24),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.all(horizontalPadding),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight:
+                          constraints.maxHeight - (horizontalPadding * 2),
                     ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Register",
-                            style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF334E7B),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            "Sign up to get started",
-                            style: TextStyle(fontSize: 20, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 30),
-                          _buildField(
-                            hint: "First Name",
-                            validator: (v) => v!.isEmpty ? "Required" : null,
-                            onSaved: (v) => fName = v!.trim(),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
+                    child: Center(
+                      child: Container(
+                        width: maxWidth,
+                        padding: EdgeInsets.all(containerPadding),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.92),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: _buildField(
-                                  hint: "Middle Name",
-                                  onSaved: (v) => mName = v!.trim(),
+                              Text(
+                                otpStep ? "Verify Email" : "Register",
+                                style: TextStyle(
+                                  fontSize: titleSize,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF334E7B),
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: _buildField(
-                                  hint: "Surname",
-                                  validator: (v) => v!.isEmpty ? "Required" : null,
-                                  onSaved: (v) => lName = v!.trim(),
+                              SizedBox(height: spacing * 0.5),
+                              Text(
+                                otpStep
+                                    ? "Enter the verification code sent to your email"
+                                    : "Sign up to get started",
+                                style: TextStyle(
+                                  fontSize: subtitleSize,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              hintText: "Select your Sex",
-                              hintStyle: const TextStyle(fontSize: 20),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                            ),
-                            style: const TextStyle(fontSize: 20, color: Colors.black),
-                            items: const [
-                              DropdownMenuItem(value: "Male", child: Text("Male")),
-                              DropdownMenuItem(value: "Female", child: Text("Female")),
-                            ],
-                            validator: (v) => v == null ? "Required" : null,
-                            onChanged: (v) => sex = v ?? '',
-                            onSaved: (v) => sex = v ?? '',
-                          ),
-                          const SizedBox(height: 20),
-                          _buildField(
-                            hint: "Birthdate",
-                            controller: birthdateController,
-                            readOnly: true,
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime(2000, 1, 1),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
-                              );
-                              if (picked != null) {
-                                setState(() {
-                                  birthdate = picked.toIso8601String().split('T')[0];
-                                  birthdateController.text = birthdate;
-                                });
-                              }
-                            },
-                            validator: (v) => birthdate.isEmpty ? "Select birthdate" : null,
-                            suffixIcon: const Icon(Icons.calendar_today),
-                          ),
-                          const SizedBox(height: 20),
-                          _buildField(
-                            hint: "Email",
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) return "Email is required";
-                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v)) return "Enter a valid email";
-                              return null;
-                            },
-                            onSaved: (v) => email = v!.trim(),
-                          ),
-                          const SizedBox(height: 20),
-                          _buildField(
-                            hint: "Password (At least 8+ strong characters)",
-                            obscure: true,
-                            validator: (v) => v!.length < 8 ? "Minimum 8 characters" : null,
-                            onSaved: (v) => password = v!,
-                          ),
-                          const SizedBox(height: 20),
-                          _buildField(
-                            hint: "Confirm Password..",
-                            obscure: true,
-                            validator: (v) => v!.isEmpty ? "Confirm password" : null,
-                            onSaved: (v) => confirmPassword = v!,
-                          ),
-                          if (error != null) ...[
-                            const SizedBox(height: 20),
-                            Text(error!, style: const TextStyle(color: Colors.red, fontSize: 18)),
-                          ],
-                          const SizedBox(height: 32),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: loading ? null : _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF334E7B),
-                                padding: const EdgeInsets.symmetric(vertical: 24),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
+                              SizedBox(height: spacing * 1.5),
+
+                              if (!otpStep) ...[
+                                // Registration Form
+                                _buildField(
+                                  hint: "First Name",
+                                  validator: (v) =>
+                                      v!.isEmpty ? "Required" : null,
+                                  onSaved: (v) => fName = v!.trim(),
                                 ),
-                              ),
-                              child: loading
-                                  ? const CircularProgressIndicator(color: Colors.white)
-                                  : const Text(
-                                      'Register',
-                                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                SizedBox(height: spacing),
+
+                                // Responsive row for name fields
+                                if (isSmallScreen) ...[
+                                  _buildField(
+                                    hint: "Middle Name",
+                                    onSaved: (v) => mName = v!.trim(),
+                                  ),
+                                  SizedBox(height: spacing),
+                                  _buildField(
+                                    hint: "Surname",
+                                    validator: (v) =>
+                                        v!.isEmpty ? "Required" : null,
+                                    onSaved: (v) => lName = v!.trim(),
+                                  ),
+                                ] else ...[
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildField(
+                                          hint: "Middle Name",
+                                          onSaved: (v) => mName = v!.trim(),
+                                        ),
+                                      ),
+                                      SizedBox(width: spacing),
+                                      Expanded(
+                                        child: _buildField(
+                                          hint: "Surname",
+                                          validator: (v) =>
+                                              v!.isEmpty ? "Required" : null,
+                                          onSaved: (v) => lName = v!.trim(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                SizedBox(height: spacing),
+
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    hintText: "Select your Sex",
+                                    hintStyle: TextStyle(
+                                      fontSize: isSmallScreen ? 16.0 : 18.0,
                                     ),
-                            ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: isSmallScreen ? 16 : 24,
+                                      vertical: isSmallScreen ? 16 : 22,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 16.0 : 18.0,
+                                    color: Colors.black,
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: "Male",
+                                      child: Text("Male"),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: "Female",
+                                      child: Text("Female"),
+                                    ),
+                                  ],
+                                  validator: (v) =>
+                                      v == null ? "Required" : null,
+                                  onChanged: (v) => sex = v ?? '',
+                                  onSaved: (v) => sex = v ?? '',
+                                ),
+                                SizedBox(height: spacing),
+
+                                _buildField(
+                                  hint: "Birthdate",
+                                  controller: birthdateController,
+                                  readOnly: true,
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime(2000, 1, 1),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime.now(),
+                                    );
+                                    if (picked != null) {
+                                      setState(() {
+                                        birthdate = picked
+                                            .toIso8601String()
+                                            .split('T')[0];
+                                        birthdateController.text = birthdate;
+                                      });
+                                    }
+                                  },
+                                  validator: (v) => birthdate.isEmpty
+                                      ? "Select birthdate"
+                                      : null,
+                                  suffixIcon: const Icon(Icons.calendar_today),
+                                ),
+                                SizedBox(height: spacing),
+
+                                _buildField(
+                                  hint: "Email",
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty)
+                                      return "Email is required";
+                                    if (!RegExp(
+                                      r'^[^@]+@[^@]+\.[^@]+',
+                                    ).hasMatch(v))
+                                      return "Enter a valid email";
+                                    return null;
+                                  },
+                                  onSaved: (v) => email = v!.trim(),
+                                ),
+                                SizedBox(height: spacing),
+
+                                _buildField(
+                                  hint:
+                                      "Password (At least 8+ strong characters)",
+                                  obscure: true,
+                                  validator: (v) => v!.length < 8
+                                      ? "Minimum 8 characters"
+                                      : null,
+                                  onSaved: (v) => password = v!,
+                                ),
+                                SizedBox(height: spacing),
+
+                                _buildField(
+                                  hint: "Confirm Password..",
+                                  obscure: true,
+                                  validator: (v) =>
+                                      v!.isEmpty ? "Confirm password" : null,
+                                  onSaved: (v) => confirmPassword = v!,
+                                ),
+                              ] else ...[
+                                // OTP Verification Form
+                                TextFormField(
+                                  controller: otpController,
+                                  onChanged: (value) {
+                                    String filtered = value.replaceAll(
+                                      RegExp(r'[^0-9]'),
+                                      '',
+                                    );
+                                    if (filtered.length <= 6) {
+                                      otpController.value = TextEditingValue(
+                                        text: filtered,
+                                        selection: TextSelection.collapsed(
+                                          offset: filtered.length,
+                                        ),
+                                      );
+                                      setState(() {
+                                        otpCode = filtered;
+                                      });
+                                    }
+                                  },
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: isSmallScreen ? 24.0 : 32.0,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: isSmallScreen ? 4.0 : 8.0,
+                                    fontFamily: 'monospace',
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: "Enter 6-digit code",
+                                    hintStyle: TextStyle(
+                                      fontSize: isSmallScreen ? 16.0 : 20.0,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: isSmallScreen ? 16 : 24,
+                                      vertical: isSmallScreen ? 16 : 22,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                  maxLength: 6,
+                                ),
+                                SizedBox(height: spacing),
+
+                                if (resendTimer > 0)
+                                  Center(
+                                    child: Text(
+                                      "Resend code in ${resendTimer}s",
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: isSmallScreen ? 14.0 : 16.0,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Center(
+                                    child: TextButton(
+                                      onPressed: otpLoading ? null : sendOTP,
+                                      child: Text(
+                                        otpLoading
+                                            ? "Sending..."
+                                            : "Resend Code",
+                                        style: TextStyle(
+                                          color: const Color(0xFF334E7B),
+                                          fontSize: isSmallScreen ? 14.0 : 16.0,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(height: spacing),
+
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    onPressed: goBackToForm,
+                                    style: OutlinedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: buttonPadding * 0.7,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      side: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Back to Form',
+                                      style: TextStyle(
+                                        color: const Color(0xFF334E7B),
+                                        fontSize: buttonFontSize * 0.8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+
+                              if (error != null) ...[
+                                SizedBox(height: spacing),
+                                Text(
+                                  error!,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: isSmallScreen ? 16.0 : 18.0,
+                                  ),
+                                ),
+                              ],
+                              SizedBox(height: spacing * 1.6),
+
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: (loading || otpLoading)
+                                      ? null
+                                      : _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF334E7B),
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: buttonPadding,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                  child: (loading || otpLoading)
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : Text(
+                                          otpStep
+                                              ? (otpCode.length == 6
+                                                    ? 'Verify & Register'
+                                                    : 'Enter OTP Code')
+                                              : 'Send Verification Code',
+                                          style: TextStyle(
+                                            fontSize: buttonFontSize,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
