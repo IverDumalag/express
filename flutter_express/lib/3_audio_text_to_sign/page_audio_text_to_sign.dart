@@ -15,6 +15,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   List<Map<String, dynamic>> _phrases = [];
+  int? _userSelectedIndex;
   bool _isListening = false;
   late stt.SpeechToText _speech;
 
