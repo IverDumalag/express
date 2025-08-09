@@ -54,17 +54,68 @@ class _SettingsState extends State<Settings> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                    children: [
+                    SizedBox(height: 40),
                     Text(
                       'Menu',
                       style: TextStyle(
-                        fontFamily: 'RobotoMono',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF334E7B), 
+                      fontFamily: 'RobotoMono',
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF334E7B), 
                       ),
                     ),
                   ],
+                ),
+              ),
+               Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF334E7B).withOpacity(0.10),
+                            blurRadius: 18,
+                            spreadRadius: 2,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Color(0xFF334E7B).withOpacity(0.18),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4), // changed from 8 to 4
+                          ),
+                          elevation: 0,
+                        ),
+                        icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
+                        label: Text(
+                          "Archive",
+                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/archive');
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
               Padding(
@@ -120,63 +171,14 @@ class _SettingsState extends State<Settings> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF334E7B).withOpacity(0.10),
-                            blurRadius: 18,
-                            spreadRadius: 2,
-                            offset: Offset(0, 8),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Color(0xFF334E7B).withOpacity(0.18),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          minimumSize: Size(double.infinity, 48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4), // changed from 8 to 4
-                          ),
-                          elevation: 0,
-                        ),
-                        icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
-                        label: Text(
-                          "Archive",
-                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/archive');
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+             
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'FAQs',
                   style: TextStyle(
                     fontFamily: 'RobotoMono',
-                    fontSize: 40,
+                    fontSize: 30,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF334E7B),
                   ),

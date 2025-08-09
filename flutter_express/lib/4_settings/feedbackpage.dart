@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
 import '../00_services/api_services.dart';
 
+
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key}) : super(key: key);
 
@@ -69,26 +70,21 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.transparent,
+        elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              'Back',
-              style: TextStyle(
-                fontFamily: 'RobotoMono',
-                color: Color(0xFF334E7B),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            // ...existing code...
           ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Colors.white,
         centerTitle: false,
-        elevation: 1,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -96,23 +92,15 @@ class _FeedbackPageState extends State<FeedbackPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Feedback',
-                style: TextStyle(
-                  color: Color(0xFF334E7B),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 36,
-                  fontFamily: 'RobotoMono',
-                ),
-              ),
+              
             ),
             SizedBox(height: 28),
             Image.asset(
-              'assets/images/smiley.png',
-              height: 120,
+              'assets/images/archive.png',
+              height: 150,
               fit: BoxFit.contain,
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 12),
             Text(
               'Help us to improve',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -121,7 +109,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 8),
             // Dropdown + TextField for Main Concern
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
@@ -145,7 +133,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       focusNode: focusNode,
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onEditingComplete: onEditingComplete,
                     );
@@ -159,7 +149,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
               controller: _detailsController,
               decoration: InputDecoration(
                 labelText: 'Details',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               maxLines: 4,
             ),
@@ -169,7 +161,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF334E7B),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
                 elevation: 5,
                 shadowColor: Colors.grey.withOpacity(0.5),
