@@ -37,9 +37,12 @@ class _WavingHandIconState extends State<WavingHandIcon>
       animation: _animation,
       builder: (context, child) {
         return Transform.rotate(
-          angle: _animation.value,
-          child: Icon(Icons.waving_hand,
-              color:Color(0xFFE6B89F), size: 50 * widget.scale),
+          angle: -_animation.value, // Animation on the other side
+          child: Image.asset(
+            'assets/images/wavinghand.png', // Place your image in assets/images/
+            width: 50 * widget.scale,
+            height: 50 * widget.scale,
+          ),
         );
       },
     );

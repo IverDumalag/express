@@ -41,30 +41,7 @@ class _NoMatchFound extends StatelessWidget {
               style: TextStyle(color: Colors.grey[600]),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Feedback or Search'),
-                      content: Text(
-                        'This is a popup for feedback or search. You can integrate your logic here.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Close'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: Text('Feedback or Search'),
-            ),
+            // Removed Feedback or Search button and dialog
           ],
         ),
       ),
@@ -185,21 +162,23 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     if (!_controller.value.isInitialized) {
       return Center(
         child: SizedBox(
-          width: displayWidth,
-          height: 300,
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: 200,
           child: const CircularProgressIndicator(),
         ),
       );
     }
 
+    final double videoWidth = MediaQuery.of(context).size.width * 0.9;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Center(
-          child: SizedBox(
-            // This SizedBox provides the bounded constraints
-            width: displayWidth,
-            height: 300, // Fixed height for video container
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: videoWidth, // 90% of screen width
+            ),
             child: AspectRatio(
               aspectRatio: _controller.value.aspectRatio,
               child: VideoPlayer(_controller),
@@ -208,7 +187,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
         ),
         _CustomProgressBar(
           controller: _controller,
-          width: displayWidth,
+          width: videoWidth, // match video width
           height: progressBarThickness,
           circleDiameter: circleDiameter,
         ),

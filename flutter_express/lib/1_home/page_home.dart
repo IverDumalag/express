@@ -545,16 +545,27 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          if (showAddModal)
+            if (showAddModal)
             AlertDialog(
               title: Text(
                 "Add Word/Phrase",
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15 * scale,
+                ),
               ),
+              insetPadding: EdgeInsets.symmetric(horizontal: 40 * scale), // Increase horizontal padding for wider dialog
+              contentPadding: EdgeInsets.all(24 * scale), // Optional: more spacious content
               content: TextField(
                 decoration: InputDecoration(
                   hintText: "Enter word or phrase",
-                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  hintStyle: TextStyle(
+                    color: Colors.grey[600],
+                    fontFamily: 'RobotoMono',
+                    fontWeight: FontWeight.w500,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Color(0xFF334E7B)),
@@ -565,28 +576,47 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onChanged: (v) => addInput = v,
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: addLoading ? null : _handleAddWord,
                   child: addLoading
                       ? CircularProgressIndicator()
-                      : Text("Add", style: TextStyle(color: Color(0xFF2E5C9A))),
+                      : Text(
+                          "Add",
+                          style: TextStyle(
+                            color: Color(0xFF2E5C9A),
+                            fontFamily: 'RobotoMono',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
                 TextButton(
                   onPressed: () => setState(() => showAddModal = false),
                   child: Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontFamily: 'RobotoMono',
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(
+                  color: Color(0xFF334E7B),
+                  width: 2,
+                ),
               ),
               backgroundColor: Colors.white,
-              elevation: 5,
+              elevation: 8,
             ),
         ],
       ),
@@ -682,8 +712,10 @@ class _HomeState extends State<Home> {
               ],
             ),
             child: Stack(
-              children: [
-                PageView(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
+                child: PageView(
                   controller: _pageController,
                   onPageChanged: (int index) {
                     setState(() {
@@ -696,20 +728,19 @@ class _HomeState extends State<Home> {
                     _buildSlide('Have', 'Fun!', scale),
                   ],
                 ),
-                Positioned(
-                  bottom: 8 * scale,
-                  right: 8 * scale,
-                  child: _buildPageIndicator(scale),
-                ),
-              ],
-            ),
+              ),
+              Positioned(
+                bottom: 8 * scale,
+                right: 8 * scale,
+                child: _buildPageIndicator(scale),
+              ),
+            ],
+          ),
           ),
         ],
       ),
     );
   }
-
-  
 
   Widget _buildPageIndicator(double scale) {
     return Row(
@@ -728,37 +759,33 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSlide(String text1, String text2, double scale) {
+Widget _buildSlide(String text1, String text2, double scale) {
+  if (text1 == 'Welcome to ex' && text2 == 'Press!') {
     return GestureDetector(
       onTap: () {
-        if (text1 == 'Discover' && text2 == 'Our Features!') {
-          GlobalVariables.currentIndex = 1;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
-          );
-        } else if (text1 == 'Have' && text2 == 'Fun!') {
-          GlobalVariables.currentIndex = 2;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
-          );
-        }
+        // Keep your navigation logic here if needed
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            text1,
+            'Welcome to ',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.w900,
               fontFamily: 'RobotoMono',
             ),
           ),
-          SizedBox(width: 5 * scale),
           Text(
-            text2,
+            'ex',
+            style: TextStyle(
+              fontSize: 20 * scale,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'RobotoMono',
+            ),
+          ),
+          Text(
+            'Press!',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
@@ -772,6 +799,49 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+  return GestureDetector(
+    onTap: () {
+      if (text1 == 'Discover' && text2 == 'Our Features!') {
+        GlobalVariables.currentIndex = 1;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
+        );
+      } else if (text1 == 'Have' && text2 == 'Fun!') {
+        GlobalVariables.currentIndex = 2;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
+        );
+      }
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          text1,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        SizedBox(width: 5 * scale),
+        Text(
+          text2,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E5C9A),
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        Spacer(),
+        WavingHandIcon(scale: scale),
+      ],
+    ),
+  );
+}
 
   Widget _buildSectionTitle(String title, double scale) {
     return Text(

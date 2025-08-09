@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 class PopupConfirmation {
-  /// Shows a confirmation dialog with customizable title, message, and actions.
-  /// Returns true if confirmed, false if cancelled or dismissed.
   static Future<bool> show(
     BuildContext context, {
     String title = "Confirmation",

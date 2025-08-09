@@ -93,6 +93,7 @@ flutter:
     - assets/sounds/
     - assets/dataset/
     - assets/images/graphichome1.png
+    - assets/images/wavinghand.png
     - assets/model/model.tflite
     - assets/model/labels.txt
   #   - images/a_dot_ham.jpeg
@@ -122,9 +123,17 @@ flutter:
   #
 
   fonts:
-    - family: Inter
+    - family: Roboto Mono
       fonts:
-        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
-          weight: 700
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+        - asset: assets/fonts/RobotoMono-Italic.ttf
+        - asset: assets/fonts/RobotoMono-BoldItalic.ttf
+        - asset: assets/fonts/RobotoMono-Light.ttf
+        - asset: assets/fonts/RobotoMono-LightItalic.ttf
+        - asset: assets/fonts/RobotoMono-Medium.ttf
+        - asset: assets/fonts/RobotoMono-MediumItalic.ttf
+        - asset: assets/fonts/RobotoMono-Thin.ttf
+        - asset: assets/fonts/RobotoMono-ThinItalic.ttf
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

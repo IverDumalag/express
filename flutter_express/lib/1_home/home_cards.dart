@@ -6,8 +6,6 @@ import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
 import 'dart:async';
 
-/// A reusable icon widget that toggles between a filled star and a bordered star
-/// when tapped. It also provides a callback for when its state changes.
 class InteractiveStarIcon extends StatefulWidget {
   final double scale;
   final bool initialStarred;
@@ -127,7 +125,7 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
           setState(() {
             isLoud = true;
           });
-          // Fallback: reset after 10 seconds if TTS doesn't call handler
+          // Fallback: reset after 3 seconds if TTS doesn't call handler
           _fallbackTimer?.cancel();
           _fallbackTimer = Timer(Duration(seconds: 3), _resetLoud);
           await flutterTts.speak(widget.text);
@@ -137,7 +135,7 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
         }
       },
       child: Icon(
-        isLoud ? Icons.speaker : Icons.speaker_phone,
+        isLoud ? Icons.speaker_phone : Icons.speaker,
         color: widget.color,
         size: 30 * widget.scale,
       ),
@@ -349,15 +347,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Back',
-          style: TextStyle(fontSize: 20 * widget.scale, color: Colors.black),
-        ),
+       
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, color: Colors.black),
+            icon: Icon(Icons.edit, color: Color(0xFF334E7B)),
             onPressed: () {
               setState(() {
                 editMode = true;
@@ -366,7 +361,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.delete, color: Colors.black),
+            icon: Icon(Icons.delete, color: Color(0xFF334E7B)),
             onPressed: _deletePhrase,
           ),
         ],
@@ -400,6 +395,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                             fontSize: 24 * widget.scale,
                             color: Color(0xFF2354C7),
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoMono',
                           ),
                         )
                       : Text(
@@ -407,18 +403,21 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           style: TextStyle(
                             fontSize: 30 * widget.scale,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter',
+                            fontFamily: 'RobotoMono',
                             color: Color(0xFF2354C7),
                           ),
                           textAlign: TextAlign.center,
                         ),
                 ),
-                SizedBox(width: 10 * widget.scale),
+                SizedBox(width: 4 * widget.scale),
                 if (!editMode)
-                  InteractiveSpeakerIcon(
-                    scale: widget.scale,
-                    text: displayText,
-                    color: Color(0xFF2354C7),
+                  Padding(
+                    padding: EdgeInsets.only(left: 2 * widget.scale), // Move icon closer to text
+                    child: InteractiveSpeakerIcon(
+                      scale: widget.scale,
+                      text: displayText,
+                      color: Color(0xFF2354C7),
+                    ),
                   ),
               ],
             ),
@@ -438,7 +437,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   ElevatedButton(
                     onPressed: editLoading ? null : _editPhrase,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF334E7B),
+                      backgroundColor: Color(0xF1C2E4A),
                       foregroundColor: Colors.white,
                       textStyle: TextStyle(
                         fontSize: 20 * widget.scale,
@@ -479,7 +478,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Color(0xFF334E7B),
+                      foregroundColor: Color(0xF1C2E4A),
                       textStyle: TextStyle(
                         fontSize: 20 * widget.scale,
                         fontFamily: 'Inter',
@@ -491,7 +490,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5 * widget.scale),
                         side: BorderSide(
-                          color: Color(0xFF334E7B),
+                          color: Color(0xF1C2E4A),
                           width: 2 * widget.scale,
                         ),
                       ),
@@ -511,11 +510,11 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     child: ElevatedButton(
                       onPressed: currentIndex > 0 ? _goToPrevious : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF334E7B),
+                        backgroundColor: Color(0xF1C2E4A),
                         foregroundColor: Colors.white,
                         textStyle: TextStyle(
                           fontSize: 20 * widget.scale,
-                          fontFamily: 'Inter',
+                          fontFamily: 'RobotoMono',
                         ),
                         padding: EdgeInsets.symmetric(
                           horizontal: 24 * widget.scale,
@@ -575,10 +574,6 @@ class Words_Phrases_Cards extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Color cardColor;
   final double scale;
-  final double cardWidth;
-  final int gridCrossAxisCount;
-  final double gridSpacing;
-  final double gridChildAspectRatio;
   final Function(String, bool) onFavoriteToggle;
   final Function(String) onDelete;
 
@@ -587,100 +582,78 @@ class Words_Phrases_Cards extends StatelessWidget {
     required this.data,
     required this.cardColor,
     required this.scale,
-    this.cardWidth = 180,
-    this.gridCrossAxisCount = 2,
-    this.gridSpacing = 10,
-    this.gridChildAspectRatio = 1,
     required this.onFavoriteToggle,
     required this.onDelete,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 20 * scale,
-        vertical: 10 * scale,
-      ),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: gridCrossAxisCount,
-          crossAxisSpacing: gridSpacing * scale,
-          mainAxisSpacing: gridSpacing * scale,
-          childAspectRatio: gridChildAspectRatio,
-        ),
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          final phrase = data[index];
-          final String displayText = phrase['words'];
-          final String entryId = phrase['entry_id'];
-          final bool isFavorited =
-              (phrase['is_favorite'] == 1); // Use 'is_favorite' key
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        final phrase = data[index];
+        final String displayText = phrase['words'];
+        final String entryId = phrase['entry_id'];
+        final bool isFavorited = (phrase['is_favorite'] == 1);
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CardDetailScreen(
-                    title: displayText,
-                    color: cardColor,
-                    index: index,
-                    items: data,
-                    scale: scale,
-                    onDelete: onDelete,
-                    entryId: entryId,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CardDetailScreen(
+                  title: displayText,
+                  color: cardColor,
+                  index: index,
+                  items: data,
+                  scale: scale,
+                  onDelete: onDelete,
+                  entryId: entryId,
+                ),
+              ),
+            );
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15 * scale),
+              border: Border.all(color: cardColor, width: 1.5 * scale),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12 * scale),
+                    bottomLeft: Radius.circular(12 * scale),
+                  ),
+                  child: Container(
+                    width: 95 * scale,
+                    height: 80 * scale,
+                    color: const Color(0xFF1C2E4A),
                   ),
                 ),
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(15 * scale),
-                border: Border.all(color: Color(0xFF051B4E), width: 2 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2 * scale,
-                    blurRadius: 5 * scale,
-                    offset: Offset(0, 3 * scale),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8 * scale),
-                      child: Text(
-                        displayText,
-                        style: TextStyle(
-                          fontSize: 20 * scale,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 8 * scale,
-                    right: 8 * scale,
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 8 * scale),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        InteractiveSpeakerIcon(
-                          scale: scale,
-                          text: displayText,
-                          color: Colors.white,
+                        Expanded(
+                          child: Text(
+                            displayText,
+                            style: TextStyle(
+                              fontSize: 20 * scale,
+                              color: cardColor,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'RobotoMono',
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        SizedBox(width: 5 * scale),
                         InteractiveStarIcon(
                           scale: scale,
                           initialStarred: isFavorited,
@@ -688,21 +661,25 @@ class Words_Phrases_Cards extends StatelessWidget {
                             onFavoriteToggle(entryId, isStarred);
                           },
                         ),
+                        SizedBox(width: 8 * scale),
+                        InteractiveSpeakerIcon(
+                          scale: scale,
+                          text: displayText,
+                          color: Colors.grey[700]!,
+                        ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-/// A widget that displays a horizontal list of "favorite" word/phrase cards.
-/// Each card can be tapped to view details, has a speaker icon, and a favorite star.
 class Favorite_Words_Phrases_Cards extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Color cardColor;
@@ -717,7 +694,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
     required this.data,
     required this.cardColor,
     required this.scale,
-    this.horizontalCardHeight = 250,
+    this.horizontalCardHeight = 180, // Adjusted height
     this.cardWidth = 180,
     required this.onFavoriteToggle,
     required this.onDelete,
@@ -787,8 +764,8 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20 * scale,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'RobotoMono',
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 3,
