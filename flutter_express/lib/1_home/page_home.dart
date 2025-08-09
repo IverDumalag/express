@@ -305,46 +305,8 @@ class _HomeState extends State<Home> {
                 Row(
                   children: [
                     SizedBox(width: 20 * scale),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10 * scale, horizontal: 24 * scale),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF334E7B),
-                        borderRadius: BorderRadius.circular(12 * scale),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 3 * scale,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
-                            blurRadius: 0.1 * scale,
-                            offset: Offset(0, 2 * scale),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Favorites',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize:  14 * scale,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'RobotoMono',
-                          letterSpacing: 1,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.add, color: Color(0xFF334E7B)),
-                      onPressed: () => setState(() => showAddModal = true),
-                      tooltip: "Add Word/Phrase",
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
-                      onPressed: () => setState(() => showFilter = !showFilter),
-                      tooltip: "Filter",
-                    ),
+                    _buildSectionTitle("Favorites", scale),
+             
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
@@ -400,9 +362,27 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildSectionTitle("Words/Phrases", scale),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.add, color: Color(0xFF334E7B)),
+                                onPressed: () =>
+                                    setState(() => showAddModal = true),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.filter_list,
+                                  color: Color(0xFF334E7B),
+                                ),
+                                onPressed: () {
+                                  setState(() => showFilter = !showFilter);
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       SizedBox(height: 10 * scale),
@@ -704,7 +684,7 @@ class _HomeState extends State<Home> {
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(left: 20 * scale), 
+                  padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
                   child: PageView(
                     controller: _pageController,
                     onPageChanged: (int index) {
