@@ -694,7 +694,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
     required this.data,
     required this.cardColor,
     required this.scale,
-    this.horizontalCardHeight = 250,
+    this.horizontalCardHeight = 180, // Adjusted height
     this.cardWidth = 180,
     required this.onFavoriteToggle,
     required this.onDelete,
