@@ -545,16 +545,27 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          if (showAddModal)
+            if (showAddModal)
             AlertDialog(
               title: Text(
                 "Add Word/Phrase",
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15 * scale,
+                ),
               ),
+              insetPadding: EdgeInsets.symmetric(horizontal: 40 * scale), // Increase horizontal padding for wider dialog
+              contentPadding: EdgeInsets.all(24 * scale), // Optional: more spacious content
               content: TextField(
                 decoration: InputDecoration(
                   hintText: "Enter word or phrase",
-                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  hintStyle: TextStyle(
+                    color: Colors.grey[600],
+                    fontFamily: 'RobotoMono',
+                    fontWeight: FontWeight.w500,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Color(0xFF334E7B)),
@@ -565,28 +576,47 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onChanged: (v) => addInput = v,
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: addLoading ? null : _handleAddWord,
                   child: addLoading
                       ? CircularProgressIndicator()
-                      : Text("Add", style: TextStyle(color: Color(0xFF2E5C9A))),
+                      : Text(
+                          "Add",
+                          style: TextStyle(
+                            color: Color(0xFF2E5C9A),
+                            fontFamily: 'RobotoMono',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
                 TextButton(
                   onPressed: () => setState(() => showAddModal = false),
                   child: Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontFamily: 'RobotoMono',
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(
+                  color: Color(0xFF334E7B),
+                  width: 2,
+                ),
               ),
               backgroundColor: Colors.white,
-              elevation: 5,
+              elevation: 8,
             ),
         ],
       ),
@@ -682,30 +712,30 @@ class _HomeState extends State<Home> {
               ],
             ),
             child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (int index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    children: [
-                      _buildSlide('Welcome to ex', 'Press!', scale),
-                      _buildSlide('Discover', 'Our Features!', scale),
-                      _buildSlide('Have', 'Fun!', scale),
-                    ],
-                  ),
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (int index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  children: [
+                    _buildSlide('Welcome to ex', 'Press!', scale),
+                    _buildSlide('Discover', 'Our Features!', scale),
+                    _buildSlide('Have', 'Fun!', scale),
+                  ],
                 ),
-                Positioned(
-                  bottom: 8 * scale,
-                  right: 8 * scale,
-                  child: _buildPageIndicator(scale),
-                ),
-              ],
-            ),
+              ),
+              Positioned(
+                bottom: 8 * scale,
+                right: 8 * scale,
+                child: _buildPageIndicator(scale),
+              ),
+            ],
+          ),
           ),
         ],
       ),

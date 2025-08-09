@@ -6,8 +6,6 @@ import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
 import 'dart:async';
 
-/// A reusable icon widget that toggles between a filled star and a bordered star
-/// when tapped. It also provides a callback for when its state changes.
 class InteractiveStarIcon extends StatefulWidget {
   final double scale;
   final bool initialStarred;
@@ -127,7 +125,7 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
           setState(() {
             isLoud = true;
           });
-          // Fallback: reset after 10 seconds if TTS doesn't call handler
+          // Fallback: reset after 3 seconds if TTS doesn't call handler
           _fallbackTimer?.cancel();
           _fallbackTimer = Timer(Duration(seconds: 3), _resetLoud);
           await flutterTts.speak(widget.text);
@@ -137,7 +135,7 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
         }
       },
       child: Icon(
-        isLoud ? Icons.speaker : Icons.speaker_phone,
+        isLoud ? Icons.speaker_phone : Icons.speaker,
         color: widget.color,
         size: 30 * widget.scale,
       ),
@@ -349,15 +347,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Back',
-          style: TextStyle(fontSize: 20 * widget.scale, color: Colors.black),
-        ),
+       
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, color: Colors.black),
+            icon: Icon(Icons.edit, color: Color(0xFF334E7B)),
             onPressed: () {
               setState(() {
                 editMode = true;
@@ -366,7 +361,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.delete, color: Colors.black),
+            icon: Icon(Icons.delete, color: Color(0xFF334E7B)),
             onPressed: _deletePhrase,
           ),
         ],
@@ -400,6 +395,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                             fontSize: 24 * widget.scale,
                             color: Color(0xFF2354C7),
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'RobotoMono',
                           ),
                         )
                       : Text(
@@ -407,18 +403,21 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           style: TextStyle(
                             fontSize: 30 * widget.scale,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter',
+                            fontFamily: 'RobotoMono',
                             color: Color(0xFF2354C7),
                           ),
                           textAlign: TextAlign.center,
                         ),
                 ),
-                SizedBox(width: 10 * widget.scale),
+                SizedBox(width: 4 * widget.scale),
                 if (!editMode)
-                  InteractiveSpeakerIcon(
-                    scale: widget.scale,
-                    text: displayText,
-                    color: Color(0xFF2354C7),
+                  Padding(
+                    padding: EdgeInsets.only(left: 2 * widget.scale), // Move icon closer to text
+                    child: InteractiveSpeakerIcon(
+                      scale: widget.scale,
+                      text: displayText,
+                      color: Color(0xFF2354C7),
+                    ),
                   ),
               ],
             ),
@@ -681,8 +680,6 @@ class Words_Phrases_Cards extends StatelessWidget {
   }
 }
 
-/// A widget that displays a horizontal list of "favorite" word/phrase cards.
-/// Each card can be tapped to view details, has a speaker icon, and a favorite star.
 class Favorite_Words_Phrases_Cards extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Color cardColor;
@@ -767,8 +764,8 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20 * scale,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          fontFamily: 'RobotoMono',
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 3,
