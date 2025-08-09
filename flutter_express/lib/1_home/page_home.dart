@@ -305,8 +305,46 @@ class _HomeState extends State<Home> {
                 Row(
                   children: [
                     SizedBox(width: 20 * scale),
-                    _buildSectionTitle("Favorites", scale),
-             
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 10 * scale, horizontal: 24 * scale),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF334E7B),
+                        borderRadius: BorderRadius.circular(12 * scale),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 3 * scale,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 0.1 * scale,
+                            offset: Offset(0, 2 * scale),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Favorites',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize:  14 * scale,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'RobotoMono',
+                          letterSpacing: 1,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(Icons.add, color: Color(0xFF334E7B)),
+                      onPressed: () => setState(() => showAddModal = true),
+                      tooltip: "Add Word/Phrase",
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
+                      onPressed: () => setState(() => showFilter = !showFilter),
+                      tooltip: "Filter",
+                    ),
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
@@ -362,27 +400,9 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           _buildSectionTitle("Words/Phrases", scale),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.add, color: Color(0xFF334E7B)),
-                                onPressed: () =>
-                                    setState(() => showAddModal = true),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.filter_list,
-                                  color: Color(0xFF334E7B),
-                                ),
-                                onPressed: () {
-                                  setState(() => showFilter = !showFilter);
-                                },
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                       SizedBox(height: 10 * scale),
@@ -683,18 +703,21 @@ class _HomeState extends State<Home> {
             ),
             child: Stack(
               children: [
-                PageView(
-                  controller: _pageController,
-                  onPageChanged: (int index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
-                  children: [
-                    _buildSlide('Welcome to ex', 'Press!', scale),
-                    _buildSlide('Discover', 'Our Features!', scale),
-                    _buildSlide('Have', 'Fun!', scale),
-                  ],
+                Padding(
+                  padding: EdgeInsets.only(left: 20 * scale), 
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (int index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    children: [
+                      _buildSlide('Welcome to ex', 'Press!', scale),
+                      _buildSlide('Discover', 'Our Features!', scale),
+                      _buildSlide('Have', 'Fun!', scale),
+                    ],
+                  ),
                 ),
                 Positioned(
                   bottom: 8 * scale,
@@ -708,8 +731,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
-  
 
   Widget _buildPageIndicator(double scale) {
     return Row(
@@ -728,37 +749,33 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSlide(String text1, String text2, double scale) {
+Widget _buildSlide(String text1, String text2, double scale) {
+  if (text1 == 'Welcome to ex' && text2 == 'Press!') {
     return GestureDetector(
       onTap: () {
-        if (text1 == 'Discover' && text2 == 'Our Features!') {
-          GlobalVariables.currentIndex = 1;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
-          );
-        } else if (text1 == 'Have' && text2 == 'Fun!') {
-          GlobalVariables.currentIndex = 2;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
-          );
-        }
+        // Keep your navigation logic here if needed
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            text1,
+            'Welcome to ',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.w900,
               fontFamily: 'RobotoMono',
             ),
           ),
-          SizedBox(width: 5 * scale),
           Text(
-            text2,
+            'ex',
+            style: TextStyle(
+              fontSize: 20 * scale,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'RobotoMono',
+            ),
+          ),
+          Text(
+            'Press!',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
@@ -772,6 +789,49 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+  return GestureDetector(
+    onTap: () {
+      if (text1 == 'Discover' && text2 == 'Our Features!') {
+        GlobalVariables.currentIndex = 1;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
+        );
+      } else if (text1 == 'Have' && text2 == 'Fun!') {
+        GlobalVariables.currentIndex = 2;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
+        );
+      }
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          text1,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        SizedBox(width: 5 * scale),
+        Text(
+          text2,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E5C9A),
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        Spacer(),
+        WavingHandIcon(scale: scale),
+      ],
+    ),
+  );
+}
 
   Widget _buildSectionTitle(String title, double scale) {
     return Text(

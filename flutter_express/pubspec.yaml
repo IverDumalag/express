@@ -93,6 +93,7 @@ flutter:
     - assets/sounds/
     - assets/dataset/
     - assets/images/graphichome1.png
+    - assets/images/wavinghand.png
     - assets/model/model.tflite
     - assets/model/labels.txt
   #   - images/a_dot_ham.jpeg
