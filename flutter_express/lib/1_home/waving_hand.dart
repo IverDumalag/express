@@ -39,7 +39,7 @@ class _WavingHandIconState extends State<WavingHandIcon>
         return Transform.rotate(
           angle: _animation.value,
           child: Icon(Icons.waving_hand,
-              color: Colors.orange, size: 50 * widget.scale),
+              color:Color(0xFFE6B89F), size: 50 * widget.scale),
         );
       },
     );

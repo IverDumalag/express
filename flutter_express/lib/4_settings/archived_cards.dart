@@ -69,7 +69,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
               style: TextStyle(
                 color: Color(0xFF334E7B),
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
+                fontFamily: 'RobotoMono',
               ),
             ),
           ],
@@ -107,7 +107,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                       color: Color(0xFF334E7B),
                       fontWeight: FontWeight.bold,
                       fontSize: 36,
-                      fontFamily: 'Inter',
+                      fontFamily: 'RobotoMono',
                     ),
                   ),
                 ),
