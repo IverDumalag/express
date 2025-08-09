@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   String password = '';
   bool loading = false;
   String? error;
+  bool _passwordVisible = false;
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -28,7 +29,6 @@ class _LoginState extends State<Login> {
       final result = await ApiService.login(email, password);
       if (result['status'] == 200) {
         final user = result['user'];
-        // Block admin and superadmin
         if (user['role'] == 'admin' || user['role'] == 'superadmin') {
           setState(() {
             error = 'Invalid credentials';
@@ -36,7 +36,6 @@ class _LoginState extends State<Login> {
           });
           return;
         }
-        // Store user globally
         UserSession.setUser(user);
         await PopupInformation.show(
           context,
@@ -46,10 +45,7 @@ class _LoginState extends State<Login> {
             Navigator.pushReplacementNamed(context, '/landing');
           },
         );
-        GlobalVariables.currentIndex = 0; // Reset to home screen
-        setState(() {
-          loading = false;
-        });
+        GlobalVariables.currentIndex = 0;
       } else {
         setState(() {
           error = result['message'] ?? 'Login failed';
@@ -67,33 +63,52 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final double scale = MediaQuery.of(context).size.width / 375.0;
+    final scale = MediaQuery.of(context).size.width / 375.0;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 32 * scale),
+          padding: EdgeInsets.symmetric(
+            horizontal: 24 * scale,
+            vertical: 36 * scale,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Login to your account',
+                  'Welcome to exPress',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 24 * scale,
+                    fontSize: 26 * scale,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF334E7B),
-                    fontFamily: 'Inter',
                   ),
                 ),
-                SizedBox(height: 32 * scale),
+                SizedBox(height: 8 * scale),
+                Text(
+                  'Sign in to continue your journey',
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 24 * scale),
+
+                // Email field
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email, color: Color(0xFF334E7B)),
+                    hintText: 'you@example.com',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) =>
@@ -101,35 +116,58 @@ class _LoginState extends State<Login> {
                   onSaved: (v) => email = v!.trim(),
                 ),
                 SizedBox(height: 16 * scale),
+
+                // Password field
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock, color: Color(0xFF334E7B)),
+                    hintText: '••••••••••',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: !_passwordVisible,
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Enter password' : null,
                   onSaved: (v) => password = v!,
                 ),
+
                 if (error != null) ...[
                   SizedBox(height: 16 * scale),
-                  Text(error!, style: TextStyle(color: Colors.red)),
+                  Text(error!, style: const TextStyle(color: Colors.red)),
                 ],
                 SizedBox(height: 24 * scale),
+
+                // Login Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: loading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF334E7B),
-                      padding: EdgeInsets.symmetric(vertical: 16 * scale),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: loading
-                        ? CircularProgressIndicator(
+                        ? const CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
                               Colors.white,
                             ),
@@ -144,21 +182,18 @@ class _LoginState extends State<Login> {
                           ),
                   ),
                 ),
+
                 SizedBox(height: 16 * scale),
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Colors.grey[400])),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        "or",
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey[400])),
-                  ],
+                Text(
+                  "OR",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14 * scale,
+                  ),
                 ),
                 SizedBox(height: 16 * scale),
+
+                // Register Button
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -166,16 +201,16 @@ class _LoginState extends State<Login> {
                       Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Color(0xFF334E7B)),
-                      padding: EdgeInsets.symmetric(vertical: 16 * scale),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                      side: const BorderSide(color: Color(0xFF334E7B)),
                     ),
                     child: Text(
                       'Register',
                       style: TextStyle(
-                        color: Color(0xFF334E7B),
+                        color: const Color(0xFF334E7B),
                         fontSize: 18 * scale,
                         fontWeight: FontWeight.bold,
                       ),
