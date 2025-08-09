@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../0_components/help_widget.dart';
 import '../0_components/popup_information.dart';
 import 'popup_home_welcome.dart';
@@ -306,7 +307,6 @@ class _HomeState extends State<Home> {
                   children: [
                     SizedBox(width: 20 * scale),
                     _buildSectionTitle("Favorites", scale),
-             
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
@@ -319,7 +319,12 @@ class _HomeState extends State<Home> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      );
                     } else {
                       _needsRefresh = false;
                       final favoritePhrases = snapshot.data!
@@ -336,10 +341,9 @@ class _HomeState extends State<Home> {
                             margin: EdgeInsets.only(top: 10 * scale),
                             child: Text(
                               'Still empty, nothing to be found here',
-                              style: TextStyle(
+                              style: GoogleFonts.robotoMono(
                                 fontSize: 15 * scale,
                                 color: Colors.grey,
-                                fontFamily: 'RobotoMono',
                               ),
                             ),
                           ),
@@ -390,8 +394,10 @@ class _HomeState extends State<Home> {
                         children: [
                           Expanded(
                             child: TextField(
+                              style: GoogleFonts.robotoMono(),
                               decoration: InputDecoration(
                                 hintText: "Search...",
+                                hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
@@ -420,6 +426,9 @@ class _HomeState extends State<Home> {
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 value: sortBy,
+                                style: GoogleFonts.robotoMono(
+                                  color: Colors.black,
+                                ),
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -435,19 +444,31 @@ class _HomeState extends State<Home> {
                                 items: [
                                   DropdownMenuItem(
                                     value: "date-new",
-                                    child: Text("Newest"),
+                                    child: Text(
+                                      "Newest",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   DropdownMenuItem(
                                     value: "date-old",
-                                    child: Text("Oldest"),
+                                    child: Text(
+                                      "Oldest",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   DropdownMenuItem(
                                     value: "alpha",
-                                    child: Text("A-Z"),
+                                    child: Text(
+                                      "A-Z",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   DropdownMenuItem(
                                     value: "alpha-rev",
-                                    child: Text("Z-A"),
+                                    child: Text(
+                                      "Z-A",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                 ],
                                 onChanged: (v) {
@@ -463,6 +484,9 @@ class _HomeState extends State<Home> {
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 value: activeTab,
+                                style: GoogleFonts.robotoMono(
+                                  color: Colors.black,
+                                ),
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -478,11 +502,17 @@ class _HomeState extends State<Home> {
                                 items: [
                                   DropdownMenuItem(
                                     value: "wave",
-                                    child: Text("All"),
+                                    child: Text(
+                                      "All",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   DropdownMenuItem(
                                     value: "favorite",
-                                    child: Text("Favorite"),
+                                    child: Text(
+                                      "Favorite",
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                 ],
                                 onChanged: (v) {
@@ -506,7 +536,12 @@ class _HomeState extends State<Home> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      );
                     } else {
                       _needsRefresh = false;
                       // Ensure filteredCards is populated based on fresh data
@@ -522,7 +557,7 @@ class _HomeState extends State<Home> {
                             margin: EdgeInsets.only(top: 10 * scale),
                             child: Text(
                               'No matching words or phrases found. Try adjusting your search or filters.',
-                              style: TextStyle(
+                              style: GoogleFonts.robotoMono(
                                 fontSize: 18 * scale,
                                 color: Colors.grey,
                               ),
@@ -545,25 +580,31 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-            if (showAddModal)
+          if (showAddModal)
             AlertDialog(
               title: Text(
                 "Add Word/Phrase",
-                style: TextStyle(
+                style: GoogleFonts.robotoMono(
                   color: Color(0xFF334E7B),
-                  fontFamily: 'RobotoMono',
                   fontWeight: FontWeight.w500,
                   fontSize: 15 * scale,
                 ),
               ),
-              insetPadding: EdgeInsets.symmetric(horizontal: 40 * scale), // Increase horizontal padding for wider dialog
-              contentPadding: EdgeInsets.all(24 * scale), // Optional: more spacious content
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: 40 * scale,
+              ), // Increase horizontal padding for wider dialog
+              contentPadding: EdgeInsets.all(
+                24 * scale,
+              ), // Optional: more spacious content
               content: TextField(
+                style: GoogleFonts.robotoMono(
+                  color: Color(0xFF334E7B),
+                  fontWeight: FontWeight.w500,
+                ),
                 decoration: InputDecoration(
                   hintText: "Enter word or phrase",
-                  hintStyle: TextStyle(
+                  hintStyle: GoogleFonts.robotoMono(
                     color: Colors.grey[600],
-                    fontFamily: 'RobotoMono',
                     fontWeight: FontWeight.w500,
                   ),
                   border: OutlineInputBorder(
@@ -576,11 +617,6 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onChanged: (v) => addInput = v,
-                style: TextStyle(
-                  color: Color(0xFF334E7B),
-                  fontFamily: 'RobotoMono',
-                  fontWeight: FontWeight.w500,
-                ),
               ),
               actions: [
                 TextButton(
@@ -589,9 +625,8 @@ class _HomeState extends State<Home> {
                       ? CircularProgressIndicator()
                       : Text(
                           "Add",
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             color: Color(0xFF2E5C9A),
-                            fontFamily: 'RobotoMono',
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -600,9 +635,8 @@ class _HomeState extends State<Home> {
                   onPressed: () => setState(() => showAddModal = false),
                   child: Text(
                     "Cancel",
-                    style: TextStyle(
+                    style: GoogleFonts.robotoMono(
                       color: Colors.grey[600],
-                      fontFamily: 'RobotoMono',
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -610,10 +644,7 @@ class _HomeState extends State<Home> {
               ],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
-                side: BorderSide(
-                  color: Color(0xFF334E7B),
-                  width: 2,
-                ),
+                side: BorderSide(color: Color(0xFF334E7B), width: 2),
               ),
               backgroundColor: Colors.white,
               elevation: 8,
@@ -625,7 +656,11 @@ class _HomeState extends State<Home> {
 
   Widget _buildHeader(double scale) {
     return Container(
-      padding: EdgeInsets.only(top: 50 * scale, left: 20 * scale, right: 20 * scale),
+      padding: EdgeInsets.only(
+        top: 50 * scale,
+        left: 20 * scale,
+        right: 20 * scale,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -657,11 +692,10 @@ class _HomeState extends State<Home> {
                     children: [
                       TextSpan(
                         text: greetingMessage.split(',').first,
-                        style: TextStyle(
+                        style: GoogleFonts.robotoMono(
                           fontSize: 21 * scale,
                           color: Color(0xFF2E5C9A),
                           fontWeight: FontWeight.w300,
-                          fontFamily: 'RobotoMono',
                           shadows: [
                             Shadow(
                               blurRadius: 4,
@@ -673,12 +707,13 @@ class _HomeState extends State<Home> {
                       ),
                       if (greetingMessage.contains(','))
                         TextSpan(
-                          text: greetingMessage.substring(greetingMessage.indexOf(',')),
-                          style: TextStyle(
+                          text: greetingMessage.substring(
+                            greetingMessage.indexOf(','),
+                          ),
+                          style: GoogleFonts.robotoMono(
                             fontSize: 22 * scale,
                             color: Color(0xFF2E5C9A),
                             fontWeight: FontWeight.w600,
-                            fontFamily: 'RobotoMono',
                             shadows: [
                               Shadow(
                                 blurRadius: 4,
@@ -701,7 +736,7 @@ class _HomeState extends State<Home> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(16 * scale),
-                border: Border.all(color: Color(0xFF334E7B), width: 2 * scale),
+              border: Border.all(color: Color(0xFF334E7B), width: 2 * scale),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -712,30 +747,32 @@ class _HomeState extends State<Home> {
               ],
             ),
             child: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (int index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
-                  children: [
-                    _buildSlide('Welcome to ex', 'Press!', scale),
-                    _buildSlide('Discover', 'Our Features!', scale),
-                    _buildSlide('Have', 'Fun!', scale),
-                  ],
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 20 * scale,
+                  ), // Move slides a bit to the right
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (int index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    children: [
+                      _buildSlide('Welcome to ex', 'Press!', scale),
+                      _buildSlide('Discover', 'Our Features!', scale),
+                      _buildSlide('Have', 'Fun!', scale),
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                bottom: 8 * scale,
-                right: 8 * scale,
-                child: _buildPageIndicator(scale),
-              ),
-            ],
-          ),
+                Positioned(
+                  bottom: 8 * scale,
+                  right: 8 * scale,
+                  child: _buildPageIndicator(scale),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -759,98 +796,108 @@ class _HomeState extends State<Home> {
     );
   }
 
-Widget _buildSlide(String text1, String text2, double scale) {
-  if (text1 == 'Welcome to ex' && text2 == 'Press!') {
+  Widget _buildSlide(String text1, String text2, double scale) {
+    if (text1 == 'Welcome to ex' && text2 == 'Press!') {
+      return GestureDetector(
+        onTap: () {
+          // Keep your navigation logic here if needed
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    'Welcome to ',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  Text(
+                    'ex',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  Text(
+                    'Press!',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E5C9A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            WavingHandIcon(scale: scale),
+          ],
+        ),
+      );
+    }
     return GestureDetector(
       onTap: () {
-        // Keep your navigation logic here if needed
+        if (text1 == 'Discover' && text2 == 'Our Features!') {
+          GlobalVariables.currentIndex = 1;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
+          );
+        } else if (text1 == 'Have' && text2 == 'Fun!') {
+          GlobalVariables.currentIndex = 2;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
+          );
+        }
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'Welcome to ',
-            style: TextStyle(
-              fontSize: 20 * scale,
-              fontWeight: FontWeight.w900,
-              fontFamily: 'RobotoMono',
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    text1,
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 4 * scale),
+                Flexible(
+                  child: Text(
+                    text2,
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E5C9A),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(
-            'ex',
-            style: TextStyle(
-              fontSize: 20 * scale,
-              fontWeight: FontWeight.w900,
-              fontFamily: 'RobotoMono',
-            ),
-          ),
-          Text(
-            'Press!',
-            style: TextStyle(
-              fontSize: 20 * scale,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E5C9A),
-              fontFamily: 'RobotoMono',
-            ),
-          ),
-          Spacer(),
           WavingHandIcon(scale: scale),
         ],
       ),
     );
   }
-  return GestureDetector(
-    onTap: () {
-      if (text1 == 'Discover' && text2 == 'Our Features!') {
-        GlobalVariables.currentIndex = 1;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
-        );
-      } else if (text1 == 'Have' && text2 == 'Fun!') {
-        GlobalVariables.currentIndex = 2;
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
-        );
-      }
-    },
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          text1,
-          style: TextStyle(
-            fontSize: 20 * scale,
-            fontWeight: FontWeight.w900,
-            fontFamily: 'RobotoMono',
-          ),
-        ),
-        SizedBox(width: 5 * scale),
-        Text(
-          text2,
-          style: TextStyle(
-            fontSize: 20 * scale,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2E5C9A),
-            fontFamily: 'RobotoMono',
-          ),
-        ),
-        Spacer(),
-        WavingHandIcon(scale: scale),
-      ],
-    ),
-  );
-}
 
   Widget _buildSectionTitle(String title, double scale) {
     return Text(
       title,
-      style: TextStyle(
+      style: GoogleFonts.robotoMono(
         fontSize: 25 * scale,
         fontWeight: FontWeight.w900,
         color: Colors.black87,
-        fontFamily: 'RobotoMono',
       ),
     );
   }

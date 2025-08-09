@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FAQItem extends StatelessWidget {
   final String question;
   final String answer;
   final Color backgroundColor;
   final Color shadowColor;
-  final TextStyle questionStyle;
-  final TextStyle answerStyle;
+  final TextStyle? questionStyle;
+  final TextStyle? answerStyle;
 
   const FAQItem({
     super.key,
@@ -14,14 +15,19 @@ class FAQItem extends StatelessWidget {
     required this.answer,
     this.backgroundColor = Colors.white,
     this.shadowColor = const Color(0x33000000),
-    this.questionStyle = const TextStyle(fontWeight: FontWeight.bold),
-    this.answerStyle = const TextStyle(),
+    this.questionStyle,
+    this.answerStyle,
   });
 
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      title: Text(question, style: questionStyle),
+      title: Text(
+        question,
+        style:
+            questionStyle ??
+            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+      ),
       children: <Widget>[
         Container(
           padding: const EdgeInsets.all(16.0),
@@ -38,7 +44,7 @@ class FAQItem extends StatelessWidget {
           ),
           child: Text(
             answer,
-            style: answerStyle,
+            style: answerStyle ?? GoogleFonts.robotoMono(),
             softWrap: true,
             overflow: TextOverflow.visible,
           ),

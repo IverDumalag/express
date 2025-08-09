@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:google_fonts/google_fonts.dart';
 import '../0_components/help_widget.dart';
 import '../00_services/api_services.dart';
 import 'audio_home_cards.dart';
@@ -69,10 +70,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
-          side: BorderSide(
-            color: Color(0xFF334E7B),
-            width: 2,
-          ),
+          side: BorderSide(color: Color(0xFF334E7B), width: 2),
         ),
         backgroundColor: Colors.white,
         elevation: 8,
@@ -83,11 +81,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
             SizedBox(width: 16),
             Text(
               "Finding match...",
-              style: TextStyle(
-                color: Color(0xFF334E7B),
-                fontFamily: 'RobotoMono',
-                fontWeight: FontWeight.w500,
-              ),
+              style: GoogleFonts.robotoMono(color: Color(0xFF334E7B)),
             ),
           ],
         ),
@@ -121,42 +115,26 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
-          side: BorderSide(
-            color: Color(0xFF334E7B),
-            width: 2,
-          ),
+          side: BorderSide(color: Color(0xFF334E7B), width: 2),
         ),
         backgroundColor: Colors.white,
         elevation: 8,
         title: Text(
           matchFound ? "Match Found!" : "No Match Found",
-          style: TextStyle(
-            color: Color(0xFF334E7B),
-            fontFamily: 'RobotoMono',
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-          ),
+          style: GoogleFonts.robotoMono(color: Color(0xFF334E7B), fontSize: 15),
         ),
         content: Text(
           matchFound
               ? "A sign language match was found for your entry."
               : "No match found, but your entry will be saved.",
-          style: TextStyle(
-            color: Color(0xFF334E7B),
-            fontFamily: 'RobotoMono',
-            fontWeight: FontWeight.w500,
-          ),
+          style: GoogleFonts.robotoMono(color: Color(0xFF334E7B)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(
               "OK",
-              style: TextStyle(
-                color: Color(0xFF2E5C9A),
-                fontFamily: 'RobotoMono',
-                fontWeight: FontWeight.w500,
-              ),
+              style: GoogleFonts.robotoMono(color: Color(0xFF2E5C9A)),
             ),
           ),
         ],
@@ -216,7 +194,12 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 70.0, left: 16.0, right: 16.0, bottom: 16.0), // Add top padding to move cards down
+            padding: const EdgeInsets.only(
+              top: 70.0,
+              left: 16.0,
+              right: 16.0,
+              bottom: 16.0,
+            ), // Add top padding to move cards down
             child: Column(
               children: [
                 // Entries List
@@ -224,25 +207,16 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                        border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                      border: Border.all(color: Color(0xFF334E7B), width: 1.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         const double itemHeight = 90.0;
                         final double listViewHeight = constraints.maxHeight;
-                        int selectedIndex = 0;
-
-                        if (_scrollController.hasClients &&
-                            _phrases.isNotEmpty) {
-                          double offset = _scrollController.offset;
-                          selectedIndex =
-                              ((offset + listViewHeight) / itemHeight).floor();
-                          selectedIndex = selectedIndex.clamp(
-                            0,
-                            _phrases.length - 1,
-                          );
-                        }
+                        int selectedIndex = _phrases.isNotEmpty
+                            ? _phrases.length - 1
+                            : 0;
 
                         return ListView.builder(
                           controller: _scrollController,
@@ -268,7 +242,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                 // Removed height: itemHeight
                                 alignment: Alignment.centerRight,
                                 margin: EdgeInsets.symmetric(vertical: 8),
-                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 8,
+                                ),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? Colors.indigo[50]
@@ -292,23 +269,20 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                 child: ListTile(
                                   title: Text(
                                     phrase['words'] ?? '',
-                                    style: TextStyle(
+                                    style: GoogleFonts.robotoMono(
                                       fontSize: isSelected ? 32 : 22,
-                                      fontWeight: FontWeight.w600,
                                       color: isSelected
                                           ? const Color(0xFF334E7B)
                                           : Colors.grey[800],
-                                      fontFamily: 'RobotoMono',
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   subtitle: Text(
                                     createdAt,
-                                    style: TextStyle(
+                                    style: GoogleFonts.robotoMono(
                                       fontSize: 14,
                                       color: Colors.grey[600],
-                                      fontFamily: 'RobotoMono',
                                     ),
                                   ),
                                 ),
@@ -343,8 +317,13 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         child: TextField(
                           controller: _textController,
                           onSubmitted: _handleSubmit,
+                          style:
+                              GoogleFonts.robotoMono(), // Added Roboto Mono style
                           decoration: InputDecoration(
                             hintText: 'Type to say something...',
+                            hintStyle: GoogleFonts.robotoMono(
+                              color: Colors.grey[600],
+                            ), // Added Roboto Mono style
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.all(16),
                           ),
@@ -385,10 +364,9 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         SizedBox(height: 8),
                         Text(
                           'Tap to speak',
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             color: Colors.grey[600],
                             fontSize: 20,
-                            fontFamily: 'RobotoMono',
                           ),
                         ),
                       ],

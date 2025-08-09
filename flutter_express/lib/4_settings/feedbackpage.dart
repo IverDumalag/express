@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 
 class FeedbackPage extends StatefulWidget {
@@ -35,9 +36,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final details = _detailsController.text.trim();
 
     if (mainConcern.isEmpty || details.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please fill in all fields.',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
+      );
       return;
     }
 
@@ -54,12 +60,22 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (result['status'] == 201 || result['status'] == "201") {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Feedback submitted successfully!')),
+        SnackBar(
+          content: Text(
+            'Feedback submitted successfully!',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Submission failed.')),
+        SnackBar(
+          content: Text(
+            result['message'] ?? 'Submission failed.',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
     }
   }
@@ -74,8 +90,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           children: [
             Text(
               'Back',
-              style: TextStyle(
-                fontFamily: 'RobotoMono',
+              style: GoogleFonts.robotoMono(
                 color: Color(0xFF334E7B),
                 fontWeight: FontWeight.bold,
               ),
@@ -98,11 +113,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Feedback',
-                style: TextStyle(
+                style: GoogleFonts.robotoMono(
                   color: Color(0xFF334E7B),
                   fontWeight: FontWeight.bold,
                   fontSize: 36,
-                  fontFamily: 'RobotoMono',
                 ),
               ),
             ),
@@ -115,8 +129,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             SizedBox(height: 32),
             Text(
               'Help us to improve',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: 'RobotoMono',
+              style: GoogleFonts.robotoMono(
                 fontSize: 27,
                 fontWeight: FontWeight.w900,
               ),
@@ -143,8 +156,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     return TextField(
                       controller: controller,
                       focusNode: focusNode,
+                      style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
+                        labelStyle: GoogleFonts.robotoMono(),
                         border: OutlineInputBorder(),
                       ),
                       onEditingComplete: onEditingComplete,
@@ -157,8 +172,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
             const SizedBox(height: 16),
             TextField(
               controller: _detailsController,
+              style: GoogleFonts.robotoMono(),
               decoration: InputDecoration(
                 labelText: 'Details',
+                labelStyle: GoogleFonts.robotoMono(),
                 border: OutlineInputBorder(),
               ),
               maxLines: 4,
@@ -176,15 +193,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ),
               child: _loading
                   ? CircularProgressIndicator(color: Colors.white)
-                  : const Padding(
+                  : Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 24.0,
                         vertical: 12.0,
                       ),
                       child: Text(
                         'Submit',
-                        style: TextStyle(
-                          fontFamily: 'RobotoMono',
+                        style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 20.0,

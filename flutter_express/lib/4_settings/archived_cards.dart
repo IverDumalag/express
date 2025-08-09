@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../global_variables.dart';
 
@@ -39,13 +40,23 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
         _archivedCards.removeWhere((c) => c['entry_id'] == entryId);
         _loading = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Deleted successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Deleted successfully!',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
+      );
     } else {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Delete failed')),
+        SnackBar(
+          content: Text(
+            result['message'] ?? 'Delete failed',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
     }
   }
@@ -60,16 +71,14 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
     final scale = _scaleFactor(context);
     return Scaffold(
       appBar: AppBar(
-
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
               'Back',
-              style: TextStyle(
+              style: GoogleFonts.robotoMono(
                 color: Color(0xFF334E7B),
                 fontWeight: FontWeight.bold,
-                fontFamily: 'RobotoMono',
               ),
             ),
           ],
@@ -80,7 +89,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
           icon: Icon(Icons.arrow_back, color: Color(0xFF334E7B)),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: false, 
+        centerTitle: false,
       ),
       backgroundColor: Colors.white,
       body: _loading
@@ -89,7 +98,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
           ? Center(
               child: Text(
                 'No archived cards.',
-                style: TextStyle(
+                style: GoogleFonts.robotoMono(
                   color: Colors.blueGrey,
                   fontSize: 20 * scale,
                   fontWeight: FontWeight.w600,
@@ -103,11 +112,10 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                   padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
                   child: Text(
                     'Archived',
-                    style: TextStyle(
+                    style: GoogleFonts.robotoMono(
                       color: Color(0xFF334E7B),
                       fontWeight: FontWeight.bold,
                       fontSize: 36,
-                      fontFamily: 'RobotoMono',
                     ),
                   ),
                 ),
@@ -121,8 +129,11 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                         margin: EdgeInsets.only(bottom: 16 * scale),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(10), 
-                          border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Color(0xFF334E7B),
+                            width: 1.5,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Color(0xFF2354C7).withOpacity(0.08),
@@ -138,7 +149,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                           ),
                           title: Text(
                             card['words'] ?? '',
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 22 * scale,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF2354C7),
@@ -146,7 +157,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                           ),
                           subtitle: Text(
                             card['created_at'] ?? '',
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 14 * scale,
                               color: Colors.blueGrey,
                             ),
@@ -162,20 +173,30 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                               final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
-                                  title: Text('Delete Card'),
+                                  title: Text(
+                                    'Delete Card',
+                                    style: GoogleFonts.robotoMono(),
+                                  ),
                                   content: Text(
                                     'Are you sure you want to permanently delete this card?',
+                                    style: GoogleFonts.robotoMono(),
                                   ),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
-                                      child: Text('Cancel'),
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
+                                      child: Text(
+                                        'Cancel',
+                                        style: GoogleFonts.robotoMono(),
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () => Navigator.pop(ctx, true),
                                       child: Text(
                                         'Delete',
-                                        style: TextStyle(color: Colors.red),
+                                        style: GoogleFonts.robotoMono(
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ),
                                   ],
