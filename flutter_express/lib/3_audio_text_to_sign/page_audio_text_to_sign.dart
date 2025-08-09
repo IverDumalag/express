@@ -216,7 +216,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 60.0, left: 16.0, right: 16.0, bottom: 16.0), // Add top padding to move cards down
+            padding: const EdgeInsets.only(top: 70.0, left: 16.0, right: 16.0, bottom: 16.0), // Add top padding to move cards down
             child: Column(
               children: [
                 // Entries List
@@ -224,10 +224,9 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                        border: Border.all(color: Color(0xFF334E7B), width: 1.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    clipBehavior: Clip.antiAlias, // Ensure content and shadow do not pass border
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         const double itemHeight = 90.0;
