@@ -75,7 +75,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             Text(
               'Back',
               style: TextStyle(
-                fontFamily: 'Inter',
+                fontFamily: 'RobotoMono',
                 color: Color(0xFF334E7B),
                 fontWeight: FontWeight.bold,
               ),
@@ -102,7 +102,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   color: Color(0xFF334E7B),
                   fontWeight: FontWeight.bold,
                   fontSize: 36,
-                  fontFamily: 'Inter',
+                  fontFamily: 'RobotoMono',
                 ),
               ),
             ),
@@ -116,7 +116,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             Text(
               'Help us to improve',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: 'Inter',
+                fontFamily: 'RobotoMono',
                 fontSize: 27,
                 fontWeight: FontWeight.w900,
               ),
@@ -184,7 +184,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       child: Text(
                         'Submit',
                         style: TextStyle(
-                          fontFamily: 'Inter',
+                          fontFamily: 'RobotoMono',
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 20.0,

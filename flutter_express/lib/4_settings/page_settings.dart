@@ -56,61 +56,16 @@ class _SettingsState extends State<Settings> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Settings',
+                      'Menu',
                       style: TextStyle(
-                        fontFamily: 'Inter',
+                        fontFamily: 'RobotoMono',
                         fontSize: 40,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF334E7B), 
                       ),
                     ),
-                    SizedBox(height: 16.0),
-                    Text(
-                      'Allow exPress to access your camera and microphone..',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
                   ],
                 ),
-              ),
-              SwitchListTile(
-                title: Text(
-                  'Access Camera',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                value: _cameraAccess,
-                onChanged: (bool value) async {
-                  if (value) {
-                    final status = await Permission.camera.request();
-                    setState(() => _cameraAccess = status.isGranted);
-                  } else {
-                    openAppSettings();
-                  }
-                  _checkPermissions();
-                },
-                secondary: Icon(Icons.camera_alt),
-                activeColor: Color(0xFF334E7B),
-              ),
-              SwitchListTile(
-                title: Text(
-                  'Access Microphone',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                value: _voiceAccess,
-                onChanged: (value) async {
-                  if (value) {
-                    final status = await Permission.microphone.request();
-                    setState(() => _voiceAccess = status.isGranted);
-                  } else {
-                    openAppSettings();
-                  }
-                  _checkPermissions();
-                },
-                secondary: Icon(Icons.mic),
-                activeColor: Color(0xFF334E7B),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -220,7 +175,7 @@ class _SettingsState extends State<Settings> {
                 child: Text(
                   'FAQs',
                   style: TextStyle(
-                    fontFamily: 'Inter',
+                    fontFamily: 'RobotoMono',
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF334E7B),

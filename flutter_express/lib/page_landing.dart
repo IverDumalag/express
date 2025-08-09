@@ -52,7 +52,7 @@ class _LandingPageState extends State<LandingPage>
             style: TextStyle(
               color: Color(0xFFBEBEBE),
               fontSize: 36 * scale,
-              fontFamily: 'Inter',
+              fontFamily: 'RobotoMono',
             ),
           ),
         );
@@ -65,7 +65,7 @@ class _LandingPageState extends State<LandingPage>
               color: Color(0xFF2354C7),
               fontWeight: FontWeight.bold,
               fontSize: 36 * scale,
-              fontFamily: 'Inter',
+              fontFamily: 'RobotoMono',
             ),
           ),
         );
@@ -123,7 +123,7 @@ class _LandingPageState extends State<LandingPage>
                 style: TextStyle(
                   fontSize: 45 * scale,
                   fontWeight: FontWeight.w900,
-                  fontFamily: 'Inter',
+                  fontFamily: 'RobotoMono',
                   letterSpacing: -1 * scale,
                 ),
                 textAlign: TextAlign.left,
