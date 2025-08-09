@@ -144,13 +144,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                               color: Color(0xFF2354C7),
                             ),
                           ),
-                          subtitle: Text(
-                            card['created_at'] ?? '',
-                            style: TextStyle(
-                              fontSize: 14 * scale,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
+                          
                           trailing: IconButton(
                             icon: Icon(
                               Icons.delete,
