@@ -5,7 +5,6 @@ import '../0_components/help_widget.dart';
 import '../0_components/popup_information.dart';
 import 'popup_home_welcome.dart';
 import 'waving_hand.dart';
-import 'spinning_star.dart';
 import '../main.dart';
 import '../global_variables.dart';
 import 'home_cards.dart';
@@ -300,56 +299,14 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- USER NAME, GREETING, HELP ICON SECTION ---
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: 30 * scale,
-                    left: 20 * scale,
-                    right: 20 * scale,
-                    bottom: 10 * scale,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userFullName,
-                              style: TextStyle(
-                                fontSize: 22 * scale,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF334E7B),
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                            SizedBox(height: 4 * scale),
-                            Text(
-                              greetingMessage,
-                              style: TextStyle(
-                                fontSize: 16 * scale,
-                                color: Colors.black87,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      HelpIconWidget(
-                        helpTitle: 'How to Use',
-                        helpText:
-                            'This section displays all your saved words and phrases. You can search, filter, add new entries, mark them as favorites, or archive them.',
-                      ),
-                    ],
-                  ),
-                ),
+                // ...existing code...
                 _buildHeader(scale),
                 SizedBox(height: 40 * scale),
                 Row(
                   children: [
+                    SizedBox(width: 20 * scale),
                     _buildSectionTitle("Favorites", scale),
-                    BlinkingStarIcon(scale: scale),
+             
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
@@ -378,10 +335,11 @@ class _HomeState extends State<Home> {
                           child: Container(
                             margin: EdgeInsets.only(top: 10 * scale),
                             child: Text(
-                              'Still empty, nothing to be found here ^_^',
+                              'Still empty, nothing to be found here',
                               style: TextStyle(
-                                fontSize: 18 * scale,
+                                fontSize: 15 * scale,
                                 color: Colors.grey,
+                                fontFamily: 'RobotoMono',
                               ),
                             ),
                           ),
@@ -587,16 +545,27 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          if (showAddModal)
+            if (showAddModal)
             AlertDialog(
               title: Text(
                 "Add Word/Phrase",
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 15 * scale,
+                ),
               ),
+              insetPadding: EdgeInsets.symmetric(horizontal: 40 * scale), // Increase horizontal padding for wider dialog
+              contentPadding: EdgeInsets.all(24 * scale), // Optional: more spacious content
               content: TextField(
                 decoration: InputDecoration(
                   hintText: "Enter word or phrase",
-                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  hintStyle: TextStyle(
+                    color: Colors.grey[600],
+                    fontFamily: 'RobotoMono',
+                    fontWeight: FontWeight.w500,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Color(0xFF334E7B)),
@@ -607,28 +576,47 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 onChanged: (v) => addInput = v,
-                style: TextStyle(color: Color(0xFF334E7B)),
+                style: TextStyle(
+                  color: Color(0xFF334E7B),
+                  fontFamily: 'RobotoMono',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               actions: [
                 TextButton(
                   onPressed: addLoading ? null : _handleAddWord,
                   child: addLoading
                       ? CircularProgressIndicator()
-                      : Text("Add", style: TextStyle(color: Color(0xFF2E5C9A))),
+                      : Text(
+                          "Add",
+                          style: TextStyle(
+                            color: Color(0xFF2E5C9A),
+                            fontFamily: 'RobotoMono',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                 ),
                 TextButton(
                   onPressed: () => setState(() => showAddModal = false),
                   child: Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontFamily: 'RobotoMono',
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(
+                  color: Color(0xFF334E7B),
+                  width: 2,
+                ),
               ),
               backgroundColor: Colors.white,
-              elevation: 5,
+              elevation: 8,
             ),
         ],
       ),
@@ -637,72 +625,117 @@ class _HomeState extends State<Home> {
 
   Widget _buildHeader(double scale) {
     return Container(
-      height: 300 * scale,
-      decoration: BoxDecoration(
-        color: Color(0xFF2E5C9A),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(230 * scale),
-          bottomRight: Radius.circular(230 * scale),
-        ),
-      ),
-      child: Stack(
+      padding: EdgeInsets.only(top: 50 * scale, left: 20 * scale, right: 20 * scale),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            left: 20 * scale,
-            top: 60 * scale,
-            child: Text(
-              greetingMessage,
-              style: TextStyle(
-                fontSize: 28 * scale,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter',
+          // Add a Row for the tip icon above the greeting
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(
+                Icons.help, // Filled question mark tip icon
+                color: Color(0xFF2E5C9A),
+                size: 28 * scale,
               ),
-            ),
+            ],
           ),
-          Positioned(
-            left: 20 * scale,
-            top: 110 * scale,
-            right: 20 * scale,
-            child: Container(
-              height: 150 * scale,
-              padding: EdgeInsets.all(16 * scale),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16 * scale),
-                border: Border.all(color: Colors.black, width: 1 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 1 * scale,
-                    blurRadius: 6 * scale,
-                    offset: Offset(0, 3 * scale),
-                  ),
-                ],
+          SizedBox(height: 10 * scale),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/graphichome1.png',
+                width: 80 * scale,
+                height: 80 * scale,
               ),
-              child: Stack(
-                children: [
-                  PageView(
-                    controller: _pageController,
-                    onPageChanged: (int index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
+              SizedBox(width: 16 * scale),
+              Expanded(
+                child: RichText(
+                  textAlign: TextAlign.left,
+                  text: TextSpan(
                     children: [
-                      _buildSlide('Welcome to ex', 'Press!', scale),
-                      _buildSlide('Discover', 'Our Features!', scale),
-                      _buildSlide('Have', 'Fun!', scale),
+                      TextSpan(
+                        text: greetingMessage.split(',').first,
+                        style: TextStyle(
+                          fontSize: 21 * scale,
+                          color: Color(0xFF2E5C9A),
+                          fontWeight: FontWeight.w300,
+                          fontFamily: 'RobotoMono',
+                          shadows: [
+                            Shadow(
+                              blurRadius: 4,
+                              color: Colors.white,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (greetingMessage.contains(','))
+                        TextSpan(
+                          text: greetingMessage.substring(greetingMessage.indexOf(',')),
+                          style: TextStyle(
+                            fontSize: 22 * scale,
+                            color: Color(0xFF2E5C9A),
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'RobotoMono',
+                            shadows: [
+                              Shadow(
+                                blurRadius: 4,
+                                color: Colors.white,
+                                offset: Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
-                  Positioned(
-                    bottom: 8 * scale,
-                    right: 8 * scale,
-                    child: _buildPageIndicator(scale),
-                  ),
-                ],
+                ),
               ),
+            ],
+          ),
+          SizedBox(height: 0.1 * scale),
+          Container(
+            height: 120 * scale, // Reduced height
+            padding: EdgeInsets.all(8 * scale), // Reduced padding
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(16 * scale),
+                border: Border.all(color: Color(0xFF334E7B), width: 2 * scale),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1 * scale,
+                  blurRadius: 6 * scale,
+                  offset: Offset(0, 3 * scale),
+                ),
+              ],
             ),
+            child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 20 * scale), // Move slides a bit to the right
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (int index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  children: [
+                    _buildSlide('Welcome to ex', 'Press!', scale),
+                    _buildSlide('Discover', 'Our Features!', scale),
+                    _buildSlide('Have', 'Fun!', scale),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 8 * scale,
+                right: 8 * scale,
+                child: _buildPageIndicator(scale),
+              ),
+            ],
+          ),
           ),
         ],
       ),
@@ -726,42 +759,38 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSlide(String text1, String text2, double scale) {
+Widget _buildSlide(String text1, String text2, double scale) {
+  if (text1 == 'Welcome to ex' && text2 == 'Press!') {
     return GestureDetector(
       onTap: () {
-        if (text1 == 'Discover' && text2 == 'Our Features!') {
-          GlobalVariables.currentIndex = 1;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
-          );
-        } else if (text1 == 'Have' && text2 == 'Fun!') {
-          GlobalVariables.currentIndex = 2;
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
-          );
-        }
+        // Keep your navigation logic here if needed
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            text1,
+            'Welcome to ',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.w900,
-              fontFamily: 'Inter',
+              fontFamily: 'RobotoMono',
             ),
           ),
-          SizedBox(width: 5 * scale),
           Text(
-            text2,
+            'ex',
+            style: TextStyle(
+              fontSize: 20 * scale,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'RobotoMono',
+            ),
+          ),
+          Text(
+            'Press!',
             style: TextStyle(
               fontSize: 20 * scale,
               fontWeight: FontWeight.bold,
               color: Color(0xFF2E5C9A),
-              fontFamily: 'Inter',
+              fontFamily: 'RobotoMono',
             ),
           ),
           Spacer(),
@@ -770,6 +799,49 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+  return GestureDetector(
+    onTap: () {
+      if (text1 == 'Discover' && text2 == 'Our Features!') {
+        GlobalVariables.currentIndex = 1;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
+        );
+      } else if (text1 == 'Have' && text2 == 'Fun!') {
+        GlobalVariables.currentIndex = 2;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
+        );
+      }
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          text1,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        SizedBox(width: 5 * scale),
+        Text(
+          text2,
+          style: TextStyle(
+            fontSize: 20 * scale,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E5C9A),
+            fontFamily: 'RobotoMono',
+          ),
+        ),
+        Spacer(),
+        WavingHandIcon(scale: scale),
+      ],
+    ),
+  );
+}
 
   Widget _buildSectionTitle(String title, double scale) {
     return Text(
@@ -778,7 +850,7 @@ class _HomeState extends State<Home> {
         fontSize: 25 * scale,
         fontWeight: FontWeight.w900,
         color: Colors.black87,
-        fontFamily: 'Inter',
+        fontFamily: 'RobotoMono',
       ),
     );
   }

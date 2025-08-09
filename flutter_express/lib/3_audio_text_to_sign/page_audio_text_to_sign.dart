@@ -67,11 +67,28 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          side: BorderSide(
+            color: Color(0xFF334E7B),
+            width: 2,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 8,
+        contentPadding: EdgeInsets.all(24),
         content: Row(
           children: [
             CircularProgressIndicator(),
             SizedBox(width: 16),
-            Text("Finding match..."),
+            Text(
+              "Finding match...",
+              style: TextStyle(
+                color: Color(0xFF334E7B),
+                fontFamily: 'RobotoMono',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -102,16 +119,45 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(matchFound ? "Match Found!" : "No Match Found"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          side: BorderSide(
+            color: Color(0xFF334E7B),
+            width: 2,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 8,
+        title: Text(
+          matchFound ? "Match Found!" : "No Match Found",
+          style: TextStyle(
+            color: Color(0xFF334E7B),
+            fontFamily: 'RobotoMono',
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
+          ),
+        ),
         content: Text(
           matchFound
               ? "A sign language match was found for your entry."
               : "No match found, but your entry will be saved.",
+          style: TextStyle(
+            color: Color(0xFF334E7B),
+            fontFamily: 'RobotoMono',
+            fontWeight: FontWeight.w500,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text("OK"),
+            child: Text(
+              "OK",
+              style: TextStyle(
+                color: Color(0xFF2E5C9A),
+                fontFamily: 'RobotoMono',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -170,7 +216,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(top: 70.0, left: 16.0, right: 16.0, bottom: 16.0), // Add top padding to move cards down
             child: Column(
               children: [
                 // Entries List
@@ -178,7 +224,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: Colors.indigo[100]!, width: 1),
+                        border: Border.all(color: Color(0xFF334E7B), width: 1.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: LayoutBuilder(
@@ -219,9 +265,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                 ),
                               ),
                               child: Container(
-                                height: itemHeight,
+                                // Removed height: itemHeight
                                 alignment: Alignment.centerRight,
                                 margin: EdgeInsets.symmetric(vertical: 8),
+                                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? Colors.indigo[50]
@@ -251,13 +298,17 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                       color: isSelected
                                           ? const Color(0xFF334E7B)
                                           : Colors.grey[800],
+                                      fontFamily: 'RobotoMono',
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   subtitle: Text(
                                     createdAt,
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey[600],
+                                      fontFamily: 'RobotoMono',
                                     ),
                                   ),
                                 ),
@@ -337,6 +388,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 20,
+                            fontFamily: 'RobotoMono',
                           ),
                         ),
                       ],
