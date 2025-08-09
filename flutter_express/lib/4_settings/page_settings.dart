@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
 
@@ -57,11 +58,10 @@ class _SettingsState extends State<Settings> {
                   children: [
                     Text(
                       'Menu',
-                      style: TextStyle(
-                        fontFamily: 'RobotoMono',
+                      style: GoogleFonts.robotoMono(
                         fontSize: 40,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF334E7B), 
+                        color: Color(0xFF334E7B),
                       ),
                     ),
                   ],
@@ -100,19 +100,24 @@ class _SettingsState extends State<Settings> {
                           foregroundColor: Colors.white,
                           minimumSize: Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4), 
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           elevation: 0,
                         ),
                         icon: Icon(Icons.feedback, color: Color(0xFF334E7B)),
                         label: Text(
                           "Give Us Feedback! It Helps!",
-                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                          style: GoogleFonts.robotoMono(
+                            color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => FeedbackPage()),
+                            MaterialPageRoute(
+                              builder: (context) => FeedbackPage(),
+                            ),
                           );
                         },
                       ),
@@ -153,14 +158,17 @@ class _SettingsState extends State<Settings> {
                           foregroundColor: Colors.white,
                           minimumSize: Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4), // changed from 8 to 4
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           elevation: 0,
                         ),
                         icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
                         label: Text(
                           "Archive",
-                          style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                          style: GoogleFonts.robotoMono(
+                            color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/archive');
@@ -174,8 +182,7 @@ class _SettingsState extends State<Settings> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'FAQs',
-                  style: TextStyle(
-                    fontFamily: 'RobotoMono',
+                  style: GoogleFonts.robotoMono(
                     fontSize: 40,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF334E7B),
@@ -198,8 +205,10 @@ class _SettingsState extends State<Settings> {
                     ],
                   ),
                   child: TextField(
+                    style: GoogleFonts.robotoMono(),
                     decoration: InputDecoration(
                       hintText: 'Search about exPress',
+                      hintStyle: GoogleFonts.robotoMono(),
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8.0)),
@@ -244,14 +253,17 @@ class _SettingsState extends State<Settings> {
                 foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 48),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4), // changed from 10 to 4
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 elevation: 2,
               ),
               icon: Icon(Icons.logout, color: Colors.white),
               label: Text(
                 "Logout",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: GoogleFonts.robotoMono(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
