@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../global_variables.dart';
 
@@ -57,13 +58,23 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
         _archivedCards.removeWhere((c) => c['entry_id'] == entryId);
         _loading = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Deleted successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Deleted successfully!',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
+      );
     } else {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Delete failed')),
+        SnackBar(
+          content: Text(
+            result['message'] ?? 'Delete failed',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
     }
   }
@@ -79,6 +90,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         shadowColor: Colors.transparent,
@@ -86,14 +98,21 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // ...existing code...
+            Text(
+              'Back',
+              style: GoogleFonts.robotoMono(
+                color: Color(0xFF334E7B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
           ],
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Color(0xFF334E7B)),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: false, 
+        centerTitle: false,
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator())
@@ -101,7 +120,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
           ? Center(
               child: Text(
                 'No archived cards.',
-                style: TextStyle(
+                style: GoogleFonts.robotoMono(
                   color: Colors.blueGrey,
                   fontSize: 20 * scale,
                   fontWeight: FontWeight.w600,
@@ -113,6 +132,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
+
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,6 +148,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                       ),
                       
                     ],
+
                   ),
                 ),
                 Expanded(
@@ -140,8 +161,11 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                         margin: EdgeInsets.only(bottom: 16 * scale),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(10), 
-                          border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Color(0xFF334E7B),
+                            width: 1.5,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Color(0xFF2354C7).withOpacity(0.08),
@@ -157,12 +181,13 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                           ),
                           title: Text(
                             card['words'] ?? '',
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 22 * scale,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF2354C7),
                             ),
                           ),
+
                           
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -202,6 +227,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                                           color: Color(0xFF334E7B),
                                           fontFamily: 'RobotoMono',
                                           fontWeight: FontWeight.w500,
+
                                         ),
                                       ),
                                       actions: [

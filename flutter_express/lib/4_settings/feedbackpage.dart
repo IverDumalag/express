@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 
 
@@ -36,9 +37,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final details = _detailsController.text.trim();
 
     if (mainConcern.isEmpty || details.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please fill in all fields.',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
+      );
       return;
     }
 
@@ -55,12 +61,22 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (result['status'] == 201 || result['status'] == "201") {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Feedback submitted successfully!')),
+        SnackBar(
+          content: Text(
+            'Feedback submitted successfully!',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Submission failed.')),
+        SnackBar(
+          content: Text(
+            result['message'] ?? 'Submission failed.',
+            style: GoogleFonts.robotoMono(),
+          ),
+        ),
       );
     }
   }
@@ -77,7 +93,15 @@ class _FeedbackPageState extends State<FeedbackPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // ...existing code...
+
+            Text(
+              'Back',
+              style: GoogleFonts.robotoMono(
+                color: Color(0xFF334E7B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
           ],
         ),
         leading: IconButton(
@@ -92,7 +116,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              
+
+              child: Text(
+                'Feedback',
+                style: GoogleFonts.robotoMono(
+                  color: Color(0xFF334E7B),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                ),
+              ),
+
             ),
             SizedBox(height: 28),
             Image.asset(
@@ -103,8 +136,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             SizedBox(height: 12),
             Text(
               'Help us to improve',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: 'RobotoMono',
+              style: GoogleFonts.robotoMono(
                 fontSize: 27,
                 fontWeight: FontWeight.w900,
               ),
@@ -131,11 +163,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     return TextField(
                       controller: controller,
                       focusNode: focusNode,
+                      style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
+
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+
                       ),
                       onEditingComplete: onEditingComplete,
                     );
@@ -147,11 +182,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
             const SizedBox(height: 16),
             TextField(
               controller: _detailsController,
+              style: GoogleFonts.robotoMono(),
               decoration: InputDecoration(
                 labelText: 'Details',
+
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+
               ),
               maxLines: 4,
             ),
@@ -168,15 +206,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ),
               child: _loading
                   ? CircularProgressIndicator(color: Colors.white)
-                  : const Padding(
+                  : Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 24.0,
                         vertical: 12.0,
                       ),
                       child: Text(
                         'Submit',
-                        style: TextStyle(
-                          fontFamily: 'RobotoMono',
+                        style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 20.0,
