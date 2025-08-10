@@ -98,13 +98,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(
-              'Back',
-              style: GoogleFonts.robotoMono(
-                color: Color(0xFF334E7B),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            
 
           ],
         ),
@@ -134,16 +128,16 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                   padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
 
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center, // Center the text
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Archived',
-                        style: TextStyle(
+                        style: GoogleFonts.robotoMono(
                           color: Color(0xFF334E7B),
                           fontWeight: FontWeight.bold,
                           fontSize: 36,
-                          fontFamily: 'RobotoMono',
+                       
                         ),
                       ),
                       

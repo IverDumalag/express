@@ -26,7 +26,7 @@ class _PageProfileState extends State<PageProfile> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: themeBlue.withOpacity(0.07),
+      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
       body: user == null
           ? Center(child: Text("No user data", style: GoogleFonts.robotoMono()))
           : Center(
@@ -38,23 +38,23 @@ class _PageProfileState extends State<PageProfile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: 32),
                     Text(
                       "My Profile",
                       style: GoogleFonts.robotoMono(
-                        fontSize: screenWidth * 0.08,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 29,
+                        fontWeight: FontWeight.w700,
                         color: themeBlue,
                         letterSpacing: 0.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: screenHeight * 0.01),
+                    SizedBox(height: screenHeight * 0.02),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Your Name:",
+                          "Full Name:",
                           style: GoogleFonts.robotoMono(
                             fontSize: 16,
                             color: themeBlue,
@@ -75,8 +75,8 @@ class _PageProfileState extends State<PageProfile> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                            color: themeBlue.withOpacity(0.4),
-                            width: 1.2,
+                          color: Color(0xFF334E7B), // Blue outline
+                          width: 2,                
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -86,7 +86,7 @@ class _PageProfileState extends State<PageProfile> {
                               child: Text(
                                 "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
                                 style: GoogleFonts.robotoMono(
-                                  fontSize: screenWidth * 0.06,
+                                  fontSize: screenWidth * 0.04,
                                   fontWeight: FontWeight.bold,
                                   color: themeBlue,
                                   letterSpacing: 0.5,
@@ -98,7 +98,7 @@ class _PageProfileState extends State<PageProfile> {
                             Icon(
                               Icons.check_circle,
                               color: themeBlue,
-                              size: screenWidth * 0.07,
+                              size: screenWidth * 0.05,
                             ),
                           ],
                         ),
@@ -111,7 +111,7 @@ class _PageProfileState extends State<PageProfile> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "Your Email:",
+                            "Account Created",
                             style: GoogleFonts.robotoMono(
                               fontSize: 16,
                               color: themeBlue,
@@ -139,9 +139,11 @@ class _PageProfileState extends State<PageProfile> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          user!['email'] ?? '',
+                          user!['created_at'] != null
+                              ? _formatDate(user!['created_at'])
+                              : 'Unknown registration date',
                           style: GoogleFonts.robotoMono(
-                            fontSize: screenWidth * 0.045,
+                            fontSize: screenWidth * 0.04,
                             color: Colors.blueGrey[700],
                             letterSpacing: 0.2,
                           ),
@@ -164,29 +166,7 @@ class _PageProfileState extends State<PageProfile> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "First Name",
-                              value: user!['f_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "Middle Name",
-                              value: user!['m_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "Last Name",
-                              value: user!['l_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
+                  
                             Divider(),
                             _profileItem(
                               icon: Icons.email,
@@ -295,6 +275,23 @@ class _PageProfileState extends State<PageProfile> {
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return "${_monthName(date.month)} ${date.day}, ${date.year}";
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    return months[month - 1];
   }
 }
 

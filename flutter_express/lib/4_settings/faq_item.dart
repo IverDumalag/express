@@ -8,6 +8,8 @@ class FAQItem extends StatelessWidget {
   final Color shadowColor;
   final TextStyle? questionStyle;
   final TextStyle? answerStyle;
+  final double? questionFontSize;
+  final double? answerFontSize;
 
   const FAQItem({
     super.key,
@@ -17,6 +19,8 @@ class FAQItem extends StatelessWidget {
     this.shadowColor = const Color(0x33000000),
     this.questionStyle,
     this.answerStyle,
+    this.questionFontSize,
+    this.answerFontSize,
   });
 
   @override
@@ -24,9 +28,11 @@ class FAQItem extends StatelessWidget {
     return ExpansionTile(
       title: Text(
         question,
-        style:
-            questionStyle ??
-            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+        style: questionStyle ?? GoogleFonts.robotoMono(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF334E7B),
+          fontSize: questionFontSize ?? 18,
+        ),
       ),
       children: <Widget>[
         Container(
@@ -44,9 +50,13 @@ class FAQItem extends StatelessWidget {
           ),
           child: Text(
             answer,
-            style: answerStyle ?? GoogleFonts.robotoMono(),
+            style: answerStyle ?? GoogleFonts.robotoMono(
+              color: Color(0xFF334E7B),
+              fontSize: answerFontSize ?? 16,
+            ),
             softWrap: true,
             overflow: TextOverflow.visible,
+            textAlign: TextAlign.justify,
           ),
         ),
       ],

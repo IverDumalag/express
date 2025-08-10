@@ -94,13 +94,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
 
-            Text(
-              'Back',
-              style: GoogleFonts.robotoMono(
-                color: Color(0xFF334E7B),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          
 
           ],
         ),
@@ -115,7 +109,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         child: Column(
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
 
               child: Text(
                 'Feedback',
@@ -133,7 +127,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               height: 150,
               fit: BoxFit.contain,
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 4),
             Text(
               'Help us to improve',
               style: GoogleFonts.robotoMono(
@@ -141,7 +135,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 30),
             // Dropdown + TextField for Main Concern
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
@@ -166,30 +160,72 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-
+                        filled: true,
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Color(0xFF334E7B)),
+                        ),
                       ),
                       onEditingComplete: onEditingComplete,
                     );
                   },
+              optionsViewBuilder: (context, onSelected, options) {
+                return Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: 300, 
+                    height: 190,// Decreased width from default
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        final option = options.elementAt(index);
+                        return InkWell(
+                          onTap: () => onSelected(option),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                            child: Text(
+                              option,
+                              style: GoogleFonts.robotoMono(fontSize: 18, color: Colors.black),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
               onSelected: (String selection) {
                 _mainConcernController.text = selection;
               },
             ),
+            SizedBox(height: 12), // Space gap between view builder and main concern text field
             const SizedBox(height: 16),
             TextField(
               controller: _detailsController,
               style: GoogleFonts.robotoMono(),
               decoration: InputDecoration(
                 labelText: 'Details',
-
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-
+                filled: true,
+                fillColor: Colors.white,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Color(0xFF334E7B)),
+                ),
               ),
               maxLines: 4,
             ),
@@ -215,7 +251,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         'Submit',
                         style: GoogleFonts.robotoMono(
                           color: Colors.white,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                           fontSize: 20.0,
                         ),
                       ),
