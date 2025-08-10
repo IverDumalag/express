@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
 
@@ -72,12 +73,14 @@ class _SettingsState extends State<Settings> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+
                       'Archive',
                       style: TextStyle(
                         fontFamily: 'RobotoMono',
                         fontSize: 16,
                         color: Colors.grey,
                         fontWeight: FontWeight.w600,
+
                       ),
                     ),
                     SizedBox(height: 4),
@@ -86,6 +89,7 @@ class _SettingsState extends State<Settings> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
+
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton.icon(
@@ -108,6 +112,7 @@ class _SettingsState extends State<Settings> {
                             Navigator.pushNamed(context, '/archive');
                           },
                         ),
+
                       ),
                     ),
                   ],
@@ -136,6 +141,7 @@ class _SettingsState extends State<Settings> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
+
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton.icon(
@@ -160,6 +166,7 @@ class _SettingsState extends State<Settings> {
                               MaterialPageRoute(builder: (context) => FeedbackPage()),
                             );
                           },
+
                         ),
                       ),
                     ),
@@ -167,6 +174,7 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               Padding(
+
                 padding: const EdgeInsets.symmetric(horizontal: 50.0),
                 child: Stack(
                   children: [
@@ -259,10 +267,12 @@ class _SettingsState extends State<Settings> {
                       ),
                     ),
                   ],
+
                 ),
               ),
               SizedBox(height: 24.0),
               Padding(
+
                 padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 16.0),
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
@@ -271,6 +281,7 @@ class _SettingsState extends State<Settings> {
                     minimumSize: Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
+
                     ),
                     elevation: 2,
                   ),

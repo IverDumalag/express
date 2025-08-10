@@ -396,7 +396,9 @@ class _HomeState extends State<Home> {
                             child: TextField(
                               style: GoogleFonts.robotoMono(),
                               decoration: InputDecoration(
+
                                 hintText: "Search for your words/phrases",
+
                                 hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -761,9 +763,11 @@ class _HomeState extends State<Home> {
                       });
                     },
                     children: [
+
                         _buildSlide('Welcome to ex', 'Press!', scale, fontSize: 16),
                         _buildSlide('Discover', 'Our Features!', scale, fontSize: 16),
                         _buildSlide('Have', 'Fun!', scale, fontSize: 18),
+
                     ],
                   ),
                 ),
@@ -798,6 +802,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildSlide(String text1, String text2, double scale, {double fontSize = 14}) {
+
     if (text1 == 'Welcome to ex' && text2 == 'Press!') {
       return GestureDetector(
         onTap: () {
@@ -807,6 +812,7 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -945,6 +951,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             SizedBox(width: 12 * scale),
+
             WavingHandIcon(scale: scale),
           ],
         ),
@@ -976,7 +983,9 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text1,
                     style: GoogleFonts.robotoMono(
+
                       fontSize: fontSize * scale,
+
                       fontWeight: FontWeight.w900,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -987,7 +996,9 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text2,
                     style: GoogleFonts.robotoMono(
+
                       fontSize: fontSize * scale,
+
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2E5C9A),
                     ),
@@ -1007,7 +1018,9 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.robotoMono(
+
         fontSize: 18 * scale,
+
         fontWeight: FontWeight.w900,
         color: Colors.black87,
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../global_variables.dart';
 
@@ -20,14 +21,14 @@ class _PageProfileState extends State<PageProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final themeBlue = const Color(0xFF334E7B); 
+    final themeBlue = const Color(0xFF334E7B);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: themeBlue.withOpacity(0.07),
       body: user == null
-          ? const Center(child: Text("No user data"))
+          ? Center(child: Text("No user data", style: GoogleFonts.robotoMono()))
           : Center(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
@@ -40,7 +41,7 @@ class _PageProfileState extends State<PageProfile> {
                     SizedBox(height: screenHeight * 0.03),
                     Text(
                       "My Profile",
-                      style: TextStyle(
+                      style: GoogleFonts.robotoMono(
                         fontSize: screenWidth * 0.08,
                         fontWeight: FontWeight.bold,
                         color: themeBlue,
@@ -54,7 +55,7 @@ class _PageProfileState extends State<PageProfile> {
                       children: [
                         Text(
                           "Your Name:",
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             fontSize: 16,
                             color: themeBlue,
                             fontWeight: FontWeight.w600,
@@ -67,28 +68,38 @@ class _PageProfileState extends State<PageProfile> {
                       width: double.infinity,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 2),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: themeBlue.withOpacity(0.4), width: 1.2),
+                          border: Border.all(
+                            color: themeBlue.withOpacity(0.4),
+                            width: 1.2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
-                            children: [
+                          children: [
                             Expanded(
                               child: Text(
-                              "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.06,
-                                fontWeight: FontWeight.bold,
-                                color: themeBlue,
-                                letterSpacing: 0.5,
-                              ),
-                              textAlign: TextAlign.left,
+                                "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
+                                style: GoogleFonts.robotoMono(
+                                  fontSize: screenWidth * 0.06,
+                                  fontWeight: FontWeight.bold,
+                                  color: themeBlue,
+                                  letterSpacing: 0.5,
+                                ),
+                                textAlign: TextAlign.left,
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Icon(Icons.check_circle, color: themeBlue, size: screenWidth * 0.07),
+                            Icon(
+                              Icons.check_circle,
+                              color: themeBlue,
+                              size: screenWidth * 0.07,
+                            ),
                           ],
                         ),
                       ),
@@ -101,7 +112,7 @@ class _PageProfileState extends State<PageProfile> {
                         children: [
                           Text(
                             "Your Email:",
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 16,
                               color: themeBlue,
                               fontWeight: FontWeight.w600,
@@ -115,15 +126,21 @@ class _PageProfileState extends State<PageProfile> {
                       width: double.infinity,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 2),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          border: Border.all(color: themeBlue.withOpacity(0.4), width: 1.2),
+                          border: Border.all(
+                            color: themeBlue.withOpacity(0.4),
+                            width: 1.2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           user!['email'] ?? '',
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             fontSize: screenWidth * 0.045,
                             color: Colors.blueGrey[700],
                             letterSpacing: 0.2,
@@ -211,7 +228,9 @@ class _PageProfileState extends State<PageProfile> {
                       icon: const Icon(Icons.edit),
                       label: Text(
                         "Edit Profile",
-                        style: TextStyle(fontSize: screenWidth * 0.045),
+                        style: GoogleFonts.robotoMono(
+                          fontSize: screenWidth * 0.045,
+                        ),
                       ),
                       onPressed: () async {
                         final updated = await showDialog<Map<String, dynamic>>(
@@ -253,7 +272,7 @@ class _PageProfileState extends State<PageProfile> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     fontSize: screenWidth * 0.045,
                     color: Colors.blueGrey[800],
                   ),
@@ -261,7 +280,7 @@ class _PageProfileState extends State<PageProfile> {
                 SizedBox(height: 2),
                 Text(
                   value,
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     fontSize: screenWidth * 0.045,
                     color: themeBlue,
                     fontWeight: FontWeight.w600,
@@ -333,26 +352,27 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      birthdateController.text = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      birthdateController.text =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeBlue = const Color(0xFF334E7B); // Changed from 0xFF2354C7 to 0xFF334E7B
+    final themeBlue = const Color(0xFF334E7B);
     final screenWidth = MediaQuery.of(context).size.width;
 
     return AlertDialog(
-      backgroundColor: const Color(0xFF334E7B), // Set modal background to #334E7B
+      backgroundColor: const Color(0xFF334E7B),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       title: Row(
         children: [
-          Icon(Icons.edit, color: Colors.white), // Icon contrast
+          Icon(Icons.edit, color: Colors.white),
           const SizedBox(width: 8),
-          const Text(
+          Text(
             "Edit Profile",
-            style: TextStyle(color: Colors.white), // Title contrast
+            style: GoogleFonts.robotoMono(color: Colors.white),
           ),
         ],
       ),
@@ -364,12 +384,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             children: [
               TextField(
                 controller: fNameController,
-                style: const TextStyle(color: Colors.white), // Input text
+                style: GoogleFonts.robotoMono(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: "First Name",
-                  labelStyle: const TextStyle(color: Colors.white70), // Label contrast
+                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
                   prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.white24),
@@ -383,12 +405,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               const SizedBox(height: 14),
               TextField(
                 controller: mNameController,
-                style: const TextStyle(color: Colors.white),
+                style: GoogleFonts.robotoMono(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: "Middle Name",
-                  labelStyle: const TextStyle(color: Colors.white70),
+                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
                   prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.white24),
@@ -402,12 +426,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               const SizedBox(height: 14),
               TextField(
                 controller: lNameController,
-                style: const TextStyle(color: Colors.white),
+                style: GoogleFonts.robotoMono(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: "Last Name",
-                  labelStyle: const TextStyle(color: Colors.white70),
+                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
                   prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.white24),
@@ -424,13 +450,18 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 child: AbsorbPointer(
                   child: TextField(
                     controller: birthdateController,
-                    style: const TextStyle(color: Colors.white),
+                    style: GoogleFonts.robotoMono(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: "Birthdate",
-                      labelStyle: const TextStyle(color: Colors.white70),
+                      labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
                       prefixIcon: Icon(Icons.cake, color: Colors.white70),
-                      suffixIcon: Icon(Icons.calendar_today, color: Colors.white70),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      suffixIcon: Icon(
+                        Icons.calendar_today,
+                        color: Colors.white70,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(color: Colors.white24),
@@ -445,24 +476,33 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
-                value: sexOptions.contains(sexController.text) ? sexController.text : null,
+                value: sexOptions.contains(sexController.text)
+                    ? sexController.text
+                    : null,
                 items: sexOptions
-                    .map((sex) => DropdownMenuItem(
-                          value: sex,
-                          child: Text(sex, style: const TextStyle(color: Colors.white)), // Set dropdown item text color to white
-                        ))
+                    .map(
+                      (sex) => DropdownMenuItem(
+                        value: sex,
+                        child: Text(
+                          sex,
+                          style: GoogleFonts.robotoMono(color: Colors.white),
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) {
                   sexController.text = val ?? '';
                   setState(() {});
                 },
-                dropdownColor: const Color(0xFF334E7B), // Match modal background for dropdown
-                style: const TextStyle(color: Colors.white),
+                dropdownColor: const Color(0xFF334E7B),
+                style: GoogleFonts.robotoMono(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: "Sex",
-                  labelStyle: const TextStyle(color: Colors.white70),
+                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
                   prefixIcon: Icon(Icons.wc, color: Colors.white70),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(color: Colors.white24),
@@ -473,9 +513,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   ),
                 ),
               ),
-
-             
-   
             ],
           ),
         ),
@@ -485,17 +522,19 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         TextButton(
           onPressed: loading ? null : () => Navigator.pop(context),
           style: TextButton.styleFrom(
-            foregroundColor: Colors.white, // Button text contrast
-            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            foregroundColor: Colors.white,
+            textStyle: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
           ),
-          child: const Text("Cancel"),
+          child: Text("Cancel", style: GoogleFonts.robotoMono()),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: themeBlue,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
           onPressed: loading
               ? null
@@ -517,7 +556,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     lName: lNameController.text.trim(),
                     sex: sexController.text.trim(),
                     birthdate: birthdateController.text.trim(),
-                    
                   );
                   setState(() => loading = false);
                   if (result['status'] == 200 || result['status'] == "200") {
@@ -532,7 +570,10 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(result['message'] ?? "Update failed"),
+                        content: Text(
+                          result['message'] ?? "Update failed",
+                          style: GoogleFonts.robotoMono(),
+                        ),
                       ),
                     );
                   }
@@ -543,10 +584,10 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF334E7B), // Spinner color for contrast
+                    color: Color(0xFF334E7B),
                   ),
                 )
-              : const Text("Save"),
+              : Text("Save", style: GoogleFonts.robotoMono()),
         ),
       ],
     );
