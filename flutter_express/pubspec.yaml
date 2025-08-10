@@ -91,6 +91,8 @@ flutter:
     - assets/images/first.png
     - assets/images/second.png
     - assets/images/third.png
+    - assets/images/smiley.png
+    - assets/images/archive.png
     - assets/sounds/
     - assets/dataset/
     - assets/images/graphichome1.png
