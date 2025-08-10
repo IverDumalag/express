@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_express/0_components/media_viewer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../1_home/home_cards.dart';
 
 class AudioCardDetailScreen extends StatelessWidget {
@@ -20,7 +21,7 @@ class AudioCardDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: Text('', style: GoogleFonts.robotoMono()),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -37,7 +38,7 @@ class AudioCardDetailScreen extends StatelessWidget {
                 Expanded(
                   child: Text(
                     displayText,
-                    style: TextStyle(
+                    style: GoogleFonts.robotoMono(
                       fontSize: 28 * scale,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF334E7B),
@@ -55,7 +56,10 @@ class AudioCardDetailScreen extends StatelessWidget {
             SizedBox(height: 16 * scale),
             Text(
               'Created: $createdAt',
-              style: TextStyle(fontSize: 16 * scale, color: Colors.grey[700]),
+              style: GoogleFonts.robotoMono(
+                fontSize: 16 * scale,
+                color: Colors.grey[700],
+              ),
             ),
             SizedBox(height: 24 * scale),
             if (signLanguagePath.isNotEmpty)

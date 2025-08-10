@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_express/4_settings/archived_cards.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
 import '1_home/page_home.dart';
@@ -25,6 +26,10 @@ class MyApp extends StatelessWidget {
     debugPaintSizeEnabled = false;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: GoogleFonts.robotoMono().fontFamily,
+        textTheme: GoogleFonts.robotoTextTheme(),
+      ),
       home: InitialRouteDecider(),
       routes: {
         '/intro1': (context) => IntroP1(),
@@ -139,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings, size: 30),
-            label: 'Settings',
+            label: 'Menu',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person, size: 30),

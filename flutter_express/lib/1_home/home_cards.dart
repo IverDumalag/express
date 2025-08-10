@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_express/0_components/media_viewer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
@@ -347,7 +348,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-       
+
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -382,6 +383,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           enabled: !editLoading,
                           decoration: InputDecoration(
                             hintText: "Edit word or phrase",
+                            hintStyle: GoogleFonts.robotoMono(),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                               borderSide: BorderSide(color: Color(0xFF334E7B)),
@@ -391,19 +393,17 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               borderSide: BorderSide(color: Color(0xFF2E5C9A)),
                             ),
                           ),
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             fontSize: 24 * widget.scale,
                             color: Color(0xFF2354C7),
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoMono',
                           ),
                         )
                       : Text(
                           displayText,
-                          style: TextStyle(
+                          style: GoogleFonts.robotoMono(
                             fontSize: 30 * widget.scale,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'RobotoMono',
                             color: Color(0xFF2354C7),
                           ),
                           textAlign: TextAlign.center,
@@ -412,7 +412,9 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                 SizedBox(width: 4 * widget.scale),
                 if (!editMode)
                   Padding(
-                    padding: EdgeInsets.only(left: 2 * widget.scale), // Move icon closer to text
+                    padding: EdgeInsets.only(
+                      left: 2 * widget.scale,
+                    ), // Move icon closer to text
                     child: InteractiveSpeakerIcon(
                       scale: widget.scale,
                       text: displayText,
@@ -439,9 +441,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xF1C2E4A),
                       foregroundColor: Colors.white,
-                      textStyle: TextStyle(
+                      textStyle: GoogleFonts.robotoMono(
                         fontSize: 20 * widget.scale,
-                        fontFamily: 'Inter',
                       ),
                       padding: EdgeInsets.symmetric(
                         horizontal: 24 * widget.scale,
@@ -464,7 +465,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : Text("Save"),
+                        : Text("Save", style: GoogleFonts.robotoMono()),
                   ),
                   SizedBox(width: 10 * widget.scale),
                   ElevatedButton(
@@ -479,9 +480,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Color(0xF1C2E4A),
-                      textStyle: TextStyle(
+                      textStyle: GoogleFonts.robotoMono(
                         fontSize: 20 * widget.scale,
-                        fontFamily: 'Inter',
                       ),
                       padding: EdgeInsets.symmetric(
                         horizontal: 24 * widget.scale,
@@ -495,7 +495,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                         ),
                       ),
                     ),
-                    child: Text("Cancel"),
+                    child: Text("Cancel", style: GoogleFonts.robotoMono()),
                   ),
                 ],
               ),
@@ -512,9 +512,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xF1C2E4A),
                         foregroundColor: Colors.white,
-                        textStyle: TextStyle(
+                        textStyle: GoogleFonts.robotoMono(
                           fontSize: 20 * widget.scale,
-                          fontFamily: 'RobotoMono',
                         ),
                         padding: EdgeInsets.symmetric(
                           horizontal: 24 * widget.scale,
@@ -528,7 +527,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           ),
                         ),
                       ),
-                      child: Text("Previous"),
+                      child: Text("Previous", style: GoogleFonts.robotoMono()),
                     ),
                   ),
                   SizedBox(width: 10 * widget.scale),
@@ -540,9 +539,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF334E7B),
                         foregroundColor: Colors.white,
-                        textStyle: TextStyle(
+                        textStyle: GoogleFonts.robotoMono(
                           fontSize: 20 * widget.scale,
-                          fontFamily: 'Inter',
                         ),
                         padding: EdgeInsets.symmetric(
                           horizontal: 24 * widget.scale,
@@ -556,7 +554,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           ),
                         ),
                       ),
-                      child: Text("Next"),
+                      child: Text("Next", style: GoogleFonts.robotoMono()),
                     ),
                   ),
                 ],
@@ -616,7 +614,10 @@ class Words_Phrases_Cards extends StatelessWidget {
             );
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 8 * scale),
+            margin: EdgeInsets.symmetric(
+              horizontal: 20 * scale,
+              vertical: 8 * scale,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15 * scale),
@@ -637,17 +638,19 @@ class Words_Phrases_Cards extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 8 * scale),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12 * scale,
+                      vertical: 8 * scale,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             displayText,
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 20 * scale,
                               color: cardColor,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'RobotoMono',
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 1,
@@ -761,11 +764,10 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                       padding: EdgeInsets.all(8 * scale),
                       child: Text(
                         displayText,
-                        style: TextStyle(
+                        style: GoogleFonts.robotoMono(
                           fontSize: 20 * scale,
                           color: Colors.white,
                           fontWeight: FontWeight.w400,
-                          fontFamily: 'RobotoMono',
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 3,
