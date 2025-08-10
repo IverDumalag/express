@@ -3,6 +3,7 @@ import 'package:flutter_express/global_variables.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 
+
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key}) : super(key: key);
 
@@ -85,9 +86,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.transparent,
+        elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+
             Text(
               'Back',
               style: GoogleFonts.robotoMono(
@@ -95,15 +101,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
           ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Colors.white,
         centerTitle: false,
-        elevation: 1,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -111,6 +116,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           children: [
             Align(
               alignment: Alignment.centerLeft,
+
               child: Text(
                 'Feedback',
                 style: GoogleFonts.robotoMono(
@@ -119,14 +125,15 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   fontSize: 36,
                 ),
               ),
+
             ),
             SizedBox(height: 28),
             Image.asset(
-              'assets/images/smiley.png',
-              height: 120,
+              'assets/images/archive.png',
+              height: 150,
               fit: BoxFit.contain,
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 12),
             Text(
               'Help us to improve',
               style: GoogleFonts.robotoMono(
@@ -134,7 +141,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 8),
             // Dropdown + TextField for Main Concern
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
@@ -159,8 +166,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-                        labelStyle: GoogleFonts.robotoMono(),
-                        border: OutlineInputBorder(),
+
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+
                       ),
                       onEditingComplete: onEditingComplete,
                     );
@@ -175,8 +185,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
               style: GoogleFonts.robotoMono(),
               decoration: InputDecoration(
                 labelText: 'Details',
-                labelStyle: GoogleFonts.robotoMono(),
-                border: OutlineInputBorder(),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+
               ),
               maxLines: 4,
             ),
@@ -186,7 +199,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF334E7B),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
                 elevation: 5,
                 shadowColor: Colors.grey.withOpacity(0.5),

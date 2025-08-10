@@ -396,7 +396,9 @@ class _HomeState extends State<Home> {
                             child: TextField(
                               style: GoogleFonts.robotoMono(),
                               decoration: InputDecoration(
-                                hintText: "Search...",
+
+                                hintText: "Search for your words/phrases",
+
                                 hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -422,7 +424,7 @@ class _HomeState extends State<Home> {
                           SizedBox(
                             width: 10 * scale,
                           ), // Add spacing for dropdowns
-                          if (showFilter) // Only show filter dropdowns if showFilter is true
+                          if (showFilter) ...[
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 value: sortBy,
@@ -477,10 +479,9 @@ class _HomeState extends State<Home> {
                                 },
                               ),
                             ),
-                          SizedBox(
-                            width: 10 * scale,
-                          ), // Add spacing for dropdowns
-                          if (showFilter) // Only show filter dropdowns if showFilter is true
+                            SizedBox(
+                              width: 10 * scale,
+                            ), // Add spacing for dropdowns
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 value: activeTab,
@@ -521,8 +522,10 @@ class _HomeState extends State<Home> {
                                 },
                               ),
                             ),
+                          ],
                         ],
                       ),
+                      SizedBox(height: 20 * scale), // Add space between search/filter and cards
                     ],
                   ),
                 ),
@@ -760,9 +763,11 @@ class _HomeState extends State<Home> {
                       });
                     },
                     children: [
-                      _buildSlide('Welcome to ex', 'Press!', scale),
-                      _buildSlide('Discover', 'Our Features!', scale),
-                      _buildSlide('Have', 'Fun!', scale),
+
+                        _buildSlide('Welcome to ex', 'Press!', scale, fontSize: 16),
+                        _buildSlide('Discover', 'Our Features!', scale, fontSize: 16),
+                        _buildSlide('Have', 'Fun!', scale, fontSize: 18),
+
                     ],
                   ),
                 ),
@@ -796,7 +801,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSlide(String text1, String text2, double scale) {
+  Widget _buildSlide(String text1, String text2, double scale, {double fontSize = 14}) {
+
     if (text1 == 'Welcome to ex' && text2 == 'Press!') {
       return GestureDetector(
         onTap: () {
@@ -806,33 +812,146 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: Row(
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Welcome to ',
+                    'Welcome to',
                     style: GoogleFonts.robotoMono(
-                      fontSize: 14 * scale,
+                      fontSize: 23 * scale,
                       fontWeight: FontWeight.w900,
+                      color: Colors.black,
                     ),
                   ),
-                  Text(
-                    'ex',
-                    style: GoogleFonts.robotoMono(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  Text(
-                    'Press!',
-                    style: GoogleFonts.robotoMono(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2E5C9A),
+                  SizedBox(height: 4 * scale),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'ex',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 23 * scale,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Press!',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 23 * scale,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF2E5C9A),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+            SizedBox(width: 12 * scale),
+            WavingHandIcon(scale: scale),
+          ],
+        ),
+      );
+    }
+    if (text1 == 'Discover' && text2 == 'Our Features!') {
+      return GestureDetector(
+        onTap: () {
+          GlobalVariables.currentIndex = 1;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 1)),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Discover',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 23 * scale,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(height: 4 * scale),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Our ',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 23 * scale,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Features!',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 23 * scale,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF2E5C9A),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 12 * scale),
+            WavingHandIcon(scale: scale),
+          ],
+        ),
+      );
+    }
+    if (text1 == 'Have' && text2 == 'Fun!') {
+      return GestureDetector(
+        onTap: () {
+          GlobalVariables.currentIndex = 2;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen(setIndex: 2)),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Have ',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 23 * scale,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Fun!',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 23 * scale,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF2E5C9A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(width: 12 * scale),
+
             WavingHandIcon(scale: scale),
           ],
         ),
@@ -864,7 +983,9 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text1,
                     style: GoogleFonts.robotoMono(
-                      fontSize: 14 * scale,
+
+                      fontSize: fontSize * scale,
+
                       fontWeight: FontWeight.w900,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -875,7 +996,9 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text2,
                     style: GoogleFonts.robotoMono(
-                      fontSize: 14 * scale,
+
+                      fontSize: fontSize * scale,
+
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2E5C9A),
                     ),
@@ -895,7 +1018,9 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.robotoMono(
-        fontSize: 25 * scale,
+
+        fontSize: 18 * scale,
+
         fontWeight: FontWeight.w900,
         color: Colors.black87,
       ),
