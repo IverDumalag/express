@@ -26,7 +26,10 @@ class FAQItem extends StatelessWidget {
         question,
         style:
             questionStyle ??
-            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+            GoogleFonts.robotoMono(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF334E7B),
+            ),
       ),
       children: <Widget>[
         Container(
@@ -42,12 +45,15 @@ class FAQItem extends StatelessWidget {
               ),
             ],
           ),
-          child: Text(
-            answer,
-            style: answerStyle ?? GoogleFonts.robotoMono(),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
+            child: Text(
+              answer,
+              style: answerStyle ?? GoogleFonts.robotoMono(
+                color: Color(0xFF334E7B),
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+              textAlign: TextAlign.justify,
+            ),
         ),
       ],
     );

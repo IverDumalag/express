@@ -73,17 +73,15 @@ class _SettingsState extends State<Settings> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-
                       'Archive',
                       style: TextStyle(
                         fontFamily: 'RobotoMono',
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: const Color.fromARGB(255, 87, 87, 87),
                         fontWeight: FontWeight.w600,
-
                       ),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
                       child: Container(
@@ -92,15 +90,23 @@ class _SettingsState extends State<Settings> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(double.infinity, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            elevation: 0,
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            shadowColor: MaterialStateProperty.all(Colors.transparent),
+                            foregroundColor: MaterialStateProperty.all(Color(0xFF334E7B)),
+                            minimumSize: MaterialStateProperty.all(Size(double.infinity, 70)),
+                            shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) {
+                              if (states.contains(MaterialState.hovered)) {
+                                return RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                );
+                              }
+                              return RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              );
+                            }),
+                            elevation: MaterialStateProperty.all(0),
                           ),
                           onPressed: () {
                             Navigator.pushNamed(context, '/archive');
@@ -108,9 +114,17 @@ class _SettingsState extends State<Settings> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                "Archived Cards",
-                                style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                              Padding(
+                                padding: EdgeInsets.only(left: 1.0),
+                                child: Text(
+                                  "Archived Cards",
+                                  style: TextStyle(
+                                    fontFamily: 'RobotoMono',
+                                    color: Color(0xFF334E7B),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               Icon(Icons.archive, color: Color(0xFF334E7B)),
                             ],
@@ -124,7 +138,7 @@ class _SettingsState extends State<Settings> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 50.0,
-                  vertical: 8.0,
+                  vertical: 10.0,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,11 +148,11 @@ class _SettingsState extends State<Settings> {
                       style: TextStyle(
                         fontFamily: 'RobotoMono',
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: const Color.fromARGB(255, 87, 87, 87),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
                       child: Container(
@@ -147,15 +161,23 @@ class _SettingsState extends State<Settings> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(double.infinity, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            elevation: 0,
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            shadowColor: MaterialStateProperty.all(Colors.transparent),
+                            foregroundColor: MaterialStateProperty.all(Color(0xFF334E7B)),
+                            minimumSize: MaterialStateProperty.all(Size(double.infinity, 70)),
+                            shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) {
+                              if (states.contains(MaterialState.hovered)) {
+                                return RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                );
+                              }
+                              return RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              );
+                            }),
+                            elevation: MaterialStateProperty.all(0),
                           ),
                           onPressed: () {
                             Navigator.push(
@@ -166,9 +188,17 @@ class _SettingsState extends State<Settings> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                "Create a Feedback",
-                                style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                              Padding(
+                                padding: EdgeInsets.only(left: 4.0),
+                                child: Text(
+                                  "Create a Feedback",
+                                  style: TextStyle(
+                                    fontFamily: 'RobotoMono',
+                                    fontSize: 16,
+                                    color: Color(0xFF334E7B),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               Icon(Icons.feedback, color: Color(0xFF334E7B)),
                             ],
@@ -181,7 +211,6 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               Padding(
-
                 padding: const EdgeInsets.symmetric(horizontal: 50.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +221,7 @@ class _SettingsState extends State<Settings> {
                         fontFamily: 'RobotoMono',
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF334E7B),
+                        color: Color.fromARGB(255, 87, 87, 87),
                       ),
                     ),
                     SizedBox(height: 16.0),
@@ -219,7 +248,7 @@ class _SettingsState extends State<Settings> {
                                 FAQItem(
                                   question: 'What is exPress?',
                                   answer:
-                                      'exPress is a mobile application designed to allow abled people to connect within '
+                                      'exPress is a mobile and web application designed to allow abled people to connect within '
                                       'deaf-mute communities seamlessly and vice-versa. With features like sign language '
                                       'to text and text/audio to sign language conversion.',
                                 ),
@@ -232,8 +261,7 @@ class _SettingsState extends State<Settings> {
                                 FAQItem(
                                   question: 'How can I provide feedback?',
                                   answer:
-                                      'You can provide feedback through the feedback section in the app settings or by '
-                                      'contacting our support team.',
+                                      'You can provide feedback through the feedback section in the app menu.',
                                 ),
                               ],
                             ),
@@ -253,7 +281,7 @@ class _SettingsState extends State<Settings> {
                     fontFamily: 'RobotoMono',
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF334E7B),
+                    color: Color.fromARGB(255, 87, 87, 87),
                   ),
                 ),
               ),
@@ -271,15 +299,15 @@ class _SettingsState extends State<Settings> {
                     ),
                     dropdownColor: Colors.white,
                     value: null,
-                    hint: Text('Select an option'),
+                    hint: Text('Select other information'),
                     items: [
                       DropdownMenuItem(
                         value: 'privacy',
-                        child: Text('Privacy Policy'),
+                        child: Text('Privacy Policy', style: TextStyle(fontFamily: 'RobotoMono')),
                       ),
                       DropdownMenuItem(
                         value: 'terms',
-                        child: Text('Terms & Conditions'),
+                        child: Text('Terms & Conditions', style: TextStyle(fontFamily: 'RobotoMono')),
                       ),
                     ],
                     onChanged: (value) {
@@ -289,12 +317,21 @@ class _SettingsState extends State<Settings> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                            ),
+                            insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
                             title: Text('Privacy Policy'),
-                            content: Text('Privacy Policy details go here.'),
+                            content: Container(
+                              width: 350,
+                              child: Text('Privacy Policy details go here.', style: TextStyle(fontFamily: 'RobotoMono')),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Close'),
+                                child: Text('Close', style: TextStyle(fontFamily: 'RobotoMono')),
                               ),
                             ],
                           ),
@@ -304,12 +341,21 @@ class _SettingsState extends State<Settings> {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                            ),
+                            insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
                             title: Text('Terms & Conditions'),
-                            content: Text('Terms & Conditions details go here.'),
+                            content: Container(
+                              width: 350,
+                              child: Text('Terms & Conditions details go here.', style: TextStyle(fontFamily: 'RobotoMono')),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Close'),
+                                child: Text('Close', style: TextStyle(fontFamily: 'RobotoMono')),
                               ),
                             ],
                           ),
@@ -322,20 +368,22 @@ class _SettingsState extends State<Settings> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 16.0),
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF334E7B),
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-
-                    ),
-                    elevation: 2,
-                  ),
-                  icon: Icon(Icons.logout, color: Colors.white),
-                  label: Text(
-                    "Logout",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Color(0xFF334E7B)),
+                    foregroundColor: MaterialStateProperty.all(Colors.white),
+                    minimumSize: MaterialStateProperty.all(Size(double.infinity, 70)),
+                    shape: MaterialStateProperty.resolveWith<OutlinedBorder>((states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                          side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                        );
+                      }
+                      return RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      );
+                    }),
+                    elevation: MaterialStateProperty.all(2),
                   ),
                   onPressed: () async {
                     final prefs = await SharedPreferences.getInstance();
@@ -345,6 +393,16 @@ class _SettingsState extends State<Settings> {
                       context,
                     ).pushNamedAndRemoveUntil('/login', (route) => false);
                   },
+                  label: Text(
+                    "Logout",
+                    style: TextStyle(
+                      fontFamily: 'RobotoMono',
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  icon: Icon(Icons.logout, color: Colors.white),
                 ),
               ),
             ],
