@@ -419,8 +419,8 @@ class _SettingsState extends State<Settings> {
                     "Logout",
                     style: GoogleFonts.robotoMono(
                       color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                   icon: Icon(Icons.logout, color: Colors.white),
