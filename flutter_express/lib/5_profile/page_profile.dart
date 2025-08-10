@@ -12,6 +12,7 @@ class PageProfile extends StatefulWidget {
 
 class _PageProfileState extends State<PageProfile> {
   Map<String, dynamic>? user;
+  bool _showEmail = true;
 
   @override
   void initState() {
@@ -167,23 +168,43 @@ class _PageProfileState extends State<PageProfile> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                   
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.email,
-                              label: "Email",
-                              value: user!['email'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _profileItem(
+                                    icon: Icons.email,
+                                    label: "Email",
+                                    value: _showEmail ? (user!['email'] ?? '') : "************",
+                                    themeBlue: themeBlue,
+                                    screenWidth: screenWidth,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(_showEmail ? Icons.visibility_off : Icons.visibility, color: themeBlue),
+                                  tooltip: _showEmail ? "Hide Email" : "Show Email",
+                                  onPressed: () {
+                                    setState(() {
+                                      _showEmail = !_showEmail;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
+                            SizedBox(height: 8),
                             Divider(),
+                            SizedBox(height: 8),
                             _profileItem(
                               icon: Icons.cake,
                               label: "Birthdate",
-                              value: user!['birthdate'] ?? '',
+                              value: user!['birthdate'] != null && user!['birthdate'] != ''
+                                  ? _formatDate(user!['birthdate'])
+                                  : '',
                               themeBlue: themeBlue,
                               screenWidth: screenWidth,
                             ),
+                            SizedBox(height: 8),
                             Divider(),
+                            SizedBox(height: 8),
                             _profileItem(
                               icon: Icons.wc,
                               label: "Sex",
@@ -195,35 +216,52 @@ class _PageProfileState extends State<PageProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.04),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: themeBlue,
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(screenWidth * 0.5, 48),
-                        shape: RoundedRectangleBorder(
+                    SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                       
+                        decoration: BoxDecoration(
+                            color: themeBlue,
+                          border: Border.all(
+                            color: themeBlue.withOpacity(0.4),
+                            width: 1.2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      icon: const Icon(Icons.edit),
-                      label: Text(
-                        "Edit Profile",
-                        style: GoogleFonts.robotoMono(
-                          fontSize: screenWidth * 0.045,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: themeBlue, // 🔹 Set background color
+                            foregroundColor: Colors.white, // 🔹 Icon/text color
+                            minimumSize: const Size(double.infinity, 70),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                          icon: const Icon(Icons.edit, color: Colors.white), // White icon
+                          label: Text(
+                            "Edit Profile",
+                            style: GoogleFonts.robotoMono(
+                              fontSize: screenWidth * 0.045,
+                              color: Colors.white, // White text
+                            ),
+                          ),
+                          onPressed: () async {
+                            final updated = await showDialog<Map<String, dynamic>>(
+                              context: context,
+                              builder: (context) => EditProfileDialog(user: user!),
+                            );
+                            if (updated != null) {
+                              setState(() {
+                                user = updated;
+                                UserSession.setUser(updated);
+                              });
+                            }
+                          },
                         ),
                       ),
-                      onPressed: () async {
-                        final updated = await showDialog<Map<String, dynamic>>(
-                          context: context,
-                          builder: (context) => EditProfileDialog(user: user!),
-                        );
-                        if (updated != null) {
-                          setState(() {
-                            user = updated;
-                            UserSession.setUser(updated);
-                          });
-                        }
-                      },
                     ),
                   ],
                 ),
