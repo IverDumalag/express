@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_express/00_services/api_services.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '0_components/popup_information.dart';
 
 class Login extends StatefulWidget {
@@ -81,8 +82,8 @@ class _LoginState extends State<Login> {
                 Text(
                   'Welcome to exPress',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 26 * scale,
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 28 * scale,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF334E7B),
                   ),
@@ -90,24 +91,27 @@ class _LoginState extends State<Login> {
                 SizedBox(height: 8 * scale),
                 Text(
                   'Sign in to continue your journey',
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     fontSize: 14 * scale,
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 24 * scale),
+                SizedBox(height: 40 * scale),
 
                 // Email field
                 TextFormField(
+                  style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Email',
                     hintText: 'you@example.com',
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 18),
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 14,
+                      vertical: 24,
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -115,19 +119,20 @@ class _LoginState extends State<Login> {
                       v == null || v.isEmpty ? 'Enter email' : null,
                   onSaved: (v) => email = v!.trim(),
                 ),
-                SizedBox(height: 16 * scale),
+                SizedBox(height: 12 * scale),
 
                 // Password field
                 TextFormField(
+                  style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    hintText: '••••••••••',
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 14,
+                      vertical: 24,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -161,9 +166,9 @@ class _LoginState extends State<Login> {
                     onPressed: loading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF334E7B),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: loading
@@ -174,7 +179,7 @@ class _LoginState extends State<Login> {
                           )
                         : Text(
                             'Login',
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               color: Colors.white,
                               fontSize: 18 * scale,
                               fontWeight: FontWeight.bold,
@@ -186,7 +191,7 @@ class _LoginState extends State<Login> {
                 SizedBox(height: 16 * scale),
                 Text(
                   "OR",
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     color: Colors.grey[600],
                     fontSize: 14 * scale,
                   ),
@@ -201,15 +206,15 @@ class _LoginState extends State<Login> {
                       Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       side: const BorderSide(color: Color(0xFF334E7B)),
                     ),
                     child: Text(
                       'Register',
-                      style: TextStyle(
+                      style: GoogleFonts.robotoMono(
                         color: const Color(0xFF334E7B),
                         fontSize: 18 * scale,
                         fontWeight: FontWeight.bold,

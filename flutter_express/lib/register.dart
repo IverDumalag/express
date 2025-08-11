@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '00_services/api_services.dart';
@@ -24,6 +25,10 @@ class _RegisterState extends State<Register> {
   bool loading = false;
   String? error;
   String? success;
+
+  // Password visibility toggles
+  bool showPassword = false;
+  bool showConfirmPassword = false;
 
   // OTP related variables
   bool otpStep = false;
@@ -225,10 +230,10 @@ class _RegisterState extends State<Register> {
       controller: controller,
       onTap: onTap,
       readOnly: readOnly,
-      style: TextStyle(fontSize: fontSize),
+      style: GoogleFonts.robotoMono(fontSize: fontSize),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(fontSize: fontSize),
+        hintStyle: GoogleFonts.robotoMono(fontSize: fontSize),
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(
@@ -267,11 +272,10 @@ class _RegisterState extends State<Register> {
     final maxWidth = isLargeScreen ? 500.0 : double.infinity;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset('assets/continue_us.png', fit: BoxFit.cover),
-          ),
+          
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -286,10 +290,7 @@ class _RegisterState extends State<Register> {
                       child: Container(
                         width: maxWidth,
                         padding: EdgeInsets.all(containerPadding),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
+                        
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -298,9 +299,9 @@ class _RegisterState extends State<Register> {
                             children: [
                               Text(
                                 otpStep ? "Verify Email" : "Register",
-                                style: TextStyle(
+                                style: GoogleFonts.robotoMono(
                                   fontSize: titleSize,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                   color: const Color(0xFF334E7B),
                                 ),
                               ),
@@ -309,7 +310,7 @@ class _RegisterState extends State<Register> {
                                 otpStep
                                     ? "Enter the verification code sent to your email"
                                     : "Sign up to get started",
-                                style: TextStyle(
+                                style: GoogleFonts.robotoMono(
                                   fontSize: subtitleSize,
                                   color: Colors.grey,
                                 ),
@@ -365,7 +366,7 @@ class _RegisterState extends State<Register> {
                                 DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
                                     hintText: "Select your Sex",
-                                    hintStyle: TextStyle(
+                                    hintStyle: GoogleFonts.robotoMono(
                                       fontSize: isSmallScreen ? 16.0 : 18.0,
                                     ),
                                     filled: true,
@@ -378,7 +379,7 @@ class _RegisterState extends State<Register> {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
-                                  style: TextStyle(
+                                  style: GoogleFonts.robotoMono(
                                     fontSize: isSmallScreen ? 16.0 : 18.0,
                                     color: Colors.black,
                                   ),
@@ -445,20 +446,40 @@ class _RegisterState extends State<Register> {
                                 _buildField(
                                   hint:
                                       "Password (At least 8+ strong characters)",
-                                  obscure: true,
+                                  obscure: !showPassword,
                                   validator: (v) => v!.length < 8
                                       ? "Minimum 8 characters"
                                       : null,
                                   onSaved: (v) => password = v!,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      showPassword ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        showPassword = !showPassword;
+                                      });
+                                    },
+                                  ),
                                 ),
                                 SizedBox(height: spacing),
 
                                 _buildField(
-                                  hint: "Confirm Password..",
-                                  obscure: true,
+                                  hint: "Confirm Password",
+                                  obscure: !showConfirmPassword,
                                   validator: (v) =>
                                       v!.isEmpty ? "Confirm password" : null,
                                   onSaved: (v) => confirmPassword = v!,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        showConfirmPassword = !showConfirmPassword;
+                                      });
+                                    },
+                                  ),
                                 ),
                               ] else ...[
                                 // OTP Verification Form
@@ -483,15 +504,14 @@ class _RegisterState extends State<Register> {
                                   },
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: GoogleFonts.robotoMono(
                                     fontSize: isSmallScreen ? 24.0 : 32.0,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: isSmallScreen ? 4.0 : 8.0,
-                                    fontFamily: 'monospace',
                                   ),
                                   decoration: InputDecoration(
                                     hintText: "Enter 6-digit code",
-                                    hintStyle: TextStyle(
+                                    hintStyle: GoogleFonts.robotoMono(
                                       fontSize: isSmallScreen ? 16.0 : 20.0,
                                     ),
                                     filled: true,
@@ -512,7 +532,7 @@ class _RegisterState extends State<Register> {
                                   Center(
                                     child: Text(
                                       "Resend code in ${resendTimer}s",
-                                      style: TextStyle(
+                                      style: GoogleFonts.robotoMono(
                                         color: Colors.grey,
                                         fontSize: isSmallScreen ? 14.0 : 16.0,
                                       ),
@@ -526,7 +546,7 @@ class _RegisterState extends State<Register> {
                                         otpLoading
                                             ? "Sending..."
                                             : "Resend Code",
-                                        style: TextStyle(
+                                        style: GoogleFonts.robotoMono(
                                           color: const Color(0xFF334E7B),
                                           fontSize: isSmallScreen ? 14.0 : 16.0,
                                           decoration: TextDecoration.underline,
@@ -553,7 +573,7 @@ class _RegisterState extends State<Register> {
                                     ),
                                     child: Text(
                                       'Back to Form',
-                                      style: TextStyle(
+                                      style: GoogleFonts.robotoMono(
                                         color: const Color(0xFF334E7B),
                                         fontSize: buttonFontSize * 0.8,
                                         fontWeight: FontWeight.bold,
@@ -567,7 +587,7 @@ class _RegisterState extends State<Register> {
                                 SizedBox(height: spacing),
                                 Text(
                                   error!,
-                                  style: TextStyle(
+                                  style: GoogleFonts.robotoMono(
                                     color: Colors.red,
                                     fontSize: isSmallScreen ? 16.0 : 18.0,
                                   ),
@@ -587,7 +607,7 @@ class _RegisterState extends State<Register> {
                                       vertical: buttonPadding,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(24),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                   child: (loading || otpLoading)
@@ -600,9 +620,9 @@ class _RegisterState extends State<Register> {
                                                     ? 'Verify & Register'
                                                     : 'Enter OTP Code')
                                               : 'Send Verification Code',
-                                          style: TextStyle(
+                                          style: GoogleFonts.robotoMono(
                                             fontSize: buttonFontSize,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w600,
                                             color: Colors.white,
                                           ),
                                         ),

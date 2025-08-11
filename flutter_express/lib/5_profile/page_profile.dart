@@ -359,7 +359,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController lNameController;
   late TextEditingController birthdateController;
   late TextEditingController sexController;
-
   bool loading = false;
   final List<String> sexOptions = ['Male', 'Female', 'Other'];
 
@@ -377,12 +376,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   @override
   void dispose() {
-    fNameController.dispose();
-    mNameController.dispose();
-    lNameController.dispose();
-    birthdateController.dispose();
-    sexController.dispose();
-    super.dispose();
+  fNameController.dispose();
+  mNameController.dispose();
+  lNameController.dispose();
+  birthdateController.dispose();
+  sexController.dispose();
+  super.dispose();
   }
 
   Future<void> _pickBirthdate() async {
@@ -410,233 +409,251 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     final themeBlue = const Color(0xFF334E7B);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return AlertDialog(
-      backgroundColor: const Color(0xFF334E7B),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      title: Row(
-        children: [
-          Icon(Icons.edit, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            "Edit Profile",
-            style: GoogleFonts.robotoMono(color: Colors.white),
-          ),
-        ],
-      ),
-      content: SizedBox(
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Container(
         width: screenWidth > 420 ? 400 : screenWidth * 0.95,
-        child: SingleChildScrollView(
+        decoration: BoxDecoration(
+          color: themeBlue,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: themeBlue.withOpacity(0.15),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              Row(
+                children: [
+                  Icon(Icons.edit, color: Colors.white, size: 28),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Edit Details",
+                    style: GoogleFonts.robotoMono(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Divider(color: Colors.white24, thickness: 1),
+              const SizedBox(height: 24),
+              _buildTextField(
                 controller: fNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "First Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "First Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
-              TextField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: mNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Middle Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "Middle Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
-              TextField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: lNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Last Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "Last Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: _pickBirthdate,
                 child: AbsorbPointer(
-                  child: TextField(
+                  child: _buildTextField(
                     controller: birthdateController,
-                    style: GoogleFonts.robotoMono(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: "Birthdate",
-                      labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                      prefixIcon: Icon(Icons.cake, color: Colors.white70),
-                      suffixIcon: Icon(
-                        Icons.calendar_today,
-                        color: Colors.white70,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white24),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white),
-                      ),
-                    ),
+                    label: "Birthdate",
+                    icon: Icons.cake,
+                    suffixIcon: Icons.calendar_today,
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<String>(
-                value: sexOptions.contains(sexController.text)
-                    ? sexController.text
-                    : null,
-                items: sexOptions
-                    .map(
-                      (sex) => DropdownMenuItem(
-                        value: sex,
-                        child: Text(
-                          sex,
-                          style: GoogleFonts.robotoMono(color: Colors.white),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 64,
+                child: DropdownButtonFormField<String>(
+                  value: sexOptions.contains(sexController.text)
+                      ? sexController.text
+                      : null,
+                  items: sexOptions
+                      .map(
+                        (sex) => DropdownMenuItem(
+                          value: sex,
+                          child: Text(
+                            sex,
+                            style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (val) {
-                  sexController.text = val ?? '';
-                  setState(() {});
-                },
-                dropdownColor: const Color(0xFF334E7B),
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Sex",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.wc, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    sexController.text = val ?? '';
+                    setState(() {});
+                  },
+                  dropdownColor: themeBlue,
+                  style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+                  decoration: InputDecoration(
+                    labelText: "Sex",
+                    labelStyle: GoogleFonts.robotoMono(color: Colors.white70, fontSize: 15),
+                    prefixIcon: Icon(Icons.wc, color: Colors.white70, size: 22),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white24),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    filled: true,
+                    fillColor: themeBlue.withOpacity(0.9),
+                    contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 18),
                   ),
                 ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: loading ? null : () => Navigator.pop(context),
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      textStyle: MaterialStateProperty.all(GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
+                        if (states.contains(MaterialState.hovered)) {
+                          return Colors.white.withOpacity(0.15);
+                        }
+                        return null;
+                      }),
+                    ),
+                    child: Text("Cancel", style: GoogleFonts.robotoMono()),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: themeBlue,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: loading
+                        ? null
+                        : () async {
+                            setState(() => loading = true);
+                            final updatedUser = {
+                              ...widget.user,
+                              'f_name': fNameController.text.trim(),
+                              'm_name': mNameController.text.trim(),
+                              'l_name': lNameController.text.trim(),
+                              'birthdate': birthdateController.text.trim(),
+                              'sex': sexController.text.trim(),
+                            };
+                            final result = await ApiService.editUser(
+                              userId: widget.user['user_id'].toString(),
+                              email: widget.user['email'] ?? '',
+                              fName: fNameController.text.trim(),
+                              mName: mNameController.text.trim(),
+                              lName: lNameController.text.trim(),
+                              sex: sexController.text.trim(),
+                              birthdate: birthdateController.text.trim(),
+                            );
+                            setState(() => loading = false);
+                            if (result['status'] == 200 || result['status'] == "200") {
+                              Navigator.pop(context, {
+                                ...widget.user,
+                                'f_name': fNameController.text.trim(),
+                                'm_name': mNameController.text.trim(),
+                                'l_name': lNameController.text.trim(),
+                                'birthdate': birthdateController.text.trim(),
+                                'sex': sexController.text.trim(),
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    result['message'] ?? "Update failed",
+                                    style: GoogleFonts.robotoMono(),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                    child: loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF334E7B),
+                            ),
+                          )
+                        : Text("Save", style: GoogleFonts.robotoMono()),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      actions: [
-        TextButton(
-          onPressed: loading ? null : () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            textStyle: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
-          ),
-          child: Text("Cancel", style: GoogleFonts.robotoMono()),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: themeBlue,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: loading
-              ? null
-              : () async {
-                  setState(() => loading = true);
-                  final updatedUser = {
-                    ...widget.user,
-                    'f_name': fNameController.text.trim(),
-                    'm_name': mNameController.text.trim(),
-                    'l_name': lNameController.text.trim(),
-                    'birthdate': birthdateController.text.trim(),
-                    'sex': sexController.text.trim(),
-                  };
-                  final result = await ApiService.editUser(
-                    userId: widget.user['user_id'].toString(),
-                    email: widget.user['email'] ?? '',
-                    fName: fNameController.text.trim(),
-                    mName: mNameController.text.trim(),
-                    lName: lNameController.text.trim(),
-                    sex: sexController.text.trim(),
-                    birthdate: birthdateController.text.trim(),
-                  );
-                  setState(() => loading = false);
-                  if (result['status'] == 200 || result['status'] == "200") {
-                    Navigator.pop(context, {
-                      ...widget.user,
-                      'f_name': fNameController.text.trim(),
-                      'm_name': mNameController.text.trim(),
-                      'l_name': lNameController.text.trim(),
-                      'birthdate': birthdateController.text.trim(),
-                      'sex': sexController.text.trim(),
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          result['message'] ?? "Update failed",
-                          style: GoogleFonts.robotoMono(),
-                        ),
-                      ),
-                    );
-                  }
-                },
-          child: loading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Color(0xFF334E7B),
-                  ),
-                )
-              : Text("Save", style: GoogleFonts.robotoMono()),
-        ),
-      ],
     );
   }
-}
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    IconData? suffixIcon,
+  }) {
+    return SizedBox(
+      height: 64,
+      child: TextField(
+        controller: controller,
+        style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.robotoMono(color: Colors.white70, fontSize: 15),
+          prefixIcon: Icon(icon, color: Colors.white70, size: 22),
+          suffixIcon: suffixIcon != null
+              ? Icon(suffixIcon, color: Colors.white70, size: 20)
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white24),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          filled: true,
+          fillColor: const Color(0xFF334E7B).withOpacity(0.9),
+          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+        ),
+      ),
+    );
+  }
+  }
+
