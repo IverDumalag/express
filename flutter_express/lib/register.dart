@@ -240,7 +240,18 @@ class _RegisterState extends State<Register> {
           horizontal: isSmallScreen ? 16 : 24,
           vertical: isSmallScreen ? 16 : 22,
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+        ),
         suffixIcon: suffixIcon,
       ),
     );
@@ -377,6 +388,15 @@ class _RegisterState extends State<Register> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                   ),
                                   style: GoogleFonts.robotoMono(
@@ -424,6 +444,7 @@ class _RegisterState extends State<Register> {
                                       ? "Select birthdate"
                                       : null,
                                   suffixIcon: const Icon(Icons.calendar_today),
+                                  // Border color handled in _buildField
                                 ),
                                 SizedBox(height: spacing),
 
@@ -522,6 +543,15 @@ class _RegisterState extends State<Register> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                   ),
                                   maxLength: 6,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../0_components/help_widget.dart';
 
 class LandingPage extends StatefulWidget {
@@ -61,11 +62,11 @@ class _LandingPageState extends State<LandingPage>
         spans.add(
           TextSpan(
             text: 'exPress',
-            style: TextStyle(
+            style: GoogleFonts.robotoMono(
               color: Color(0xFF2354C7),
               fontWeight: FontWeight.bold,
               fontSize: 36 * scale,
-              fontFamily: 'RobotoMono',
+
             ),
           ),
         );
@@ -120,10 +121,10 @@ class _LandingPageState extends State<LandingPage>
               padding: EdgeInsets.all(16 * scale),
               child: Text(
                 '',
-                style: TextStyle(
+                style: GoogleFonts.robotoMono(
                   fontSize: 45 * scale,
                   fontWeight: FontWeight.w900,
-                  fontFamily: 'RobotoMono',
+      
                   letterSpacing: -1 * scale,
                 ),
                 textAlign: TextAlign.left,
