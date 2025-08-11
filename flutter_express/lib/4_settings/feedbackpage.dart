@@ -37,12 +37,51 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final details = _detailsController.text.trim();
 
     if (mainConcern.isEmpty || details.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xFF334E7B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.white, width: 2),
+          ),
+          title: Text(
+            'Incomplete Fields',
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 0.5,
+            ),
+          ),
           content: Text(
             'Please fill in all fields.',
-            style: GoogleFonts.robotoMono(),
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontSize: 16,
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+                textStyle: MaterialStateProperty.all(GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white.withOpacity(0.15);
+                  }
+                  return null;
+                }),
+              ),
+              child: Text("OK", style: GoogleFonts.robotoMono()),
+            ),
+          ],
         ),
       );
       return;
@@ -60,22 +99,102 @@ class _FeedbackPageState extends State<FeedbackPage> {
     setState(() => _loading = false);
 
     if (result['status'] == 201 || result['status'] == "201") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xFF334E7B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.white, width: 2),
+          ),
+          title: Text(
+            'Success!',
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 0.5,
+            ),
+          ),
           content: Text(
             'Feedback submitted successfully!',
-            style: GoogleFonts.robotoMono(),
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontSize: 16,
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+                textStyle: MaterialStateProperty.all(GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white.withOpacity(0.15);
+                  }
+                  return null;
+                }),
+              ),
+              child: Text("OK", style: GoogleFonts.robotoMono()),
+            ),
+          ],
         ),
       );
-      Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Color(0xFF334E7B),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.white, width: 2),
+          ),
+          title: Text(
+            'Error',
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 0.5,
+            ),
+          ),
           content: Text(
             result['message'] ?? 'Submission failed.',
-            style: GoogleFonts.robotoMono(),
+            style: GoogleFonts.robotoMono(
+              color: Colors.white,
+              fontSize: 16,
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+                textStyle: MaterialStateProperty.all(GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white.withOpacity(0.15);
+                  }
+                  return null;
+                }),
+              ),
+              child: Text("OK", style: GoogleFonts.robotoMono()),
+            ),
+          ],
         ),
       );
     }
