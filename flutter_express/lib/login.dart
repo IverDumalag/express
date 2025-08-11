@@ -79,14 +79,35 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Welcome to exPress',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 28 * scale,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF334E7B),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Welcome to ',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF334E7B),
+                      ),
+                    ),
+                    Text(
+                      'ex',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Press',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4C75F2),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8 * scale),
                 Text(
@@ -108,6 +129,15 @@ class _LoginState extends State<Login> {
                     labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -129,6 +159,15 @@ class _LoginState extends State<Login> {
                     labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
