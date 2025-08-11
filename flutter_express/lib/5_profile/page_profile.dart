@@ -46,32 +46,31 @@ class _PageProfileState extends State<PageProfile> {
                         fontSize: 29,
                         fontWeight: FontWeight.w700,
                         color: themeBlue,
-                        letterSpacing: 0.5,
+                        letterSpacing: 0.3,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Full Name:",
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 16,
-                            color: themeBlue,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                          ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Full Name",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
                         ),
-                      ],
+                        textAlign: TextAlign.left,
+                      ),
                     ),
                     SizedBox(
                       width: double.infinity,
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        margin: const EdgeInsets.symmetric(vertical: 5),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 14,
+                          vertical: 16,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -106,23 +105,21 @@ class _PageProfileState extends State<PageProfile> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.015),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Account Created",
-                            style: GoogleFonts.robotoMono(
-                              fontSize: 16,
-                              color: themeBlue,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Account Created",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.left,
                       ),
                     ),
+
+                    
                     SizedBox(
                       width: double.infinity,
                       child: Container(
@@ -152,22 +149,33 @@ class _PageProfileState extends State<PageProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: screenHeight * 0.02),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Profile Details",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    SizedBox(height: 5),
                     Card(
                       color: Colors.white,
-                      elevation: 2,
+                      elevation: 1,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.06,
-                          vertical: screenHeight * 0.025,
-                        ),
+                     child: Padding(
+                        padding: EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                  
+                            // Email with visibility toggle
                             Row(
                               children: [
                                 Expanded(
@@ -180,8 +188,11 @@ class _PageProfileState extends State<PageProfile> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(_showEmail ? Icons.visibility_off : Icons.visibility, color: themeBlue),
-                                  tooltip: _showEmail ? "Hide Email" : "Show Email",
+                                  icon: Icon(
+                                    _showEmail ? Icons.visibility_off : Icons.visibility,
+                                    color: themeBlue,
+                                    size: 20,
+                                  ),
                                   onPressed: () {
                                     setState(() {
                                       _showEmail = !_showEmail;
@@ -190,9 +201,8 @@ class _PageProfileState extends State<PageProfile> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 8),
-                            Divider(),
-                            SizedBox(height: 8),
+                            Divider(height: 16, thickness: 1),
+                            // Birthdate
                             _profileItem(
                               icon: Icons.cake,
                               label: "Birthdate",
@@ -202,9 +212,8 @@ class _PageProfileState extends State<PageProfile> {
                               themeBlue: themeBlue,
                               screenWidth: screenWidth,
                             ),
-                            SizedBox(height: 8),
-                            Divider(),
-                            SizedBox(height: 8),
+                            Divider(height: 16, thickness: 1),
+                            // Sex
                             _profileItem(
                               icon: Icons.wc,
                               label: "Sex",
@@ -277,13 +286,16 @@ class _PageProfileState extends State<PageProfile> {
     required Color themeBlue,
     required double screenWidth,
   }) {
+    double iconSize = screenWidth * 0.050;
+    double labelFontSize = screenWidth * 0.040;
+    double valueFontSize = screenWidth * 0.040;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: themeBlue, size: screenWidth * 0.06),
-          SizedBox(width: screenWidth * 0.04),
+          Icon(icon, color: themeBlue, size: iconSize),
+          SizedBox(width: screenWidth * 0.03),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,15 +303,15 @@ class _PageProfileState extends State<PageProfile> {
                 Text(
                   label,
                   style: GoogleFonts.robotoMono(
-                    fontSize: screenWidth * 0.045,
+                    fontSize: labelFontSize,
                     color: Colors.blueGrey[800],
                   ),
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: 1),
                 Text(
                   value,
                   style: GoogleFonts.robotoMono(
-                    fontSize: screenWidth * 0.045,
+                    fontSize: valueFontSize,
                     color: themeBlue,
                     fontWeight: FontWeight.w600,
                   ),
