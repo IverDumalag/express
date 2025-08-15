@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class IntroP3 extends StatefulWidget {
   const IntroP3({Key? key}) : super(key: key);
@@ -42,11 +43,7 @@ class _IntroP3State extends State<IntroP3> with SingleTickerProviderStateMixin {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Color(0xFF334E7B),
-              Color(0xFF6C88C4),
-            ],
+            colors: [Colors.white, Color(0xFF334E7B), Color(0xFF6C88C4)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -94,7 +91,10 @@ class _IntroP3State extends State<IntroP3> with SingleTickerProviderStateMixin {
                 bottom: 60 * scale,
                 right: 32 * scale,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('seenIntro', true);
+
                     Navigator.pushReplacementNamed(context, '/login');
                   },
                   style: ElevatedButton.styleFrom(

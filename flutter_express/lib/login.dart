@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_express/00_services/api_services.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '0_components/popup_information.dart';
 
 class Login extends StatefulWidget {
@@ -36,7 +39,19 @@ class _LoginState extends State<Login> {
           });
           return;
         }
+
+        // Set user session
         UserSession.setUser(user);
+
+        // Save login state and user data to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('seenIntro', true);
+        await prefs.setBool('isLoggedIn', true);
+
+        // Save user data as JSON string
+        final userDataString = jsonEncode(user);
+        await prefs.setString('userData', userDataString);
+
         await PopupInformation.show(
           context,
           title: "Login Successful",
@@ -81,7 +96,7 @@ class _LoginState extends State<Login> {
                 Text(
                   'Welcome to exPress',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     fontSize: 26 * scale,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF334E7B),
@@ -90,7 +105,7 @@ class _LoginState extends State<Login> {
                 SizedBox(height: 8 * scale),
                 Text(
                   'Sign in to continue your journey',
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     fontSize: 14 * scale,
                     color: Colors.grey[600],
                   ),
@@ -99,9 +114,12 @@ class _LoginState extends State<Login> {
 
                 // Email field
                 TextFormField(
+                  style: GoogleFonts.robotoMono(),
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    labelStyle: GoogleFonts.robotoMono(),
                     hintText: 'you@example.com',
+                    hintStyle: GoogleFonts.robotoMono(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -119,9 +137,12 @@ class _LoginState extends State<Login> {
 
                 // Password field
                 TextFormField(
+                  style: GoogleFonts.robotoMono(),
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: GoogleFonts.robotoMono(),
                     hintText: '••••••••••',
+                    hintStyle: GoogleFonts.robotoMono(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -150,7 +171,10 @@ class _LoginState extends State<Login> {
 
                 if (error != null) ...[
                   SizedBox(height: 16 * scale),
-                  Text(error!, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    error!,
+                    style: GoogleFonts.robotoMono(color: Colors.red),
+                  ),
                 ],
                 SizedBox(height: 24 * scale),
 
@@ -174,7 +198,7 @@ class _LoginState extends State<Login> {
                           )
                         : Text(
                             'Login',
-                            style: TextStyle(
+                            style: GoogleFonts.robotoMono(
                               color: Colors.white,
                               fontSize: 18 * scale,
                               fontWeight: FontWeight.bold,
@@ -186,7 +210,7 @@ class _LoginState extends State<Login> {
                 SizedBox(height: 16 * scale),
                 Text(
                   "OR",
-                  style: TextStyle(
+                  style: GoogleFonts.robotoMono(
                     color: Colors.grey[600],
                     fontSize: 14 * scale,
                   ),
@@ -209,7 +233,7 @@ class _LoginState extends State<Login> {
                     ),
                     child: Text(
                       'Register',
-                      style: TextStyle(
+                      style: GoogleFonts.robotoMono(
                         color: const Color(0xFF334E7B),
                         fontSize: 18 * scale,
                         fontWeight: FontWeight.bold,

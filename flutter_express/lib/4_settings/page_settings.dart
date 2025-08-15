@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
+import '../0_components/popup_confirmation.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -42,6 +43,24 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+  Future<void> _handleLogout() async {
+    final confirmed = await PopupConfirmation.show(
+      context,
+      title: "Logout Confirmation",
+      message: "Are you sure you want to logout?",
+      confirmText: "Logout",
+      cancelText: "Cancel",
+    );
+
+    if (confirmed) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('isLoggedIn');
+      await prefs.remove('userData');
+      UserSession.user = null;
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,8 +74,7 @@ class _SettingsState extends State<Settings> {
               Center(
                 child: Text(
                   'Menu',
-                  style: TextStyle(
-                    fontFamily: 'RobotoMono',
+                  style: GoogleFonts.robotoMono(
                     fontSize: 30,
                     fontWeight: FontWeight.w900,
                     color: Colors.black,
@@ -73,14 +91,11 @@ class _SettingsState extends State<Settings> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-
                       'Archive',
-                      style: TextStyle(
-                        fontFamily: 'RobotoMono',
+                      style: GoogleFonts.robotoMono(
                         fontSize: 16,
                         color: Colors.grey,
                         fontWeight: FontWeight.w600,
-
                       ),
                     ),
                     SizedBox(height: 4),
@@ -89,7 +104,6 @@ class _SettingsState extends State<Settings> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
-
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton.icon(
@@ -97,7 +111,7 @@ class _SettingsState extends State<Settings> {
                             backgroundColor: Colors.white,
                             shadowColor: Colors.transparent,
                             foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(140, 52), // Increased height, reduced width
+                            minimumSize: Size(140, 52),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -106,13 +120,15 @@ class _SettingsState extends State<Settings> {
                           icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
                           label: Text(
                             "Archive Cards",
-                            style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                            style: GoogleFonts.robotoMono(
+                              color: Color(0xFF334E7B),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.pushNamed(context, '/archive');
                           },
                         ),
-
                       ),
                     ),
                   ],
@@ -128,8 +144,7 @@ class _SettingsState extends State<Settings> {
                   children: [
                     Text(
                       'Give us a feedback!',
-                      style: TextStyle(
-                        fontFamily: 'RobotoMono',
+                      style: GoogleFonts.robotoMono(
                         fontSize: 16,
                         color: Colors.grey,
                         fontWeight: FontWeight.w600,
@@ -141,7 +156,6 @@ class _SettingsState extends State<Settings> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
                       ),
-
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: ElevatedButton.icon(
@@ -149,7 +163,7 @@ class _SettingsState extends State<Settings> {
                             backgroundColor: Colors.white,
                             shadowColor: Colors.transparent,
                             foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(160, 52), // Increased height, reduced width
+                            minimumSize: Size(160, 52),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -158,15 +172,19 @@ class _SettingsState extends State<Settings> {
                           icon: Icon(Icons.feedback, color: Color(0xFF334E7B)),
                           label: Text(
                             "Give Feedback",
-                            style: TextStyle(color: Color(0xFF334E7B), fontWeight: FontWeight.bold),
+                            style: GoogleFonts.robotoMono(
+                              color: Color(0xFF334E7B),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => FeedbackPage()),
+                              MaterialPageRoute(
+                                builder: (context) => FeedbackPage(),
+                              ),
                             );
                           },
-
                         ),
                       ),
                     ),
@@ -174,7 +192,6 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               Padding(
-
                 padding: const EdgeInsets.symmetric(horizontal: 50.0),
                 child: Stack(
                   children: [
@@ -183,7 +200,6 @@ class _SettingsState extends State<Settings> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          // border removed
                         ),
                       ),
                     ),
@@ -199,8 +215,7 @@ class _SettingsState extends State<Settings> {
                               padding: const EdgeInsets.all(16.0),
                               child: Text(
                                 'FAQs',
-                                style: TextStyle(
-                                  fontFamily: 'RobotoMono',
+                                style: GoogleFonts.robotoMono(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w900,
                                   color: Color(0xFF334E7B),
@@ -208,12 +223,14 @@ class _SettingsState extends State<Settings> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 0.0,
+                              ),
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Container(
                                   margin: EdgeInsets.only(left: 12.0),
-                                  width: 260, // Reduced width
+                                  width: 260,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(8.0),
@@ -227,11 +244,15 @@ class _SettingsState extends State<Settings> {
                                     ],
                                   ),
                                   child: TextField(
+                                    style: GoogleFonts.robotoMono(),
                                     decoration: InputDecoration(
                                       hintText: 'Search about exPress',
+                                      hintStyle: GoogleFonts.robotoMono(),
                                       prefixIcon: Icon(Icons.search),
                                       border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(8.0),
+                                        ),
                                         borderSide: BorderSide.none,
                                       ),
                                       filled: true,
@@ -267,13 +288,14 @@ class _SettingsState extends State<Settings> {
                       ),
                     ),
                   ],
-
                 ),
               ),
               SizedBox(height: 24.0),
               Padding(
-
-                padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50.0,
+                  vertical: 16.0,
+                ),
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
@@ -281,23 +303,18 @@ class _SettingsState extends State<Settings> {
                     minimumSize: Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
-
                     ),
                     elevation: 2,
                   ),
                   icon: Icon(Icons.logout, color: Colors.white),
                   label: Text(
                     "Logout",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.robotoMono(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.clear();
-                    UserSession.user = null;
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil('/login', (route) => false);
-                  },
+                  onPressed: _handleLogout, // Changed to use the new method
                 ),
               ),
             ],
