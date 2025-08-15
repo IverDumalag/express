@@ -64,249 +64,105 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
+      backgroundColor: const Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
       body: Stack(
         children: [
           ListView(
-            padding: EdgeInsets.only(bottom: 80),
+            padding: const EdgeInsets.only(bottom: 80),
             children: <Widget>[
-              SizedBox(height: 32),
+              const SizedBox(height: 64),
               Center(
                 child: Text(
                   'Menu',
                   style: GoogleFonts.robotoMono(
                     fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF334E7B),
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
-              SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50.0,
-                  vertical: 8.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Archive',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(140, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            elevation: 0,
-                          ),
-                          icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
-                          label: Text(
-                            "Archive Cards",
-                            style: GoogleFonts.robotoMono(
-                              color: Color(0xFF334E7B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/archive');
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 20),
+
+              // Archive
+              SectionLabel("Archive"),
+              MenuButton(
+                text: "Archived Cards",
+                icon: Icons.archive,
+                onPressed: () => Navigator.pushNamed(context, '/archive'),
+              ),
+
+              // Feedback
+              SectionLabel("Give us a feedback!"),
+              MenuButton(
+                text: "Create a Feedback",
+                icon: Icons.feedback,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const FeedbackPage()),
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // FAQ
+              SectionLabel("Frequently Asked Questions"),
+              const FAQContainer(),
+
+              const SizedBox(height: 16.0),
+
+              // Others Dropdown
+              SectionLabel("Others"),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50.0,
-                  vertical: 8.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Give us a feedback!',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w600,
-                      ),
+                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
                     ),
-                    SizedBox(height: 4),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
+                    dropdownColor: Colors.white,
+                    value: null,
+                    hint: const Text('Select other information'),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'privacy',
+                        child: Text('Privacy Policy', style: TextStyle(fontFamily: 'RobotoMono')),
                       ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            foregroundColor: Color(0xFF334E7B),
-                            minimumSize: Size(160, 52),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            elevation: 0,
-                          ),
-                          icon: Icon(Icons.feedback, color: Color(0xFF334E7B)),
-                          label: Text(
-                            "Give Feedback",
-                            style: GoogleFonts.robotoMono(
-                              color: Color(0xFF334E7B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => FeedbackPage(),
-                              ),
-                            );
-                          },
-                        ),
+                      DropdownMenuItem(
+                        value: 'terms',
+                        child: Text('Terms & Conditions', style: TextStyle(fontFamily: 'RobotoMono')),
                       ),
-                    ),
-                  ],
+                    ],
+                    onChanged: (value) {
+                      if (value == 'privacy') {
+                        _showInfoDialog(context, 'Privacy Policy', 'Privacy Policy details go here.');
+                      } else if (value == 'terms') {
+                        _showInfoDialog(context, 'Terms & Conditions', 'Terms & Conditions details go here.');
+                      }
+                    },
+                  ),
                 ),
               ),
+
+              // Logout
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                child: Stack(
-                  children: [
-                    // Border layer
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                    // Content layer clipped to border radius
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'FAQs',
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w900,
-                                  color: Color(0xFF334E7B),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 0.0,
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  margin: EdgeInsets.only(left: 12.0),
-                                  width: 260,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: TextField(
-                                    style: GoogleFonts.robotoMono(),
-                                    decoration: InputDecoration(
-                                      hintText: 'Search about exPress',
-                                      hintStyle: GoogleFonts.robotoMono(),
-                                      prefixIcon: Icon(Icons.search),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0),
-                                        ),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      contentPadding: EdgeInsets.all(16.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            FAQItem(
-                              question: 'What is exPress?',
-                              answer:
-                                  'exPress is a mobile application designed to allow abled people to connect within '
-                                  'deaf-mute communities seamlessly and vice-versa. With features like sign language '
-                                  'to text and text/audio to sign language conversion.',
-                            ),
-                            FAQItem(
-                              question: 'How does exPress work?',
-                              answer:
-                                  'exPress works by converting sign language to text and text/audio to sign language '
-                                  'using advanced machine learning algorithms.',
-                            ),
-                            FAQItem(
-                              question: 'How can I provide feedback?',
-                              answer:
-                                  'You can provide feedback through the feedback section in the app settings or by '
-                                  'contacting our support team.',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50.0,
-                  vertical: 16.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 16.0),
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: const Color(0xFF334E7B),
                     foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 48),
+                    minimumSize: const Size(double.infinity, 70),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 2,
                   ),
-                  icon: Icon(Icons.logout, color: Colors.white),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                   label: Text(
                     "Logout",
                     style: GoogleFonts.robotoMono(
@@ -314,12 +170,164 @@ class _SettingsState extends State<Settings> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: _handleLogout, // Changed to use the new method
+                  onPressed: _handleLogout,
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Color(0xFF334E7B), width: 2),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
+        title: Text(title),
+        content: SizedBox(
+          width: 350,
+          child: Text(content, style: const TextStyle(fontFamily: 'RobotoMono')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(fontFamily: 'RobotoMono')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Reusable section label
+class SectionLabel extends StatelessWidget {
+  final String text;
+  const SectionLabel(this.text, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+      child: Text(
+        text,
+        style: GoogleFonts.robotoMono(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: const Color.fromARGB(255, 87, 87, 87),
+        ),
+      ),
+    );
+  }
+}
+
+/// Reusable menu button
+class MenuButton extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const MenuButton({
+    Key? key,
+    required this.text,
+    required this.icon,
+    required this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            elevation: 6,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            minimumSize: const Size(double.infinity, 70),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: onPressed,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                text,
+                style: GoogleFonts.robotoMono(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF334E7B),
+                ),
+              ),
+              Icon(icon, color: const Color(0xFF334E7B)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// FAQ container widget
+class FAQContainer extends StatelessWidget {
+  const FAQContainer({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                FAQItem(
+                  question: 'What is exPress?',
+                  answer:
+                      'exPress is a mobile and web application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
+                  questionFontSize: 20,
+                  answerFontSize: 16,
+                ),
+                FAQItem(
+                  question: 'How does exPress work?',
+                  answer:
+                      'exPress works by converting sign language to text and text/audio to sign language using advanced machine learning algorithms.',
+                  questionFontSize: 20,
+                  answerFontSize: 16,
+                ),
+                FAQItem(
+                  question: 'How can I provide feedback?',
+                  answer:
+                      'You can provide feedback through the feedback section in the app menu.',
+                  questionFontSize: 20,
+                  answerFontSize: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

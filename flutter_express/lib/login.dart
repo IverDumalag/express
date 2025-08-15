@@ -93,14 +93,35 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Welcome to exPress',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 26 * scale,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF334E7B),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Welcome to ',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF334E7B),
+                      ),
+                    ),
+                    Text(
+                      'ex',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Press',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 28 * scale,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF4C75F2),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8 * scale),
                 Text(
@@ -110,22 +131,31 @@ class _LoginState extends State<Login> {
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 24 * scale),
+                SizedBox(height: 40 * scale),
 
                 // Email field
                 TextFormField(
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     hintText: 'you@example.com',
-                    hintStyle: GoogleFonts.robotoMono(),
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 14,
+                      vertical: 24,
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -133,22 +163,31 @@ class _LoginState extends State<Login> {
                       v == null || v.isEmpty ? 'Enter email' : null,
                   onSaved: (v) => email = v!.trim(),
                 ),
-                SizedBox(height: 16 * scale),
+                SizedBox(height: 12 * scale),
 
                 // Password field
                 TextFormField(
-                  style: GoogleFonts.robotoMono(),
+                  style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: GoogleFonts.robotoMono(),
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     hintText: '••••••••••',
-                    hintStyle: GoogleFonts.robotoMono(),
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 14,
+                      vertical: 24,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -185,9 +224,9 @@ class _LoginState extends State<Login> {
                     onPressed: loading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF334E7B),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: loading
@@ -225,9 +264,9 @@ class _LoginState extends State<Login> {
                       Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       side: const BorderSide(color: Color(0xFF334E7B)),
                     ),

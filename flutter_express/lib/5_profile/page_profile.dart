@@ -12,6 +12,7 @@ class PageProfile extends StatefulWidget {
 
 class _PageProfileState extends State<PageProfile> {
   Map<String, dynamic>? user;
+  bool _showEmail = true;
 
   @override
   void initState() {
@@ -26,7 +27,7 @@ class _PageProfileState extends State<PageProfile> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: themeBlue.withOpacity(0.07),
+      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
       body: user == null
           ? Center(child: Text("No user data", style: GoogleFonts.robotoMono()))
           : Center(
@@ -38,45 +39,44 @@ class _PageProfileState extends State<PageProfile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: 32),
                     Text(
                       "My Profile",
                       style: GoogleFonts.robotoMono(
-                        fontSize: screenWidth * 0.08,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 29,
+                        fontWeight: FontWeight.w700,
                         color: themeBlue,
-                        letterSpacing: 0.5,
+                        letterSpacing: 0.3,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: screenHeight * 0.01),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Your Name:",
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 16,
-                            color: themeBlue,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                          ),
+                    SizedBox(height: screenHeight * 0.02),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Full Name",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
                         ),
-                      ],
+                        textAlign: TextAlign.left,
+                      ),
                     ),
                     SizedBox(
                       width: double.infinity,
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        margin: const EdgeInsets.symmetric(vertical: 5),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 14,
+                          vertical: 16,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                            color: themeBlue.withOpacity(0.4),
-                            width: 1.2,
+                          color: Color(0xFF334E7B), // Blue outline
+                          width: 2,                
                           ),
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -86,7 +86,7 @@ class _PageProfileState extends State<PageProfile> {
                               child: Text(
                                 "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
                                 style: GoogleFonts.robotoMono(
-                                  fontSize: screenWidth * 0.06,
+                                  fontSize: screenWidth * 0.04,
                                   fontWeight: FontWeight.bold,
                                   color: themeBlue,
                                   letterSpacing: 0.5,
@@ -98,30 +98,28 @@ class _PageProfileState extends State<PageProfile> {
                             Icon(
                               Icons.check_circle,
                               color: themeBlue,
-                              size: screenWidth * 0.07,
+                              size: screenWidth * 0.05,
                             ),
                           ],
                         ),
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.015),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Your Email:",
-                            style: GoogleFonts.robotoMono(
-                              fontSize: 16,
-                              color: themeBlue,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Account Created",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.left,
                       ),
                     ),
+
+                    
                     SizedBox(
                       width: double.infinity,
                       child: Container(
@@ -139,9 +137,11 @@ class _PageProfileState extends State<PageProfile> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          user!['email'] ?? '',
+                          user!['created_at'] != null
+                              ? _formatDate(user!['created_at'])
+                              : 'Unknown registration date',
                           style: GoogleFonts.robotoMono(
-                            fontSize: screenWidth * 0.045,
+                            fontSize: screenWidth * 0.04,
                             color: Colors.blueGrey[700],
                             letterSpacing: 0.2,
                           ),
@@ -149,61 +149,71 @@ class _PageProfileState extends State<PageProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.03),
+                    SizedBox(height: screenHeight * 0.02),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Profile Details",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 16,
+                          color: themeBlue,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    SizedBox(height: 5),
                     Card(
                       color: Colors.white,
-                      elevation: 2,
+                      elevation: 1,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.06,
-                          vertical: screenHeight * 0.025,
-                        ),
+                     child: Padding(
+                        padding: EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "First Name",
-                              value: user!['f_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
+                            // Email with visibility toggle
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _profileItem(
+                                    icon: Icons.email,
+                                    label: "Email",
+                                    value: _showEmail ? (user!['email'] ?? '') : "************",
+                                    themeBlue: themeBlue,
+                                    screenWidth: screenWidth,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    _showEmail ? Icons.visibility_off : Icons.visibility,
+                                    color: themeBlue,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showEmail = !_showEmail;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "Middle Name",
-                              value: user!['m_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.account_circle,
-                              label: "Last Name",
-                              value: user!['l_name'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
-                            Divider(),
-                            _profileItem(
-                              icon: Icons.email,
-                              label: "Email",
-                              value: user!['email'] ?? '',
-                              themeBlue: themeBlue,
-                              screenWidth: screenWidth,
-                            ),
-                            Divider(),
+                            Divider(height: 16, thickness: 1),
+                            // Birthdate
                             _profileItem(
                               icon: Icons.cake,
                               label: "Birthdate",
-                              value: user!['birthdate'] ?? '',
+                              value: user!['birthdate'] != null && user!['birthdate'] != ''
+                                  ? _formatDate(user!['birthdate'])
+                                  : '',
                               themeBlue: themeBlue,
                               screenWidth: screenWidth,
                             ),
-                            Divider(),
+                            Divider(height: 16, thickness: 1),
+                            // Sex
                             _profileItem(
                               icon: Icons.wc,
                               label: "Sex",
@@ -215,35 +225,52 @@ class _PageProfileState extends State<PageProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(height: screenHeight * 0.04),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: themeBlue,
-                        foregroundColor: Colors.white,
-                        minimumSize: Size(screenWidth * 0.5, 48),
-                        shape: RoundedRectangleBorder(
+                    SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                       
+                        decoration: BoxDecoration(
+                            color: themeBlue,
+                          border: Border.all(
+                            color: themeBlue.withOpacity(0.4),
+                            width: 1.2,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      icon: const Icon(Icons.edit),
-                      label: Text(
-                        "Edit Profile",
-                        style: GoogleFonts.robotoMono(
-                          fontSize: screenWidth * 0.045,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: themeBlue, // 🔹 Set background color
+                            foregroundColor: Colors.white, // 🔹 Icon/text color
+                            minimumSize: const Size(double.infinity, 70),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                          icon: const Icon(Icons.edit, color: Colors.white), // White icon
+                          label: Text(
+                            "Edit Profile",
+                            style: GoogleFonts.robotoMono(
+                              fontSize: screenWidth * 0.045,
+                              color: Colors.white, // White text
+                            ),
+                          ),
+                          onPressed: () async {
+                            final updated = await showDialog<Map<String, dynamic>>(
+                              context: context,
+                              builder: (context) => EditProfileDialog(user: user!),
+                            );
+                            if (updated != null) {
+                              setState(() {
+                                user = updated;
+                                UserSession.setUser(updated);
+                              });
+                            }
+                          },
                         ),
                       ),
-                      onPressed: () async {
-                        final updated = await showDialog<Map<String, dynamic>>(
-                          context: context,
-                          builder: (context) => EditProfileDialog(user: user!),
-                        );
-                        if (updated != null) {
-                          setState(() {
-                            user = updated;
-                            UserSession.setUser(updated);
-                          });
-                        }
-                      },
                     ),
                   ],
                 ),
@@ -259,13 +286,16 @@ class _PageProfileState extends State<PageProfile> {
     required Color themeBlue,
     required double screenWidth,
   }) {
+    double iconSize = screenWidth * 0.050;
+    double labelFontSize = screenWidth * 0.040;
+    double valueFontSize = screenWidth * 0.040;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: themeBlue, size: screenWidth * 0.06),
-          SizedBox(width: screenWidth * 0.04),
+          Icon(icon, color: themeBlue, size: iconSize),
+          SizedBox(width: screenWidth * 0.03),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,15 +303,15 @@ class _PageProfileState extends State<PageProfile> {
                 Text(
                   label,
                   style: GoogleFonts.robotoMono(
-                    fontSize: screenWidth * 0.045,
+                    fontSize: labelFontSize,
                     color: Colors.blueGrey[800],
                   ),
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: 1),
                 Text(
                   value,
                   style: GoogleFonts.robotoMono(
-                    fontSize: screenWidth * 0.045,
+                    fontSize: valueFontSize,
                     color: themeBlue,
                     fontWeight: FontWeight.w600,
                   ),
@@ -295,6 +325,23 @@ class _PageProfileState extends State<PageProfile> {
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return "${_monthName(date.month)} ${date.day}, ${date.year}";
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    return months[month - 1];
   }
 }
 
@@ -312,7 +359,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController lNameController;
   late TextEditingController birthdateController;
   late TextEditingController sexController;
-
   bool loading = false;
   final List<String> sexOptions = ['Male', 'Female', 'Other'];
 
@@ -330,12 +376,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   @override
   void dispose() {
-    fNameController.dispose();
-    mNameController.dispose();
-    lNameController.dispose();
-    birthdateController.dispose();
-    sexController.dispose();
-    super.dispose();
+  fNameController.dispose();
+  mNameController.dispose();
+  lNameController.dispose();
+  birthdateController.dispose();
+  sexController.dispose();
+  super.dispose();
   }
 
   Future<void> _pickBirthdate() async {
@@ -363,233 +409,251 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     final themeBlue = const Color(0xFF334E7B);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return AlertDialog(
-      backgroundColor: const Color(0xFF334E7B),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      title: Row(
-        children: [
-          Icon(Icons.edit, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            "Edit Profile",
-            style: GoogleFonts.robotoMono(color: Colors.white),
-          ),
-        ],
-      ),
-      content: SizedBox(
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: Container(
         width: screenWidth > 420 ? 400 : screenWidth * 0.95,
-        child: SingleChildScrollView(
+        decoration: BoxDecoration(
+          color: themeBlue,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: themeBlue.withOpacity(0.15),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              Row(
+                children: [
+                  Icon(Icons.edit, color: Colors.white, size: 28),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Edit Details",
+                    style: GoogleFonts.robotoMono(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Divider(color: Colors.white24, thickness: 1),
+              const SizedBox(height: 24),
+              _buildTextField(
                 controller: fNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "First Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "First Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
-              TextField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: mNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Middle Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "Middle Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
-              TextField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: lNameController,
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Last Name",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.account_circle, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
-                ),
+                label: "Last Name",
+                icon: Icons.account_circle,
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: _pickBirthdate,
                 child: AbsorbPointer(
-                  child: TextField(
+                  child: _buildTextField(
                     controller: birthdateController,
-                    style: GoogleFonts.robotoMono(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: "Birthdate",
-                      labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                      prefixIcon: Icon(Icons.cake, color: Colors.white70),
-                      suffixIcon: Icon(
-                        Icons.calendar_today,
-                        color: Colors.white70,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white24),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white),
-                      ),
-                    ),
+                    label: "Birthdate",
+                    icon: Icons.cake,
+                    suffixIcon: Icons.calendar_today,
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<String>(
-                value: sexOptions.contains(sexController.text)
-                    ? sexController.text
-                    : null,
-                items: sexOptions
-                    .map(
-                      (sex) => DropdownMenuItem(
-                        value: sex,
-                        child: Text(
-                          sex,
-                          style: GoogleFonts.robotoMono(color: Colors.white),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 64,
+                child: DropdownButtonFormField<String>(
+                  value: sexOptions.contains(sexController.text)
+                      ? sexController.text
+                      : null,
+                  items: sexOptions
+                      .map(
+                        (sex) => DropdownMenuItem(
+                          value: sex,
+                          child: Text(
+                            sex,
+                            style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (val) {
-                  sexController.text = val ?? '';
-                  setState(() {});
-                },
-                dropdownColor: const Color(0xFF334E7B),
-                style: GoogleFonts.robotoMono(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: "Sex",
-                  labelStyle: GoogleFonts.robotoMono(color: Colors.white70),
-                  prefixIcon: Icon(Icons.wc, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    sexController.text = val ?? '';
+                    setState(() {});
+                  },
+                  dropdownColor: themeBlue,
+                  style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+                  decoration: InputDecoration(
+                    labelText: "Sex",
+                    labelStyle: GoogleFonts.robotoMono(color: Colors.white70, fontSize: 15),
+                    prefixIcon: Icon(Icons.wc, color: Colors.white70, size: 22),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white24),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    filled: true,
+                    fillColor: themeBlue.withOpacity(0.9),
+                    contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 18),
                   ),
                 ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: loading ? null : () => Navigator.pop(context),
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      textStyle: MaterialStateProperty.all(GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>((states) {
+                        if (states.contains(MaterialState.hovered)) {
+                          return Colors.white.withOpacity(0.15);
+                        }
+                        return null;
+                      }),
+                    ),
+                    child: Text("Cancel", style: GoogleFonts.robotoMono()),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: themeBlue,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: loading
+                        ? null
+                        : () async {
+                            setState(() => loading = true);
+                            final updatedUser = {
+                              ...widget.user,
+                              'f_name': fNameController.text.trim(),
+                              'm_name': mNameController.text.trim(),
+                              'l_name': lNameController.text.trim(),
+                              'birthdate': birthdateController.text.trim(),
+                              'sex': sexController.text.trim(),
+                            };
+                            final result = await ApiService.editUser(
+                              userId: widget.user['user_id'].toString(),
+                              email: widget.user['email'] ?? '',
+                              fName: fNameController.text.trim(),
+                              mName: mNameController.text.trim(),
+                              lName: lNameController.text.trim(),
+                              sex: sexController.text.trim(),
+                              birthdate: birthdateController.text.trim(),
+                            );
+                            setState(() => loading = false);
+                            if (result['status'] == 200 || result['status'] == "200") {
+                              Navigator.pop(context, {
+                                ...widget.user,
+                                'f_name': fNameController.text.trim(),
+                                'm_name': mNameController.text.trim(),
+                                'l_name': lNameController.text.trim(),
+                                'birthdate': birthdateController.text.trim(),
+                                'sex': sexController.text.trim(),
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    result['message'] ?? "Update failed",
+                                    style: GoogleFonts.robotoMono(),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                    child: loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF334E7B),
+                            ),
+                          )
+                        : Text("Save", style: GoogleFonts.robotoMono()),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      actions: [
-        TextButton(
-          onPressed: loading ? null : () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            textStyle: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
-          ),
-          child: Text("Cancel", style: GoogleFonts.robotoMono()),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: themeBlue,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: loading
-              ? null
-              : () async {
-                  setState(() => loading = true);
-                  final updatedUser = {
-                    ...widget.user,
-                    'f_name': fNameController.text.trim(),
-                    'm_name': mNameController.text.trim(),
-                    'l_name': lNameController.text.trim(),
-                    'birthdate': birthdateController.text.trim(),
-                    'sex': sexController.text.trim(),
-                  };
-                  final result = await ApiService.editUser(
-                    userId: widget.user['user_id'].toString(),
-                    email: widget.user['email'] ?? '',
-                    fName: fNameController.text.trim(),
-                    mName: mNameController.text.trim(),
-                    lName: lNameController.text.trim(),
-                    sex: sexController.text.trim(),
-                    birthdate: birthdateController.text.trim(),
-                  );
-                  setState(() => loading = false);
-                  if (result['status'] == 200 || result['status'] == "200") {
-                    Navigator.pop(context, {
-                      ...widget.user,
-                      'f_name': fNameController.text.trim(),
-                      'm_name': mNameController.text.trim(),
-                      'l_name': lNameController.text.trim(),
-                      'birthdate': birthdateController.text.trim(),
-                      'sex': sexController.text.trim(),
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          result['message'] ?? "Update failed",
-                          style: GoogleFonts.robotoMono(),
-                        ),
-                      ),
-                    );
-                  }
-                },
-          child: loading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Color(0xFF334E7B),
-                  ),
-                )
-              : Text("Save", style: GoogleFonts.robotoMono()),
-        ),
-      ],
     );
   }
-}
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    IconData? suffixIcon,
+  }) {
+    return SizedBox(
+      height: 64,
+      child: TextField(
+        controller: controller,
+        style: GoogleFonts.robotoMono(color: Colors.white, fontSize: 17),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.robotoMono(color: Colors.white70, fontSize: 15),
+          prefixIcon: Icon(icon, color: Colors.white70, size: 22),
+          suffixIcon: suffixIcon != null
+              ? Icon(suffixIcon, color: Colors.white70, size: 20)
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white24),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.white),
+          ),
+          filled: true,
+          fillColor: const Color(0xFF334E7B).withOpacity(0.9),
+          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 18),
+        ),
+      ),
+    );
+  }
+  }
+
