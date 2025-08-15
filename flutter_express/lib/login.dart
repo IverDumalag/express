@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_express/00_services/api_services.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '0_components/popup_information.dart';
 
@@ -37,7 +39,19 @@ class _LoginState extends State<Login> {
           });
           return;
         }
+
+        // Set user session
         UserSession.setUser(user);
+
+        // Save login state and user data to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('seenIntro', true);
+        await prefs.setBool('isLoggedIn', true);
+
+        // Save user data as JSON string
+        final userDataString = jsonEncode(user);
+        await prefs.setString('userData', userDataString);
+
         await PopupInformation.show(
           context,
           title: "Login Successful",
@@ -104,7 +118,7 @@ class _LoginState extends State<Login> {
                       style: GoogleFonts.robotoMono(
                         fontSize: 28 * scale,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF4C75F2),
+                        color: const Color(0xFF4C75F2),
                       ),
                     ),
                   ],
@@ -124,9 +138,9 @@ class _LoginState extends State<Login> {
                   style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     hintText: 'you@example.com',
                     hintStyle: GoogleFonts.robotoMono(fontSize: 18),
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
@@ -157,6 +171,8 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: GoogleFonts.robotoMono(fontSize: 18),
+                    hintText: '••••••••••',
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
@@ -194,7 +210,10 @@ class _LoginState extends State<Login> {
 
                 if (error != null) ...[
                   SizedBox(height: 16 * scale),
-                  Text(error!, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    error!,
+                    style: GoogleFonts.robotoMono(color: Colors.red),
+                  ),
                 ],
                 SizedBox(height: 24 * scale),
 

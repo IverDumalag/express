@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_express/4_settings/archived_cards.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
 import '1_home/page_home.dart';
@@ -14,7 +16,6 @@ import 'intro_p3.dart';
 import 'login.dart';
 import 'register.dart';
 import '5_profile/page_profile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
         fontFamily: GoogleFonts.robotoMono().fontFamily,
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      home: InitialRouteDecider(),
+      home: SplashScreen(), // Changed to splash screen
       routes: {
         '/intro1': (context) => IntroP1(),
         '/intro2': (context) => IntroP2(),
@@ -46,33 +47,84 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class InitialRouteDecider extends StatefulWidget {
+// New splash screen to handle app initialization
+class SplashScreen extends StatefulWidget {
   @override
-  State<InitialRouteDecider> createState() => _InitialRouteDeciderState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _InitialRouteDeciderState extends State<InitialRouteDecider> {
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkIntro();
+    _initializeApp();
   }
 
-  Future<void> _checkIntro() async {
+  Future<void> _initializeApp() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Check if intro has been seen
     final seenIntro = prefs.getBool('seenIntro') ?? false;
-    if (seenIntro) {
-      Navigator.pushReplacementNamed(context, '/login');
-    } else {
+
+    // Check if user is logged in
+    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    // Get stored user data
+    final userJson = prefs.getString('userData');
+
+    // Wait a bit for splash effect
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    if (isLoggedIn && userJson != null) {
+      // User is logged in, restore session and go directly to main screen (home page)
+      try {
+        final userData = Map<String, dynamic>.from(jsonDecode(userJson));
+        UserSession.setUser(userData);
+        GlobalVariables.currentIndex = 0; // Set to home tab
+        Navigator.pushReplacementNamed(context, '/main');
+      } catch (e) {
+        // If there's an error parsing user data, go to login
+        await prefs.remove('isLoggedIn');
+        await prefs.remove('userData');
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } else if (!seenIntro) {
+      // First time user, show intro
       Navigator.pushReplacementNamed(context, '/intro1');
+    } else {
+      // User has seen intro but not logged in
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: CircularProgressIndicator()),
+      backgroundColor: const Color(0xFF334E7B),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // App logo/icon
+            Icon(Icons.sign_language, size: 100, color: Colors.white),
+            const SizedBox(height: 20),
+            Text(
+              'exPress',
+              style: GoogleFonts.robotoMono(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -91,7 +143,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    GlobalVariables.currentIndex = widget.setIndex;
+    _currentIndex = widget.setIndex; // Use the passed index
   }
 
   late final List<Widget> _screens = [
@@ -105,6 +157,7 @@ class _MainScreenState extends State<MainScreen> {
   void _changeScreen(int index) {
     setState(() {
       _currentIndex = index;
+      GlobalVariables.currentIndex = index; // Update global variable
       _refreshData();
     });
   }
