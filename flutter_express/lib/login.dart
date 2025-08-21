@@ -121,27 +121,27 @@ class _LoginState extends State<Login> {
 
                 // Email field
                 TextFormField(
-                  style: GoogleFonts.robotoMono(fontSize: 18),
+                  style: GoogleFonts.robotoMono(fontSize: 15.3),
                   decoration: InputDecoration(
                     labelText: 'Email',
                     hintText: 'you@example.com',
-                    hintStyle: GoogleFonts.robotoMono(fontSize: 18),
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 15.3),
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 24,
+                      vertical: 16,
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -153,25 +153,25 @@ class _LoginState extends State<Login> {
 
                 // Password field
                 TextFormField(
-                  style: GoogleFonts.robotoMono(fontSize: 18),
+                  style: GoogleFonts.robotoMono(fontSize: 15.3),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 24,
+                      vertical: 16,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -205,9 +205,9 @@ class _LoginState extends State<Login> {
                     onPressed: loading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF334E7B),
-                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: loading
@@ -220,7 +220,7 @@ class _LoginState extends State<Login> {
                             'Login',
                             style: GoogleFonts.robotoMono(
                               color: Colors.white,
-                              fontSize: 18 * scale,
+                              fontSize: 15.3 * scale,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -232,7 +232,7 @@ class _LoginState extends State<Login> {
                   "OR",
                   style: GoogleFonts.robotoMono(
                     color: Colors.grey[600],
-                    fontSize: 14 * scale,
+                    fontSize: 15.3 * scale,
                   ),
                 ),
                 SizedBox(height: 16 * scale),
@@ -245,17 +245,17 @@ class _LoginState extends State<Login> {
                       Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      side: const BorderSide(color: Color(0xFF334E7B)),
+                      side: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
                     ),
                     child: Text(
                       'Register',
                       style: GoogleFonts.robotoMono(
                         color: const Color(0xFF334E7B),
-                        fontSize: 18 * scale,
+                        fontSize: 15.3 * scale,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -107,15 +107,18 @@ class _SettingsState extends State<Settings> {
                     ),
                     dropdownColor: Colors.white,
                     value: null,
-                    hint: Text('Select other information'),
+                    hint: Text(
+                      'Select other information',
+                      style: GoogleFonts.robotoMono(),
+                    ),
                     items: [
                       DropdownMenuItem(
                         value: 'privacy',
-                        child: Text('Privacy Policy', style: TextStyle(fontFamily: 'RobotoMono')),
+                        child: Text('Privacy Policy', style: GoogleFonts.robotoMono()),
                       ),
                       DropdownMenuItem(
                         value: 'terms',
-                        child: Text('Terms & Conditions', style: TextStyle(fontFamily: 'RobotoMono')),
+                        child: Text('Terms & Conditions', style: GoogleFonts.robotoMono()),
                       ),
                     ],
                     onChanged: (value) {

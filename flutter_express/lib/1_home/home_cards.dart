@@ -639,7 +639,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 12 * scale,
+                      horizontal: 6 * scale, // Reduced horizontal padding
                       vertical: 8 * scale,
                     ),
                     child: Row(
@@ -648,7 +648,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                           child: Text(
                             displayText,
                             style: GoogleFonts.robotoMono(
-                              fontSize: 20 * scale,
+                              fontSize: 17 * scale, // Reduced from 20*scale
                               color: cardColor,
                               fontWeight: FontWeight.bold,
                             ),
