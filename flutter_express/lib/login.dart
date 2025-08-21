@@ -164,7 +164,6 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
-                    hintText: '••••••••••',
                     hintStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
