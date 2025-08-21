@@ -225,7 +225,7 @@ class _PageProfileState extends State<PageProfile> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: screenHeight * 0.015),
                     SizedBox(
                       width: double.infinity,
                       child: Container(
@@ -243,7 +243,7 @@ class _PageProfileState extends State<PageProfile> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: themeBlue, // 🔹 Set background color
                             foregroundColor: Colors.white, // 🔹 Icon/text color
-                            minimumSize: const Size(double.infinity, 70),
+                            minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

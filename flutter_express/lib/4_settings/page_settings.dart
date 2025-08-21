@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'feedbackpage.dart';
 import 'faq_item.dart';
-import '../0_components/popup_confirmation.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -43,48 +42,31 @@ class _SettingsState extends State<Settings> {
     });
   }
 
-  Future<void> _handleLogout() async {
-    final confirmed = await PopupConfirmation.show(
-      context,
-      title: "Logout Confirmation",
-      message: "Are you sure you want to logout?",
-      confirmText: "Logout",
-      cancelText: "Cancel",
-    );
-
-    if (confirmed) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('isLoggedIn');
-      await prefs.remove('userData');
-      UserSession.user = null;
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
+      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
       body: Stack(
         children: [
           ListView(
-            padding: const EdgeInsets.only(bottom: 80),
+            padding: EdgeInsets.only(bottom: 80),
             children: <Widget>[
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               Center(
                 child: Text(
                   'Menu',
                   style: GoogleFonts.robotoMono(
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF334E7B),
+                    color: Color(0xFF334E7B),
                     letterSpacing: 0.5,
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 12),
 
               // Archive
+          
               SectionLabel("Archive"),
               MenuButton(
                 text: "Archived Cards",
@@ -93,49 +75,50 @@ class _SettingsState extends State<Settings> {
               ),
 
               // Feedback
+        
               SectionLabel("Give us a feedback!"),
               MenuButton(
                 text: "Create a Feedback",
                 icon: Icons.feedback,
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const FeedbackPage()),
+                  MaterialPageRoute(builder: (context) => FeedbackPage()),
                 ),
               ),
-
-              const SizedBox(height: 16),
+              SizedBox(height: 16.0),
 
               // FAQ
               SectionLabel("Frequently Asked Questions"),
-              const FAQContainer(),
+              FAQContainer(),
 
-              const SizedBox(height: 16.0),
-
-              // Others Dropdown
+              SizedBox(height: 16.0),
               SectionLabel("Others"),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 3),
                   child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                     ),
                     dropdownColor: Colors.white,
                     value: null,
-                    hint: const Text('Select other information'),
-                    items: const [
+                    hint: Text(
+                      'Select other information',
+                      style: GoogleFonts.robotoMono(),
+                    ),
+                    items: [
                       DropdownMenuItem(
                         value: 'privacy',
-                        child: Text('Privacy Policy', style: TextStyle(fontFamily: 'RobotoMono')),
+                        child: Text('Privacy Policy', style: GoogleFonts.robotoMono()),
                       ),
                       DropdownMenuItem(
                         value: 'terms',
-                        child: Text('Terms & Conditions', style: TextStyle(fontFamily: 'RobotoMono')),
+                        child: Text('Terms & Conditions', style: GoogleFonts.robotoMono()),
                       ),
                     ],
                     onChanged: (value) {
@@ -151,26 +134,80 @@ class _SettingsState extends State<Settings> {
 
               // Logout
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF334E7B),
+                    backgroundColor: Color(0xFF334E7B),
                     foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 70),
+                    minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    elevation: 2,
+                    elevation: 0,
                   ),
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                        ),
+                        insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
+                        title: Text(
+                          'Logout Confirmation',
+                          style: GoogleFonts.robotoMono(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF334E7B),
+                          ),
+                        ),
+                        content: Text(
+                          'Are you sure you want to logout?',
+                          style: GoogleFonts.robotoMono(
+                            color: Color(0xFF334E7B),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF334E7B),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text('Logout', style: GoogleFonts.robotoMono()),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+                      UserSession.user = null;
+                      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                    }
+                  },
                   icon: const Icon(Icons.logout, color: Colors.white),
-                  label: Text(
-                    "Logout",
-                    style: GoogleFonts.robotoMono(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  label: Builder(
+                    builder: (context) {
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      return Text(
+                        "Logout",
+                        style: GoogleFonts.robotoMono(
+                          fontSize: screenWidth * 0.045,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: _handleLogout,
                 ),
               ),
             ],
@@ -187,18 +224,18 @@ class _SettingsState extends State<Settings> {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF334E7B), width: 2),
+          side: BorderSide(color: Color(0xFF334E7B), width: 2),
         ),
-        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 32),
+        insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
         title: Text(title),
-        content: SizedBox(
+        content: Container(
           width: 350,
-          child: Text(content, style: const TextStyle(fontFamily: 'RobotoMono')),
+          child: Text(content, style: TextStyle(fontFamily: 'RobotoMono')),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close', style: TextStyle(fontFamily: 'RobotoMono')),
+            child: Text('Close', style: TextStyle(fontFamily: 'RobotoMono')),
           ),
         ],
       ),
@@ -214,13 +251,13 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
       child: Text(
         text,
         style: GoogleFonts.robotoMono(
           fontSize: 16,
           fontWeight: FontWeight.w700,
-          color: const Color.fromARGB(255, 87, 87, 87),
+          color: Color.fromARGB(255, 87, 87, 87),
         ),
       ),
     );
@@ -243,15 +280,15 @@ class MenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             elevation: 6,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            minimumSize: const Size(double.infinity, 70),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            minimumSize: Size(double.infinity, 50),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -265,10 +302,10 @@ class MenuButton extends StatelessWidget {
                 style: GoogleFonts.robotoMono(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF334E7B),
+                  color: Color(0xFF334E7B),
                 ),
               ),
-              Icon(icon, color: const Color(0xFF334E7B)),
+              Icon(icon, color: Color(0xFF334E7B)),
             ],
           ),
         ),
@@ -284,7 +321,7 @@ class FAQContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
@@ -292,7 +329,7 @@ class FAQContainer extends StatelessWidget {
             BoxShadow(
               color: Colors.grey.withOpacity(0.3),
               blurRadius: 12,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -302,26 +339,26 @@ class FAQContainer extends StatelessWidget {
             color: Colors.white,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 FAQItem(
                   question: 'What is exPress?',
                   answer:
                       'exPress is a mobile and web application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
-                  questionFontSize: 20,
+                  questionFontSize: 18,
                   answerFontSize: 16,
                 ),
                 FAQItem(
                   question: 'How does exPress work?',
                   answer:
                       'exPress works by converting sign language to text and text/audio to sign language using advanced machine learning algorithms.',
-                  questionFontSize: 20,
+                  questionFontSize: 18,
                   answerFontSize: 16,
                 ),
                 FAQItem(
                   question: 'How can I provide feedback?',
                   answer:
                       'You can provide feedback through the feedback section in the app menu.',
-                  questionFontSize: 20,
+                  questionFontSize: 18,
                   answerFontSize: 16,
                 ),
               ],
