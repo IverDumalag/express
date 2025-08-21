@@ -140,7 +140,7 @@ class _LandingPageState extends State<LandingPage>
                   onTapDown: (_) {},
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(60 * scale),
+                      borderRadius: BorderRadius.circular(24 * scale), // Reduced border radius
                       gradient: LinearGradient(
                         colors: [Color(0xFF334E7B), Color(0xFF1A2A47)],
                         begin: Alignment.topLeft,
@@ -182,15 +182,15 @@ class _LandingPageState extends State<LandingPage>
                         shadowColor: Colors.transparent,
                         minimumSize: Size(200 * scale, 60 * scale),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(60 * scale),
+                          borderRadius: BorderRadius.circular(4 * scale),
                         ),
                       ),
                       child: Text(
                         'Press to Start',
-                        style: TextStyle(
+                        style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 22 * scale,
+                          fontSize: 20 * scale, 
                         ),
                       ),
                     ),

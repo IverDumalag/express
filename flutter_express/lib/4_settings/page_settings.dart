@@ -151,39 +151,61 @@ class _SettingsState extends State<Settings> {
                       builder: (context) => AlertDialog(
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                           side: BorderSide(color: Color(0xFF334E7B), width: 2),
                         ),
                         insetPadding: EdgeInsets.symmetric(horizontal: 32, vertical: 32),
-                        title: Text(
-                          'Logout Confirmation',
-                          style: GoogleFonts.robotoMono(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF334E7B),
-                          ),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Logout Confirmation',
+                                style: GoogleFonts.robotoMono(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 26,
+                                  color: Color(0xFF334E7B),
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                          ],
                         ),
                         content: Text(
                           'Are you sure you want to logout?',
-                          style: GoogleFonts.robotoMono(
+                          style: TextStyle(
                             color: Color(0xFF334E7B),
+                            fontSize: 16
                           ),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.robotoMono(
+                                color: Color(0xFF334E7B),
+                              ),
+                            ),
                           ),
-                          ElevatedButton(
+                            ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xFF334E7B),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8),
                               ),
                               elevation: 0,
                             ),
                             onPressed: () => Navigator.pop(context, true),
-                            child: Text('Logout', style: GoogleFonts.robotoMono()),
+                            child: Text(
+                              'Logout',
+                              style: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
