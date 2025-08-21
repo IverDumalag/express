@@ -666,16 +666,59 @@ class _HomeState extends State<Home> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Add a Row for the tip icon above the greeting
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Icon(
-                Icons.help, // Filled question mark tip icon
-                color: Color(0xFF2E5C9A),
-                size: 28 * scale,
-              ),
-            ],
+          // Add a tappable Row for the tip icon above the greeting
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                  ),
+                  title: Text(
+                    'Hi!',
+                    style: GoogleFonts.robotoMono(
+                      color: Color(0xFF334E7B),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18 * scale,
+                    ),
+                  ),
+                    content: Text(
+                    'This is the homepage. Explore to use your favorites, words, and phrases. You may add words and phrases by navigating through this section.',
+                    style: GoogleFonts.robotoMono(
+                      color: Color(0xFF334E7B),
+                      fontSize: 15 * scale,
+                    ),
+                    textAlign: TextAlign.justify,
+                    ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Close',
+                        style: GoogleFonts.robotoMono(
+                          color: Color(0xFF2E5C9A),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(
+                  Icons.help, // Filled question mark tip icon
+                  color: Color(0xFF2E5C9A),
+                  size: 28 * scale,
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 10 * scale),
           Row(

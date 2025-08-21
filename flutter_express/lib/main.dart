@@ -196,11 +196,11 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Sign to Text',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings, size: 30),
+            icon: Icon(Icons.menu_book_outlined, size: 30),
             label: 'Menu',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30),
+            icon: Icon(Icons.person_3_outlined, size: 30),
             label: 'Profile',
           ),
         ],

@@ -55,7 +55,7 @@ class _PageProfileState extends State<PageProfile> {
                           child: Text(
                             "My Profile",
                             style: GoogleFonts.poppins(
-                              fontSize: 28,
+                              fontSize: 33,
                               fontWeight: FontWeight.w700,
                               color: themeBlue,
                               letterSpacing: 0.3,
@@ -235,7 +235,7 @@ class _PageProfileState extends State<PageProfile> {
                                     ),
                                   ],
                                 ),
-                                Divider(height: 16, thickness: 1, color: Colors.grey[100]),
+                                Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
                                 // Birthdate
                                 _profileItem(
                                   icon: Icons.cake_outlined,
@@ -246,7 +246,7 @@ class _PageProfileState extends State<PageProfile> {
                                       : '',
                                   themeBlue: themeBlue,
                                 ),
-                                Divider(height: 16, thickness: 1, color: Colors.grey[100]),
+                                Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
                                 // Sex
                                 _profileItem(
                                   icon: Icons.wc_outlined,
@@ -300,16 +300,20 @@ class _PageProfileState extends State<PageProfile> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.edit, color: Colors.white, size: 20),
+                                
                                 SizedBox(width: 12),
-                                Text(
+                                Text( 
                                   "Edit Profile",
                                   style: GoogleFonts.robotoMono(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,
+                                   
                                   ),
+                                  
                                 ),
+                                SizedBox(width: 12),
+                                Icon(Icons.chevron_right_outlined, color: Colors.white, size: 30),
                               ],
                             ),
                           ),
@@ -461,12 +465,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
         width: screenWidth > 420 ? 400 : screenWidth * 0.95,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.15),
@@ -483,7 +487,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.edit_outlined, color: themeBlue, size: 28),
+                 
                   const SizedBox(width: 10),
                   Text(
                     "Edit Details",
@@ -502,21 +506,21 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               _buildTextField(
                 controller: fNameController,
                 label: "First Name",
-                icon: Icons.account_circle_outlined,
+                icon: null,
                 themeBlue: themeBlue,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: mNameController,
                 label: "Middle Name",
-                icon: Icons.account_circle_outlined,
+                icon: null,
                 themeBlue: themeBlue,
               ),
               const SizedBox(height: 16),
               _buildTextField(
                 controller: lNameController,
                 label: "Last Name",
-                icon: Icons.account_circle_outlined,
+                icon: null,
                 themeBlue: themeBlue,
               ),
               const SizedBox(height: 16),
@@ -563,7 +567,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     labelStyle: GoogleFonts.robotoMono(
                         color: Colors.grey[600], fontSize: 14),
                     prefixIcon: Icon(Icons.wc_outlined,
-                        color: Colors.grey[600], size: 22),
+                        color: Color(0xFF334E7B), size: 22),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: themeBlue, width: 1.5),
@@ -672,7 +676,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               ),
                             )
                           : Text(
-                              "Save",
+                              "Update",
                               style: GoogleFonts.robotoMono(
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -692,7 +696,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required IconData icon,
+  IconData? icon,
     IconData? suffixIcon,
     required Color themeBlue,
   }) {
@@ -704,8 +708,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle:
-              GoogleFonts.robotoMono(color: Colors.grey[600], fontSize: 14),
-          prefixIcon: Icon(icon, color: Colors.grey[600], size: 22),
+              GoogleFonts.robotoMono(color: Color(0xFF334E7B), fontSize: 14, fontWeight: FontWeight.w500),
+          prefixIcon: icon != null ? Icon(icon, color: Color(0xFF334E7B), size: 22) : null,
           suffixIcon: suffixIcon != null
               ? Icon(suffixIcon, color: Colors.grey[600], size: 20)
               : null,
