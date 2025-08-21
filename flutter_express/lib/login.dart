@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_express/00_services/api_services.dart';
 import 'package:flutter_express/global_variables.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '0_components/popup_information.dart';
 
@@ -37,7 +39,16 @@ class _LoginState extends State<Login> {
           });
           return;
         }
+
+        // Set user session
         UserSession.setUser(user);
+
+        // Save login state and user data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('seenIntro', true);
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userData', jsonEncode(user));
+
         await PopupInformation.show(
           context,
           title: "Login Successful",
@@ -79,44 +90,37 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Title
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Welcome to ',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 28 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF334E7B),
-                      ),
-                    ),
-                    Text(
-                      'ex',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 28 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      'Press',
-                      style: GoogleFonts.robotoMono(
-                        fontSize: 28 * scale,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4C75F2),
-                      ),
-                    ),
+                    Text('Welcome to ',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 28 * scale,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF334E7B),
+                        )),
+                    Text('ex',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 28 * scale,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        )),
+                    Text('Press',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 28 * scale,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF4C75F2),
+                        )),
                   ],
                 ),
                 SizedBox(height: 8 * scale),
-                Text(
-                  'Sign in to continue your journey',
-                  style: GoogleFonts.robotoMono(
-                    fontSize: 14 * scale,
-                    color: Colors.grey[600],
-                  ),
-                ),
+                Text('Sign in to continue your journey',
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 14 * scale,
+                      color: Colors.grey[600],
+                    )),
                 SizedBox(height: 40 * scale),
 
                 // Email field
@@ -124,20 +128,23 @@ class _LoginState extends State<Login> {
                   style: GoogleFonts.robotoMono(fontSize: 15.3),
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     hintText: 'you@example.com',
                     hintStyle: GoogleFonts.robotoMono(fontSize: 15.3),
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -157,28 +164,31 @@ class _LoginState extends State<Login> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
+                    hintText: '••••••••••',
+                    hintStyle: GoogleFonts.robotoMono(fontSize: 15.3),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      borderSide: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,
                     ),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _passwordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
+                      icon: Icon(_passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _passwordVisible = !_passwordVisible;
@@ -192,9 +202,11 @@ class _LoginState extends State<Login> {
                   onSaved: (v) => password = v!,
                 ),
 
+                // Error message
                 if (error != null) ...[
                   SizedBox(height: 16 * scale),
-                  Text(error!, style: const TextStyle(color: Colors.red)),
+                  Text(error!,
+                      style: GoogleFonts.robotoMono(color: Colors.red)),
                 ],
                 SizedBox(height: 24 * scale),
 
@@ -212,29 +224,24 @@ class _LoginState extends State<Login> {
                     ),
                     child: loading
                         ? const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          )
-                        : Text(
-                            'Login',
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white))
+                        : Text('Login',
                             style: GoogleFonts.robotoMono(
                               color: Colors.white,
                               fontSize: 15.3 * scale,
                               fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                            )),
                   ),
                 ),
 
+                // Divider
                 SizedBox(height: 16 * scale),
-                Text(
-                  "OR",
-                  style: GoogleFonts.robotoMono(
-                    color: Colors.grey[600],
-                    fontSize: 15.3 * scale,
-                  ),
-                ),
+                Text("OR",
+                    style: GoogleFonts.robotoMono(
+                      color: Colors.grey[600],
+                      fontSize: 15.3 * scale,
+                    )),
                 SizedBox(height: 16 * scale),
 
                 // Register Button
@@ -249,16 +256,15 @@ class _LoginState extends State<Login> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      side: const BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                      side: const BorderSide(
+                          color: Color(0xFF334E7B), width: 1.5),
                     ),
-                    child: Text(
-                      'Register',
-                      style: GoogleFonts.robotoMono(
-                        color: const Color(0xFF334E7B),
-                        fontSize: 15.3 * scale,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Text('Register',
+                        style: GoogleFonts.robotoMono(
+                          color: const Color(0xFF334E7B),
+                          fontSize: 15.3 * scale,
+                          fontWeight: FontWeight.bold,
+                        )),
                   ),
                 ),
               ],
