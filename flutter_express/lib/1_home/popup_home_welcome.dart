@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePopup {
@@ -20,42 +21,49 @@ class WelcomePopup {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Color(0xFF334E7B),
+                  width: 2,
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     "Welcome!",
-                    style: TextStyle(
+                    style: GoogleFonts.robotoMono(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF334E7B),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 40),
                   Text(
-                    "This is the homepage where you will see your favorites, words, and phrases. You can navigate through the cards and explore more.",
+                    "This is the homepage. Explore to use your favorites, words, and phrases. You may add words and phrases by navigating through this section.",
                     textAlign: TextAlign.justify,
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(0xFF334E7B),
                     ),
                   ),
-                  SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      await prefs.setBool('popupShown', true);
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  SizedBox(height: 50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                        child: Text(
+                          "OK",
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 18,
+                            color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.w500,               
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text("Got it"),
+                    ],
                   ),
                 ],
               ),
