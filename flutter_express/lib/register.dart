@@ -220,7 +220,8 @@ class _RegisterState extends State<Register> {
   }) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
-    final fontSize = isSmallScreen ? 16.0 : 18.0;
+  final fontSize = isSmallScreen ? 16.0 : 18.0;
+  final fieldFontSize = fontSize * 0.85;
 
     return TextFormField(
       obscureText: obscure,
@@ -230,15 +231,16 @@ class _RegisterState extends State<Register> {
       controller: controller,
       onTap: onTap,
       readOnly: readOnly,
-      style: GoogleFonts.robotoMono(fontSize: fontSize),
+      style: GoogleFonts.robotoMono(fontSize: fieldFontSize),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.robotoMono(fontSize: fontSize),
+        hintStyle: GoogleFonts.robotoMono(fontSize: fieldFontSize),
+        labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(
           horizontal: isSmallScreen ? 16 : 24,
-          vertical: isSmallScreen ? 16 : 22,
+          vertical: isSmallScreen ? 16 : 16,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -276,7 +278,7 @@ class _RegisterState extends State<Register> {
     final titleSize = isSmallScreen ? 28.0 : (isMediumScreen ? 32.0 : 36.0);
     final subtitleSize = isSmallScreen ? 16.0 : (isMediumScreen ? 18.0 : 20.0);
     final spacing = isSmallScreen ? 16.0 : 20.0;
-    final buttonPadding = isSmallScreen ? 18.0 : 24.0;
+    final buttonPadding = isSmallScreen ? 18.0 : 16.0;
     final buttonFontSize = isSmallScreen ? 18.0 : 22.0;
 
     // Container width constraints
@@ -378,13 +380,13 @@ class _RegisterState extends State<Register> {
                                   decoration: InputDecoration(
                                     hintText: "Select your Sex",
                                     hintStyle: GoogleFonts.robotoMono(
-                                      fontSize: isSmallScreen ? 16.0 : 18.0,
+                                      fontSize: 15.3,
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: isSmallScreen ? 16 : 24,
-                                      vertical: isSmallScreen ? 16 : 22,
+                                      vertical: isSmallScreen ? 16 : 16,
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -399,8 +401,9 @@ class _RegisterState extends State<Register> {
                                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                   ),
+                                  dropdownColor: Colors.white,
                                   style: GoogleFonts.robotoMono(
-                                    fontSize: isSmallScreen ? 16.0 : 18.0,
+                                    fontSize: 15.3,
                                     color: Colors.black,
                                   ),
                                   items: const [
@@ -533,13 +536,13 @@ class _RegisterState extends State<Register> {
                                   decoration: InputDecoration(
                                     hintText: "Enter 6-digit code",
                                     hintStyle: GoogleFonts.robotoMono(
-                                      fontSize: isSmallScreen ? 16.0 : 20.0,
+                                      fontSize: 15.3,
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     contentPadding: EdgeInsets.symmetric(
                                       horizontal: isSmallScreen ? 16 : 24,
-                                      vertical: isSmallScreen ? 16 : 22,
+                                      vertical: isSmallScreen ? 16 : 16,
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -633,8 +636,8 @@ class _RegisterState extends State<Register> {
                                       : _submit,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF334E7B),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: buttonPadding,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -651,7 +654,7 @@ class _RegisterState extends State<Register> {
                                                     : 'Enter OTP Code')
                                               : 'Send Verification Code',
                                           style: GoogleFonts.robotoMono(
-                                            fontSize: buttonFontSize,
+                                            fontSize: 15.3,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.white,
                                           ),

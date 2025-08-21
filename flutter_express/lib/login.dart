@@ -138,8 +138,7 @@ class _LoginState extends State<Login> {
                   style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
-                    hintText: 'you@example.com',
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 16),
                     hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -155,7 +154,7 @@ class _LoginState extends State<Login> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 24,
+                      vertical: 16,
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -170,8 +169,7 @@ class _LoginState extends State<Login> {
                   style: GoogleFonts.robotoMono(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: GoogleFonts.robotoMono(fontSize: 18),
-                    hintText: '••••••••••',
+                    labelStyle: GoogleFonts.robotoMono(fontSize: 16),
                     hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -187,7 +185,7 @@ class _LoginState extends State<Login> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 24,
+                      vertical: 16,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -224,7 +222,7 @@ class _LoginState extends State<Login> {
                     onPressed: loading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF334E7B),
-                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -264,7 +262,7 @@ class _LoginState extends State<Login> {
                       Navigator.pushNamed(context, '/register');
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

@@ -369,36 +369,18 @@ class _HomeState extends State<Home> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildSectionTitle("Words/Phrases", scale),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.add, color: Color(0xFF334E7B)),
-                                onPressed: () =>
-                                    setState(() => showAddModal = true),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.filter_list,
-                                  color: Color(0xFF334E7B),
-                                ),
-                                onPressed: () {
-                                  setState(() => showFilter = !showFilter);
-                                },
-                              ),
-                            ],
-                          ),
+                          // Icons removed as they are now present beside the search bar
                         ],
                       ),
                       SizedBox(height: 10 * scale),
                       Row(
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.62,
                             child: TextField(
                               style: GoogleFonts.robotoMono(),
                               decoration: InputDecoration(
-
-                                hintText: "Search for your words/phrases",
-
+                                hintText: "Search",
                                 hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -407,7 +389,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
+                                  horizontal: 12,                        
                                   vertical: 8,
                                 ),
                                 prefixIcon: Icon(
@@ -421,108 +403,125 @@ class _HomeState extends State<Home> {
                               },
                             ),
                           ),
-                          SizedBox(
-                            width: 10 * scale,
-                          ), // Add spacing for dropdowns
-                          if (showFilter) ...[
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: sortBy,
-                                style: GoogleFonts.robotoMono(
-                                  color: Colors.black,
+                          SizedBox(width: 10 * scale),
+                          IconButton(
+                            icon: Icon(Icons.add, color: Color(0xFF334E7B)),
+                            onPressed: () => setState(() => showAddModal = true),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                                  side: BorderSide(color: Color(0xFF334E7B)),
                                 ),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Color(0xFF334E7B),
+                                builder: (context) {
+                                  return Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Theme(
+                                      data: Theme.of(context).copyWith(
+                                        canvasColor: Colors.white,
+                                        dialogBackgroundColor: Colors.white,
+                                        inputDecorationTheme: InputDecorationTheme(
+                                          fillColor: Colors.white,
+                                          filled: true,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                            borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                            borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                            borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                          ),
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Sort by", style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                                          DropdownButtonFormField<String>(
+                                            value: sortBy,
+                                            style: GoogleFonts.robotoMono(color: Colors.black),
+                                            dropdownColor: Colors.white,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                              ),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                            ),
+                                            items: [
+                                              DropdownMenuItem(value: "date-new", child: Text("Newest", style: GoogleFonts.robotoMono())),
+                                              DropdownMenuItem(value: "date-old", child: Text("Oldest", style: GoogleFonts.robotoMono())),
+                                              DropdownMenuItem(value: "alpha", child: Text("A-Z", style: GoogleFonts.robotoMono())),
+                                              DropdownMenuItem(value: "alpha-rev", child: Text("Z-A", style: GoogleFonts.robotoMono())),
+                                            ],
+                                            onChanged: (v) {
+                                              setState(() => sortBy = v!);
+                                              _applyFilters();
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          SizedBox(height: 20),
+                                          Text("Show", style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                                          DropdownButtonFormField<String>(
+                                            value: activeTab,
+                                            style: GoogleFonts.robotoMono(color: Colors.black),
+                                            dropdownColor: Colors.white,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                              ),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                              fillColor: Colors.white,
+                                              filled: true,
+                                            ),
+                                            items: [
+                                              DropdownMenuItem(value: "wave", child: Text("All", style: GoogleFonts.robotoMono())),
+                                              DropdownMenuItem(value: "favorite", child: Text("Favorite", style: GoogleFonts.robotoMono())),
+                                            ],
+                                            onChanged: (v) {
+                                              setState(() => activeTab = v!);
+                                              _applyFilters();
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: "date-new",
-                                    child: Text(
-                                      "Newest",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "date-old",
-                                    child: Text(
-                                      "Oldest",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "alpha",
-                                    child: Text(
-                                      "A-Z",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "alpha-rev",
-                                    child: Text(
-                                      "Z-A",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => sortBy = v!);
-                                  _applyFilters();
+                                  );
                                 },
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10 * scale,
-                            ), // Add spacing for dropdowns
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: activeTab,
-                                style: GoogleFonts.robotoMono(
-                                  color: Colors.black,
-                                ),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: Color(0xFF334E7B),
-                                    ),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                ),
-                                items: [
-                                  DropdownMenuItem(
-                                    value: "wave",
-                                    child: Text(
-                                      "All",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: "favorite",
-                                    child: Text(
-                                      "Favorite",
-                                      style: GoogleFonts.robotoMono(),
-                                    ),
-                                  ),
-                                ],
-                                onChanged: (v) {
-                                  setState(() => activeTab = v!);
-                                  _applyFilters();
-                                },
-                              ),
-                            ),
-                          ],
+                              );
+                            },
+                          ),
                         ],
                       ),
                       SizedBox(height: 20 * scale), // Add space between search/filter and cards
