@@ -429,7 +429,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
             child: MediaViewer(filePath: signLanguagePath, scale: widget.scale),
           ),
-          SizedBox(height: 60 * widget.scale),
+          SizedBox(height: 40 * widget.scale),
+
           if (editMode)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
@@ -501,64 +502,114 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               ),
             )
           else
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: currentIndex > 0 ? _goToPrevious : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xF1C2E4A),
-                        foregroundColor: Colors.white,
-                        textStyle: GoogleFonts.robotoMono(
-                          fontSize: 20 * widget.scale,
+            Column(
+              children: [
+                // Source button
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      String sourceMessage =
+                          "Alphabet: Porton, J. G. (2023). FSL Dataset. Kaggle.com. https://www.kaggle.com/datasets/japorton/fsl-dataset\n\n"
+                          "Introductionary Words/Phrases: Tupal, I. J. (2023). FSL-105: A dataset for recognizing 105 Filipino sign language videos. Mendeley Data, 2. https://doi.org/10.17632/48y2y99mb9.2";
+
+                      PopupInformation.show(
+                        context,
+                        title: "Dataset Sources",
+                        message: sourceMessage,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF334E7B),
+                      foregroundColor: Colors.white,
+                      textStyle: GoogleFonts.robotoMono(
+                        fontSize: 16 * widget.scale,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20 * widget.scale,
+                        vertical: 10 * widget.scale,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5 * widget.scale),
+                        side: BorderSide(
+                          color: Colors.white,
+                          width: 2 * widget.scale,
                         ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24 * widget.scale,
-                          vertical: 12 * widget.scale,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5 * widget.scale),
-                          side: BorderSide(
-                            color: Colors.white,
-                            width: 2 * widget.scale,
+                      ),
+                    ),
+                    icon: Icon(Icons.info_outline, size: 18 * widget.scale),
+                    label: Text("Source", style: GoogleFonts.robotoMono()),
+                  ),
+                ),
+                SizedBox(height: 15 * widget.scale),
+                // Previous and Next buttons
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: currentIndex > 0 ? _goToPrevious : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xF1C2E4A),
+                            foregroundColor: Colors.white,
+                            textStyle: GoogleFonts.robotoMono(
+                              fontSize: 20 * widget.scale,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24 * widget.scale,
+                              vertical: 12 * widget.scale,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                5 * widget.scale,
+                              ),
+                              side: BorderSide(
+                                color: Colors.white,
+                                width: 2 * widget.scale,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            "Previous",
+                            style: GoogleFonts.robotoMono(),
                           ),
                         ),
                       ),
-                      child: Text("Previous", style: GoogleFonts.robotoMono()),
-                    ),
-                  ),
-                  SizedBox(width: 10 * widget.scale),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: currentIndex < widget.items.length - 1
-                          ? _goToNext
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF334E7B),
-                        foregroundColor: Colors.white,
-                        textStyle: GoogleFonts.robotoMono(
-                          fontSize: 20 * widget.scale,
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24 * widget.scale,
-                          vertical: 12 * widget.scale,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5 * widget.scale),
-                          side: BorderSide(
-                            color: Colors.white,
-                            width: 2 * widget.scale,
+                      SizedBox(width: 10 * widget.scale),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: currentIndex < widget.items.length - 1
+                              ? _goToNext
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF334E7B),
+                            foregroundColor: Colors.white,
+                            textStyle: GoogleFonts.robotoMono(
+                              fontSize: 20 * widget.scale,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24 * widget.scale,
+                              vertical: 12 * widget.scale,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                5 * widget.scale,
+                              ),
+                              side: BorderSide(
+                                color: Colors.white,
+                                width: 2 * widget.scale,
+                              ),
+                            ),
                           ),
+                          child: Text("Next", style: GoogleFonts.robotoMono()),
                         ),
                       ),
-                      child: Text("Next", style: GoogleFonts.robotoMono()),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
         ],
       ),
