@@ -246,7 +246,6 @@ class _SettingsState extends State<Settings> {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: Color(0xFF334E7B), width: 2),
         ),
         insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Padding(

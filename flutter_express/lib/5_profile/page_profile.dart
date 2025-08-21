@@ -50,7 +50,7 @@ class _PageProfileState extends State<PageProfile> {
                       children: [
                         SizedBox(height: 32),
                         // Header without background
-                        SizedBox(height: 24),
+                        SizedBox(height: 8),
                         Center(
                           child: Text(
                             "My Profile",
@@ -63,6 +63,7 @@ class _PageProfileState extends State<PageProfile> {
                             textAlign: TextAlign.center,
                           ),
                         ),
+                        SizedBox(height: 50),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
