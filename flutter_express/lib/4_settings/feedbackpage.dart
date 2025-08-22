@@ -106,7 +106,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         shadowColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(29.0),
         child: Column(
           children: [
             Align(
@@ -120,15 +120,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
               fit: BoxFit.contain,
             ),
             SizedBox(height: 4),
-            Text(
-              'Help us to improve',
+            Center(
+              child: Text(
+              'Your opinion matters, help exPress improve',
               style: GoogleFonts.robotoMono(
-                fontSize: 27,
+                fontSize: 20,
+                color: Color(0xFF334E7B),
                 fontWeight: FontWeight.w900,
+              ),
+              textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 30),
-            // Dropdown + TextField for Main Concern
+            
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (textEditingValue.text == '') {
