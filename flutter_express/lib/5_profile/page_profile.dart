@@ -27,7 +27,27 @@ class _PageProfileState extends State<PageProfile> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "Profile",
+          style: GoogleFonts.poppins(
+        color: const Color(0xFF334E7B),
+        fontWeight: FontWeight.w700,
+        fontSize: 22,
+        letterSpacing: 0.2,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF334E7B),
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.transparent,
+      ),
       body: user == null
           ? Center(
               child: Text(
@@ -35,295 +55,284 @@ class _PageProfileState extends State<PageProfile> {
                 style: GoogleFonts.robotoMono(),
               ),
             )
-          : Stack(
-              children: [
-                // Background decorative elements
-                
-                Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 24,
+          : SingleChildScrollView(
+              padding: EdgeInsets.only(
+                top: 0, // Reduced top padding to move content higher
+                left: 24,
+                right: 24,
+                bottom: 24,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Header without background
+                  Center(
+                    child: Text(
+                      "",
+                      style: GoogleFonts.poppins(
+                        fontSize: 33,
+                        fontWeight: FontWeight.w700,
+                        color: themeBlue,
+                        letterSpacing: 0.3,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 32),
-                        // Header without background
-                        SizedBox(height: 8),
-                        Center(
-                          child: Text(
-                            "My Profile",
-                            style: GoogleFonts.poppins(
-                              fontSize: 33,
-                              fontWeight: FontWeight.w700,
-                              color: themeBlue,
-                              letterSpacing: 0.3,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                  ),
+                  SizedBox(height: 20), // Reduced spacing
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Full Name",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: themeBlue,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Color(0xFF334E7B),
+                          width: 2,
                         ),
-                        SizedBox(height: 50),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Full Name",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: themeBlue,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                            textAlign: TextAlign.left,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Color(0xFF334E7B),
-                                width: 2,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
-                                    style: GoogleFonts.robotoMono(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: themeBlue,
-                                      letterSpacing: 0.5,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  Icons.check_circle,
-                                  color: themeBlue,
-                                  size: 22,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Account Created",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: themeBlue,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 24),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                color: themeBlue.withOpacity(0.4),
-                                width: 1.2,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
                             child: Text(
-                              user!['created_at'] != null
-                                  ? _formatDate(user!['created_at'])
-                                  : 'Unknown registration date',
+                              "${user!['f_name'] ?? ''} ${user!['m_name'] ?? ''} ${user!['l_name'] ?? ''}",
                               style: GoogleFonts.robotoMono(
-                                fontSize: 15,
-                                color: Colors.blueGrey[700],
-                                letterSpacing: 0.2,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: themeBlue,
+                                letterSpacing: 0.5,
                               ),
                               textAlign: TextAlign.left,
                             ),
                           ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Profile Details",
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: themeBlue,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                            textAlign: TextAlign.left,
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.check_circle,
+                            color: themeBlue,
+                            size: 22,
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                blurRadius: 15,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Email with visibility toggle
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _profileItem(
-                                        icon: Icons.email_outlined,
-                                        label: "Email",
-                                        value: _showEmail
-                                            ? (user!['email'] ?? '')
-                                            : "************",
-                                        themeBlue: themeBlue,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        _showEmail
-                                            ? Icons.visibility_off_outlined
-                                            : Icons.visibility_outlined,
-                                        color: themeBlue,
-                                        size: 20,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _showEmail = !_showEmail;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
-                                // Birthdate
-                                _profileItem(
-                                  icon: Icons.cake_outlined,
-                                  label: "Birthdate",
-                                  value: user!['birthdate'] != null &&
-                                          user!['birthdate'] != ''
-                                      ? _formatDate(user!['birthdate'])
-                                      : '',
-                                  themeBlue: themeBlue,
-                                ),
-                                Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
-                                // Sex
-                                _profileItem(
-                                  icon: Icons.wc_outlined,
-                                  label: "Sex",
-                                  value: user!['sex'] ?? '',
-                                  themeBlue: themeBlue,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF334E7B), Color(0xFF4A6BA5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF334E7B).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              minimumSize: const Size(double.infinity, 56),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                            ),
-                            onPressed: () async {
-                              final updated = await showDialog<Map<String, dynamic>>(
-                                context: context,
-                                builder: (context) => EditProfileDialog(user: user!),
-                              );
-                              if (updated != null) {
-                                setState(() {
-                                  user = updated;
-                                  UserSession.setUser(updated);
-                                });
-                              }
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                
-                                SizedBox(width: 12),
-                                Text( 
-                                  "Edit Profile",
-                                  style: GoogleFonts.robotoMono(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                   
-                                  ),
-                                  
-                                ),
-                                SizedBox(width: 12),
-                                Icon(Icons.chevron_right_outlined, color: Colors.white, size: 30),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Account Created",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: themeBlue,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: themeBlue.withOpacity(0.4),
+                          width: 1.2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        user!['created_at'] != null
+                            ? _formatDate(user!['created_at'])
+                            : 'Unknown registration date',
+                        style: GoogleFonts.robotoMono(
+                          fontSize: 15,
+                          color: Colors.blueGrey[700],
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Profile Details",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: themeBlue,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Email with visibility toggle
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _profileItem(
+                                  icon: Icons.email_outlined,
+                                  label: "Email",
+                                  value: _showEmail
+                                      ? (user!['email'] ?? '')
+                                      : "************",
+                                  themeBlue: themeBlue,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  _showEmail
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: themeBlue,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _showEmail = !_showEmail;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
+                          // Birthdate
+                          _profileItem(
+                            icon: Icons.cake_outlined,
+                            label: "Birthdate",
+                            value: user!['birthdate'] != null &&
+                                    user!['birthdate'] != ''
+                                ? _formatDate(user!['birthdate'])
+                                : '',
+                            themeBlue: themeBlue,
+                          ),
+                          Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
+                          // Sex
+                          _profileItem(
+                            icon: Icons.wc_outlined,
+                            label: "Sex",
+                            value: user!['sex'] ?? '',
+                            themeBlue: themeBlue,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF334E7B), Color(0xFF4A6BA5)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF334E7B).withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        minimumSize: const Size(double.infinity, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                      ),
+                      onPressed: () async {
+                        final updated = await showDialog<Map<String, dynamic>>(
+                          context: context,
+                          builder: (context) => EditProfileDialog(user: user!),
+                        );
+                        if (updated != null) {
+                          setState(() {
+                            user = updated;
+                            UserSession.setUser(updated);
+                          });
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(width: 12),
+                          Text( 
+                            "Edit Profile",
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Icon(Icons.chevron_right_outlined, color: Colors.white, size: 30),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                ],
+              ),
             ),
     );
   }
@@ -487,7 +496,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             children: [
               Row(
                 children: [
-                 
                   const SizedBox(width: 10),
                   Text(
                     "Edit Details",

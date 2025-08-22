@@ -46,7 +46,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 50, 51, 53).withOpacity(0.08),
+      backgroundColor:  Color(0xFFF5F7FB),
       body: Stack(
         children: [
           // Background decorative elements
@@ -73,32 +73,11 @@ class _SettingsState extends State<Settings> {
               ),
               SizedBox(height: 24),
 
-              // Archive
-              SectionLabel("Archive"),
-              MenuButton(
-                text: "Archived Cards",
-                icon: Icons.archive_outlined,
-                onPressed: () => Navigator.pushNamed(context, '/archive'),
-              ),
-              SizedBox(height: 8),
+              // ...archive section removed...
 
-              // Feedback
-              SectionLabel("Give us a feedback!"),
-              MenuButton(
-                text: "Create a Feedback",
-                icon: Icons.feedback_outlined,
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FeedbackPage()),
-                ),
-              ),
-              SizedBox(height: 24),
+              // ...feedback section removed...
 
-              // FAQ
-              SectionLabel("Frequently Asked Questions"),
-              FAQContainer(),
-
-              SizedBox(height: 24),
+              // ...FAQ section removed...
               SectionLabel("Others"),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
@@ -169,69 +148,7 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
 
-              // Logout
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF334E7B), Color(0xFF4A6BA5)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF334E7B).withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                    ),
-                    onPressed: () async {
-                      final confirmed = await PopupConfirmation.show(
-                        context,
-                        title: "Logout",
-                        message: "Are you sure you want to logout?",
-                        confirmText: "Yes, logout",
-                        cancelText: "Cancel",
-                      );
-                      
-                      if (confirmed) {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.clear();
-                        UserSession.user = null;
-                        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.logout, color: Colors.white, size: 20),
-                        SizedBox(width: 12),
-                        Text(
-                          "Logout",
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // ...logout button removed...
             ],
           ),
         ],

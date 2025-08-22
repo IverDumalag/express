@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_express/4_settings/archived_cards.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'more_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
@@ -150,8 +151,7 @@ class _MainScreenState extends State<MainScreen> {
     Home(onRefresh: _refreshData),
     AudioTextToSignPage(),
     SignToTextPage(),
-    Settings(),
-    PageProfile(),
+    MorePage(),
   ];
 
   void _changeScreen(int index) {
@@ -196,12 +196,8 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Sign to Text',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_outlined, size: 30),
+            icon: Icon(Icons.menu_book, size: 30),
             label: 'Menu',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_3_outlined, size: 30),
-            label: 'Profile',
           ),
         ],
       ),

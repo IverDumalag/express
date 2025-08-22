@@ -90,23 +90,24 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shadowColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            
-
-          ],
-        ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFF334E7B)),
+          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: false,
+        title: Text(
+          'Archived Cards',
+          style: GoogleFonts.poppins(
+            color: const Color(0xFF334E7B),
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            letterSpacing: 0.2,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF334E7B),
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.transparent,
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator())
@@ -131,15 +132,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                     mainAxisAlignment: MainAxisAlignment.center, // Center the text
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Archived',
-                        style: GoogleFonts.robotoMono(
-                          color: Color(0xFF334E7B),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 36,
-                       
-                        ),
-                      ),
+                      
                       
                     ],
 
