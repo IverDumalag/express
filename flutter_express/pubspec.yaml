@@ -46,6 +46,7 @@ dependencies:
   speech_to_text: ^7.0.0
   camera: ^0.10.5+5
 
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -97,8 +98,8 @@ flutter:
     - assets/dataset/
     - assets/images/graphichome1.png
     - assets/images/wavinghand.png
-    - assets/model/model.tflite
-    - assets/model/labels.txt
+    - assets/model/
+    - assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
