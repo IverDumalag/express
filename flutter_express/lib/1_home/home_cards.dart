@@ -262,57 +262,56 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           (item['words'] ?? '').toString().trim().toLowerCase() ==
               newWords.toLowerCase(),
     );
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (!editMode)
-                  Padding(
-                    padding: EdgeInsets.only(right: 16 * widget.scale),
-                    child: InteractiveSpeakerIcon(
-                      scale: widget.scale,
-                      text: displayText,
-                      color: Color(0xFF334E7B),
-                    ),
-                  ),
-                Expanded(
-                  child: editMode
-                      ? TextField(
-                          controller: _editController,
-                          enabled: !editLoading,
-                          decoration: InputDecoration(
-                            hintText: "Edit word or phrase",
-                            hintStyle: GoogleFonts.robotoMono(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF334E7B)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF2E5C9A)),
-                            ),
-                          ),
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 24 * widget.scale,
-                            color: Color(0xFF2354C7),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : Text(
-                          displayText,
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 30 * widget.scale,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF334E7B),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                ),
-              ],
-            ),
-          ),
+    if (isDuplicate) {
+      setState(() => editLoading = false);
+      PopupInformation.show(
+        context,
+        title: "Error",
+        message: "Duplicate entry not allowed.",
+      );
+      return;
+    }
+
+    try {
+      // Try to search for a match first
+      final searchJson = await ApiService.trySearch(newWords);
+      String signLanguageUrl = '';
+      bool matchFound = false;
+      if (searchJson?['public_id'] != null &&
+          searchJson?['all_files'] is List) {
+        final file = (searchJson!['all_files'] as List).firstWhere(
+          (f) => f['public_id'] == searchJson['public_id'],
+          orElse: () => null,
+        );
+        if (file != null) {
+          signLanguageUrl = file['url'];
+          matchFound = true;
+        }
+      }
+
+      // Show popup before updating
+      await PopupInformation.show(
+        context,
+        title: matchFound ? "Match Found!" : "No Match",
+        message: matchFound
+            ? "A match was found for your word/phrase."
+            : "No match found, but will update your entry.",
+      );
+
+      // Call API to update, now with sign_language
+      final result = await ApiService.editCard(
+        entryId: entryId,
+        words: newWords,
+        signLanguage: signLanguageUrl,
+      );
+      if (result['status'] == 200 || result['status'] == "200") {
+        setState(() {
+          editMode = false;
+          widget.items[currentIndex]['words'] = newWords;
+          widget.items[currentIndex]['sign_language'] = signLanguageUrl;
+        });
+        if (widget.onEdit != null) {
+          widget.onEdit!(widget.items[currentIndex]);
         }
         PopupInformation.show(
           context,
@@ -344,12 +343,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -368,234 +367,238 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           ),
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(height: 20 * widget.scale),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: editMode
-                      ? TextField(
-                          controller: _editController,
-                          enabled: !editLoading,
-                          decoration: InputDecoration(
-                            hintText: "Edit word or phrase",
-                            hintStyle: GoogleFonts.robotoMono(),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF334E7B)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            left: 0,
+            right: 0,
+            top: 48 * widget.scale, 
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 20 * widget.scale),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: editMode
+                          ? TextField(
+                              controller: _editController,
+                              enabled: !editLoading,
+                              decoration: InputDecoration(
+                                hintText: "Edit word or phrase",
+                                hintStyle: GoogleFonts.robotoMono(),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                                ),
+                              ),
+                              style: GoogleFonts.robotoMono(
+                                fontSize: 24 * widget.scale,
+                                color: Color(0xFF2354C7),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : Text(
+                              displayText,
+                              style: GoogleFonts.robotoMono(
+                                fontSize: 30 * widget.scale,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF334E7B),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF2E5C9A)),
-                            ),
-                          ),
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 24 * widget.scale,
-                            color: Color(0xFF2354C7),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : Text(
-                          displayText,
-                          style: GoogleFonts.robotoMono(
-                            fontSize: 30 * widget.scale,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF334E7B),
-                          ),
-                          textAlign: TextAlign.center,
+                    ),
+                    SizedBox(width: 2 * widget.scale), // Reduced from 4 to 2
+                    if (!editMode)
+                      Padding(
+                        padding: EdgeInsets.only(left: 0), // Changed from 2 to 0
+                        child: InteractiveSpeakerIcon(
+                          scale: widget.scale,
+                          text: displayText,
+                          color: Color(0xFF334E7B),
                         ),
+                      ),
+                  ],
                 ),
-                SizedBox(width: 4 * widget.scale),
-                if (!editMode)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: 2 * widget.scale,
-                    ), // Move icon closer to text
-                    child: InteractiveSpeakerIcon(
-                      scale: widget.scale,
-                      text: displayText,
-                      color: Color(0xFF334E7B),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20 * widget.scale),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10 * widget.scale, vertical: 10 * widget.scale),
-            child: MediaViewer(filePath: signLanguagePath, scale: widget.scale),
-          ),
-          SizedBox(height: 40 * widget.scale),
-
-          if (editMode)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: editLoading ? null : _editPhrase,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xF1C2E4A),
-                      foregroundColor: Colors.white,
-                      textStyle: GoogleFonts.robotoMono(
-                        fontSize: 20 * widget.scale,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24 * widget.scale,
-                        vertical: 12 * widget.scale,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5 * widget.scale),
-                        side: BorderSide(
-                          color: Colors.white,
-                          width: 2 * widget.scale,
-                        ),
-                      ),
-                    ),
-                    child: editLoading
-                        ? SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text("Save", style: GoogleFonts.robotoMono()),
-                  ),
-                  SizedBox(width: 10 * widget.scale),
-                  ElevatedButton(
-                    onPressed: editLoading
-                        ? null
-                        : () {
-                            setState(() {
-                              editMode = false;
-                              _editController.text = displayText;
-                            });
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Color(0xF1C2E4A),
-                      textStyle: GoogleFonts.robotoMono(
-                        fontSize: 20 * widget.scale,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24 * widget.scale,
-                        vertical: 12 * widget.scale,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5 * widget.scale),
-                        side: BorderSide(
-                          color: Color(0xF1C2E4A),
-                          width: 2 * widget.scale,
-                        ),
-                      ),
-                    ),
-                    child: Text("Cancel", style: GoogleFonts.robotoMono()),
-                  ),
-                ],
               ),
-            )
-          else
-            Column(
-              children: [
-                // Source button
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      String sourceMessage =
-                          "Alphabet: Porton, J. G. (2023). FSL Dataset. Kaggle.com. https://www.kaggle.com/datasets/japorton/fsl-dataset\n\n"
-                          "Introductionary Words/Phrases: Tupal, I. J. (2023). FSL-105: A dataset for recognizing 105 Filipino sign language videos. Mendeley Data, 2. https://doi.org/10.17632/48y2y99mb9.2";
-
-                      PopupInformation.show(
-                        context,
-                        title: "Dataset Sources",
-                        message: sourceMessage,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF334E7B),
-                      foregroundColor: Colors.white,
-                      textStyle: GoogleFonts.robotoMono(
-                        fontSize: 16 * widget.scale,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20 * widget.scale,
-                        vertical: 10 * widget.scale,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5 * widget.scale),
-                        side: BorderSide(
-                          color: Colors.white,
-                          width: 2 * widget.scale,
-                        ),
-                      ),
-                    ),
-                    icon: Icon(Icons.info_outline, size: 18 * widget.scale),
-                    label: Text("Source", style: GoogleFonts.robotoMono()),
-                  ),
-                ),
-                SizedBox(height: 15 * widget.scale),
-                // Previous and Next buttons
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+              SizedBox(height: 20 * widget.scale),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10 * widget.scale, vertical: 10 * widget.scale),
+                child: MediaViewer(filePath: signLanguagePath, scale: widget.scale),
+              ),
+              // Source icon and text, left-aligned directly under media viewer
+              Padding(
+                padding: EdgeInsets.only(left: 1 * widget.scale, top: 0, bottom: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    String sourceMessage =
+                        "Alphabet: Porton, J. G. (2023). FSL Dataset. Kaggle.com. https://www.kaggle.com/datasets/japorton/fsl-dataset\n\n"
+                        "Introductionary Words/Phrases: Tupal, I. J. (2023). FSL-105: A dataset for recognizing 105 Filipino sign language videos. Mendeley Data, 2. https://doi.org/10.17632/48y2y99mb9.2";
+                    PopupInformation.show(
+                      context,
+                      title: "Dataset Sources",
+                      message: sourceMessage,
+                    );
+                  },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        width: 140,
-                        child: OutlinedButton(
-                          onPressed: currentIndex > 0 ? _goToPrevious : null,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Color(0xFF334E7B),
-                            side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                          ),
-                          child: Text(
-                            'Previous',
-                            style: GoogleFonts.robotoMono(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      Icon(Icons.info_outline, size: 18 * widget.scale, color: Color(0xFF334E7B)),
+                      SizedBox(width: 6),
+                      Text(
+                        "Source",
+                        style: GoogleFonts.robotoMono(
+                          color: Color(0xFF334E7B),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16 * widget.scale,
+                          decoration: TextDecoration.underline,
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 140,
-                        child: ElevatedButton(
-                          onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF334E7B),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                          ),
-                          child: Text(
-                            'Next',
-                            style: GoogleFonts.robotoMono(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                        textAlign: TextAlign.left,
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-        ],
+              ),
+              SizedBox(height: 24 * widget.scale),
+              if (editMode)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: editLoading ? null : _editPhrase,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xF1C2E4A),
+                          foregroundColor: Colors.white,
+                          textStyle: GoogleFonts.robotoMono(
+                            fontSize: 20 * widget.scale,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24 * widget.scale,
+                            vertical: 12 * widget.scale,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5 * widget.scale),
+                            side: BorderSide(
+                              color: Colors.white,
+                              width: 2 * widget.scale,
+                            ),
+                          ),
+                        ),
+                        child: editLoading
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text("Save", style: GoogleFonts.robotoMono()),
+                      ),
+                      SizedBox(width: 10 * widget.scale),
+                      ElevatedButton(
+                        onPressed: editLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  editMode = false;
+                                  _editController.text = displayText;
+                                });
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Color(0xF1C2E4A),
+                          textStyle: GoogleFonts.robotoMono(
+                            fontSize: 20 * widget.scale,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24 * widget.scale,
+                            vertical: 12 * widget.scale,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5 * widget.scale),
+                            side: BorderSide(
+                              color: Color(0xF1C2E4A),
+                              width: 2 * widget.scale,
+                            ),
+                          ),
+                        ),
+                        child: Text("Cancel", style: GoogleFonts.robotoMono()),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    SizedBox(height: 15 * widget.scale),
+                    // Previous and Next buttons
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            child: OutlinedButton(
+                              onPressed: currentIndex > 0 ? _goToPrevious : null,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Color(0xFF334E7B),
+                                side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                              ),
+                              child: Text(
+                                'Previous',
+                                style: GoogleFonts.robotoMono(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          SizedBox(
+                            width: 140,
+                            child: ElevatedButton(
+                              onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF334E7B),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                              ),
+                              child: Text(
+                                'Next',
+                                style: GoogleFonts.robotoMono(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
