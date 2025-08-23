@@ -346,7 +346,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 36),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.white,
