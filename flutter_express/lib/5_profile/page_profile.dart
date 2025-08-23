@@ -58,7 +58,7 @@ class _PageProfileState extends State<PageProfile> {
             )
           : SingleChildScrollView(
               padding: EdgeInsets.only(
-                top: 0, // Reduced top padding to move content higher
+                top: 0, 
                 left: 24,
                 right: 24,
                 bottom: 24,
@@ -66,7 +66,7 @@ class _PageProfileState extends State<PageProfile> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Header without background
+                  
                   Center(
                     child: Text(
                       "",
@@ -79,7 +79,7 @@ class _PageProfileState extends State<PageProfile> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 20), // Reduced spacing
+                  SizedBox(height: 20), 
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -209,10 +209,9 @@ class _PageProfileState extends State<PageProfile> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      
                     ),
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.only(left: 0, right: 16, top: 16, bottom: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -221,7 +220,7 @@ class _PageProfileState extends State<PageProfile> {
                             children: [
                               Expanded(
                                 child: _profileItem(
-                                  icon: Icons.email_outlined,
+                                  icon: null,
                                   label: "Email",
                                   value: _showEmail
                                       ? (user!['email'] ?? '')
@@ -248,7 +247,7 @@ class _PageProfileState extends State<PageProfile> {
                           Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
                           // Birthdate
                           _profileItem(
-                            icon: Icons.cake_outlined,
+                            icon: null,
                             label: "Birthdate",
                             value: user!['birthdate'] != null &&
                                     user!['birthdate'] != ''
@@ -259,7 +258,7 @@ class _PageProfileState extends State<PageProfile> {
                           Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
                           // Sex
                           _profileItem(
-                            icon: Icons.wc_outlined,
+                            icon: null,
                             label: "Sex",
                             value: user!['sex'] ?? '',
                             themeBlue: themeBlue,
@@ -333,7 +332,7 @@ class _PageProfileState extends State<PageProfile> {
   }
 
   Widget _profileItem({
-    required IconData icon,
+    IconData? icon,
     required String label,
     required String value,
     required Color themeBlue,
@@ -343,8 +342,10 @@ class _PageProfileState extends State<PageProfile> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: themeBlue, size: 22),
-          SizedBox(width: 12),
+          if (icon != null) ...[
+            Icon(icon, color: themeBlue, size: 22),
+            SizedBox(width: 12),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
