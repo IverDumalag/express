@@ -86,39 +86,32 @@ class _FeedbackPageState extends State<FeedbackPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shadowColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-
-          
-
-          ],
-        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: false,
+        title: Text(
+          'Feedback',
+          style: GoogleFonts.poppins(
+            color: const Color(0xFF334E7B),
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            letterSpacing: 0.2,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF334E7B),
+        elevation: 0,
+        surfaceTintColor: Colors.white,
+        shadowColor: Colors.transparent,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(29.0),
         child: Column(
           children: [
             Align(
-              alignment: Alignment.center,
-
-              child: Text(
-                'Feedback',
-                style: GoogleFonts.robotoMono(
-                  color: Color(0xFF334E7B),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 36,
-                ),
-              ),
+              alignment: Alignment.center,     
 
             ),
             SizedBox(height: 28),
@@ -128,15 +121,19 @@ class _FeedbackPageState extends State<FeedbackPage> {
               fit: BoxFit.contain,
             ),
             SizedBox(height: 4),
-            Text(
-              'Help us to improve',
+            Center(
+              child: Text(
+              'Your opinion matters, help exPress improve',
               style: GoogleFonts.robotoMono(
-                fontSize: 27,
+                fontSize: 20,
+                color: Color(0xFF334E7B),
                 fontWeight: FontWeight.w900,
+              ),
+              textAlign: TextAlign.center,
               ),
             ),
             SizedBox(height: 30),
-            // Dropdown + TextField for Main Concern
+            
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (textEditingValue.text == '') {
@@ -160,9 +157,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Color(0xFF334E7B)),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -179,7 +177,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   color: Colors.transparent,
                   child: Container(
                     width: 300, 
-                    height: 190,// Decreased width from default
+                    height: 190,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -196,7 +194,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             padding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
                             child: Text(
                               option,
-                              style: GoogleFonts.robotoMono(fontSize: 18, color: Colors.black),
+                              style: GoogleFonts.robotoMono(fontSize: 18, color: Color(0xFF334E7B)),
                             ),
                           ),
                         );
@@ -209,16 +207,17 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 _mainConcernController.text = selection;
               },
             ),
-            SizedBox(height: 12), // Space gap between view builder and main concern text field
+            SizedBox(height: 12), 
             const SizedBox(height: 16),
             TextField(
               controller: _detailsController,
               style: GoogleFonts.robotoMono(),
-              decoration: InputDecoration(
+                decoration: InputDecoration(
                 labelText: 'Details',
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Color(0xFF334E7B)),
                 ),
                 filled: true,
                 fillColor: Colors.white,
