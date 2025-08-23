@@ -184,19 +184,19 @@ class _MainScreenState extends State<MainScreen> {
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30),
+            icon: Icon(Icons.home, size: 25),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.hearing, size: 30),
+            icon: Icon(Icons.hearing, size: 25),
             label: 'Audio/Text to Sign',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.text_fields, size: 30),
+            icon: Icon(Icons.text_fields, size: 25),
             label: 'Sign to Text',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book, size: 30),
+            icon: Icon(Icons.menu_book, size: 25),
             label: 'Menu',
           ),
         ],

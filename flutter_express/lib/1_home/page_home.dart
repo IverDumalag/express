@@ -11,6 +11,202 @@ import '../global_variables.dart';
 import 'home_cards.dart';
 import '../00_services/api_services.dart';
 
+// Add the DraggableFilterDrawer class here
+class DraggableFilterDrawer extends StatefulWidget {
+  final String sortBy;
+  final String activeTab;
+  final Function(String) onSortChanged;
+  final Function(String) onTabChanged;
+
+  const DraggableFilterDrawer({
+    Key? key,
+    required this.sortBy,
+    required this.activeTab,
+    required this.onSortChanged,
+    required this.onTabChanged,
+  }) : super(key: key);
+
+  @override
+  _DraggableFilterDrawerState createState() => _DraggableFilterDrawerState();
+}
+
+class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
+  late String _sortBy;
+  late String _activeTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _sortBy = widget.sortBy;
+    _activeTab = widget.activeTab;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.of(context).size.width / 375.0;
+    
+    return DraggableScrollableSheet(
+      initialChildSize: 0.5,
+      minChildSize: 0.3,
+      maxChildSize: 0.7,
+      builder: (BuildContext context, ScrollController scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Drag handle indicator
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40 * scale,
+                height: 5 * scale,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: EdgeInsets.all(20 * scale),
+                  children: [
+                    Text("Sort by", 
+                         style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    _buildSortOptions(scale),
+                    const SizedBox(height: 20),
+                    Text("Show", 
+                         style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    _buildTabOptions(scale),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortOptions(double scale) {
+    return Wrap(
+      spacing: 8 * scale,
+      runSpacing: 8 * scale,
+      children: [
+        _buildChip(
+          label: "Newest",
+          value: "date-new",
+          selected: _sortBy == "date-new",
+          onSelected: (selected) {
+            setState(() => _sortBy = "date-new");
+            widget.onSortChanged("date-new");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "Oldest",
+          value: "date-old",
+          selected: _sortBy == "date-old",
+          onSelected: (selected) {
+            setState(() => _sortBy = "date-old");
+            widget.onSortChanged("date-old");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "A-Z",
+          value: "alpha",
+          selected: _sortBy == "alpha",
+          onSelected: (selected) {
+            setState(() => _sortBy = "alpha");
+            widget.onSortChanged("alpha");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "Z-A",
+          value: "alpha-rev",
+          selected: _sortBy == "alpha-rev",
+          onSelected: (selected) {
+            setState(() => _sortBy = "alpha-rev");
+            widget.onSortChanged("alpha-rev");
+          },
+          scale: scale,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabOptions(double scale) {
+    return Wrap(
+      spacing: 8 * scale,
+      runSpacing: 8 * scale,
+      children: [
+        _buildChip(
+          label: "All",
+          value: "wave",
+          selected: _activeTab == "wave",
+          onSelected: (selected) {
+            setState(() => _activeTab = "wave");
+            widget.onTabChanged("wave");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "Favorite",
+          value: "favorite",
+          selected: _activeTab == "favorite",
+          onSelected: (selected) {
+            setState(() => _activeTab = "favorite");
+            widget.onTabChanged("favorite");
+          },
+          scale: scale,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required String value,
+    required bool selected,
+    required Function(bool) onSelected,
+    required double scale,
+  }) {
+    return FilterChip(
+      label: Text(label, style: GoogleFonts.robotoMono()),
+      selected: selected,
+      onSelected: onSelected,
+      backgroundColor: Colors.white,
+      selectedColor: const Color(0xFF334E7B).withOpacity(0.2),
+      checkmarkColor: const Color(0xFF334E7B),
+      labelStyle: TextStyle(
+        color: selected ? const Color(0xFF334E7B) : Colors.black,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8 * scale),
+        side: BorderSide(
+          color: selected ? const Color(0xFF334E7B) : const Color(0xFF334E7B),
+          width: 1 * scale,
+        ),
+      ),
+    );
+  }
+}
+
 class Home extends StatefulWidget {
   final VoidCallback onRefresh;
 
@@ -300,7 +496,7 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ...existing code...
+               
                 _buildHeader(scale),
                 SizedBox(height: 40 * scale),
                 Row(
@@ -376,11 +572,11 @@ class _HomeState extends State<Home> {
                       Row(
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.62,
+                            width: MediaQuery.of(context).size.width * 0.60,
                             child: TextField(
                               style: GoogleFonts.robotoMono(),
                               decoration: InputDecoration(
-                                hintText: "Search",
+                                hintText: "",
                                 hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -408,123 +604,35 @@ class _HomeState extends State<Home> {
                             icon: Icon(Icons.add, color: Color(0xFF334E7B)),
                             onPressed: () => setState(() => showAddModal = true),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-                                  side: BorderSide(color: Color(0xFF334E7B)),
-                                ),
-                                builder: (context) {
-                                  return Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: Theme(
-                                      data: Theme.of(context).copyWith(
-                                        canvasColor: Colors.white,
-                                        dialogBackgroundColor: Colors.white,
-                                        inputDecorationTheme: InputDecorationTheme(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("Sort by", style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
-                                          DropdownButtonFormField<String>(
-                                            value: sortBy,
-                                            style: GoogleFonts.robotoMono(color: Colors.black),
-                                            dropdownColor: Colors.white,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
-                                              ),
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                              fillColor: Colors.white,
-                                              filled: true,
-                                            ),
-                                            items: [
-                                              DropdownMenuItem(value: "date-new", child: Text("Newest", style: GoogleFonts.robotoMono())),
-                                              DropdownMenuItem(value: "date-old", child: Text("Oldest", style: GoogleFonts.robotoMono())),
-                                              DropdownMenuItem(value: "alpha", child: Text("A-Z", style: GoogleFonts.robotoMono())),
-                                              DropdownMenuItem(value: "alpha-rev", child: Text("Z-A", style: GoogleFonts.robotoMono())),
-                                            ],
-                                            onChanged: (v) {
-                                              setState(() => sortBy = v!);
-                                              _applyFilters();
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                          SizedBox(height: 20),
-                                          Text("Show", style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
-                                          DropdownButtonFormField<String>(
-                                            value: activeTab,
-                                            style: GoogleFonts.robotoMono(color: Colors.black),
-                                            dropdownColor: Colors.white,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                                borderSide: BorderSide(color: Color(0xFF334E7B), width: 2),
-                                              ),
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                              fillColor: Colors.white,
-                                              filled: true,
-                                            ),
-                                            items: [
-                                              DropdownMenuItem(value: "wave", child: Text("All", style: GoogleFonts.robotoMono())),
-                                              DropdownMenuItem(value: "favorite", child: Text("Favorite", style: GoogleFonts.robotoMono())),
-                                            ],
-                                            onChanged: (v) {
-                                              setState(() => activeTab = v!);
-                                              _applyFilters();
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+                          Container(
+                            width: 40 * scale,
+                            alignment: Alignment.center,
+                            child: IconButton(
+                              icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => DraggableFilterDrawer(
+                                    sortBy: sortBy,
+                                    activeTab: activeTab,
+                                    onSortChanged: (value) {
+                                      setState(() => sortBy = value);
+                                      _applyFilters();
+                                    },
+                                    onTabChanged: (value) {
+                                      setState(() => activeTab = value);
+                                      _applyFilters();
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 20 * scale), // Add space between search/filter and cards
+                      SizedBox(height: 20 * scale), 
                     ],
                   ),
                 ),
@@ -582,75 +690,120 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          if (showAddModal)
-            AlertDialog(
-              title: Text(
-                "Add Word/Phrase",
-                style: GoogleFonts.robotoMono(
-                  color: Color(0xFF334E7B),
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15 * scale,
+         if (showAddModal)
+              Dialog(
+                backgroundColor: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
                 ),
-              ),
-              insetPadding: EdgeInsets.symmetric(
-                horizontal: 40 * scale,
-              ), // Increase horizontal padding for wider dialog
-              contentPadding: EdgeInsets.all(
-                24 * scale,
-              ), // Optional: more spacious content
-              content: TextField(
-                style: GoogleFonts.robotoMono(
-                  color: Color(0xFF334E7B),
-                  fontWeight: FontWeight.w500,
+                insetPadding: EdgeInsets.symmetric(
+                  horizontal: 20 * scale,
+                  vertical: 24 * scale,
                 ),
-                decoration: InputDecoration(
-                  hintText: "Enter word or phrase",
-                  hintStyle: GoogleFonts.robotoMono(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFF334E7B)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Color(0xFF2E5C9A)),
-                  ),
-                ),
-                onChanged: (v) => addInput = v,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: addLoading ? null : _handleAddWord,
-                  child: addLoading
-                      ? CircularProgressIndicator()
-                      : Text(
-                          "Add",
-                          style: GoogleFonts.robotoMono(
-                            color: Color(0xFF2E5C9A),
-                            fontWeight: FontWeight.w500,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 300 * scale),
+                  child: Padding(
+                    padding: EdgeInsets.all(24 * scale),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Text(
+                            "Add Word/Phrase",
+                            style: GoogleFonts.robotoMono(
+                              color: Color(0xFF334E7B),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18 * scale,
+                            ),
                           ),
                         ),
-                ),
-                TextButton(
-                  onPressed: () => setState(() => showAddModal = false),
-                  child: Text(
-                    "Cancel",
-                    style: GoogleFonts.robotoMono(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w500,
+                        SizedBox(height: 12 * scale),
+                        Divider(color: Color(0xFF334E7B), thickness: 1),
+                        SizedBox(height: 16 * scale),
+                        TextField(
+                          style: GoogleFonts.robotoMono(
+                            color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Enter word or phrase",
+                            hintStyle: GoogleFonts.robotoMono(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Color(0xFF334E7B)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                            ),
+                          ),
+                          onChanged: (v) => addInput = v,
+                        ),
+                        SizedBox(height: 24 * scale),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: addLoading ? null : () => setState(() => showAddModal = false),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 12 * scale),
+                                ),
+                                child: Text(
+                                  "Cancel",
+                                  style: GoogleFonts.robotoMono(
+                                    color: Color(0xFF334E7B),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15 * scale,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12 * scale),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: addLoading ? null : _handleAddWord,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF2E5C9A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 12 * scale),
+                                  elevation: 0,
+                                ),
+                                child: addLoading
+                                    ? SizedBox(
+                                        width: 20 * scale,
+                                        height: 20 * scale,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : Text(
+                                        "Add",
+                                        style: GoogleFonts.robotoMono(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15 * scale,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-                side: BorderSide(color: Color(0xFF334E7B), width: 2),
               ),
-              backgroundColor: Colors.white,
-              elevation: 8,
-            ),
         ],
       ),
     );
@@ -854,7 +1007,6 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
