@@ -227,8 +227,8 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
   void _deletePhrase() async {
     final confirmed = await PopupConfirmation.show(
       context,
-      title: "Delete Phrase",
-      message: "Are you sure you want to delete this phrase?",
+      title: "Archive Card",
+      message: "Are you sure you want to Archive this card?",
       confirmText: "Confirm",
       cancelText: "Cancel",
     );
@@ -353,7 +353,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, color: Color(0xFF334E7B)),
+            icon: Icon(Icons.edit_note, color: Color(0xFF334E7B)),
             onPressed: () {
               setState(() {
                 editMode = true;
@@ -361,9 +361,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               });
             },
           ),
-          IconButton(
-            icon: Icon(Icons.delete, color: Color(0xFF334E7B)),
-            onPressed: _deletePhrase,
+          Padding(
+            padding: EdgeInsets.only(right: 20.0), 
+            child: IconButton(
+              icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
+              onPressed: _deletePhrase,
+            ),
           ),
         ],
       ),
@@ -380,7 +383,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             children: [
               SizedBox(height: 20 * widget.scale),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                padding: EdgeInsets.symmetric(horizontal: 30 * widget.scale),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -417,7 +420,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               textAlign: TextAlign.center,
                             ),
                     ),
-                    SizedBox(width: 2 * widget.scale), // Reduced from 4 to 2
+                    SizedBox(width: 2 * widget.scale), 
                     if (!editMode)
                       Padding(
                         padding: EdgeInsets.only(left: 0), // Changed from 2 to 0
@@ -476,66 +479,64 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: editLoading ? null : _editPhrase,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xF1C2E4A),
-                          foregroundColor: Colors.white,
-                          textStyle: GoogleFonts.robotoMono(
-                            fontSize: 20 * widget.scale,
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24 * widget.scale,
-                            vertical: 12 * widget.scale,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5 * widget.scale),
-                            side: BorderSide(
-                              color: Colors.white,
-                              width: 2 * widget.scale,
+                      // Primary button: Save
+                      SizedBox(
+                        width: 120 * widget.scale,
+                        child: ElevatedButton(
+                          onPressed: editLoading ? null : _editPhrase,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF334E7B),
+                            foregroundColor: Colors.white,
+                            textStyle: GoogleFonts.robotoMono(
+                              fontSize: 20 * widget.scale,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12 * widget.scale,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12 * widget.scale),
                             ),
                           ),
+                          child: editLoading
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text("Save", style: GoogleFonts.robotoMono()),
                         ),
-                        child: editLoading
-                            ? SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text("Save", style: GoogleFonts.robotoMono()),
                       ),
                       SizedBox(width: 10 * widget.scale),
-                      ElevatedButton(
-                        onPressed: editLoading
-                            ? null
-                            : () {
-                                setState(() {
-                                  editMode = false;
-                                  _editController.text = displayText;
-                                });
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Color(0xF1C2E4A),
-                          textStyle: GoogleFonts.robotoMono(
-                            fontSize: 20 * widget.scale,
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24 * widget.scale,
-                            vertical: 12 * widget.scale,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5 * widget.scale),
-                            side: BorderSide(
-                              color: Color(0xF1C2E4A),
-                              width: 2 * widget.scale,
+                      // Secondary button: Cancel
+                      SizedBox(
+                        width: 120 * widget.scale,
+                        child: OutlinedButton(
+                          onPressed: editLoading
+                              ? null
+                              : () {
+                                  setState(() {
+                                    editMode = false;
+                                    _editController.text = displayText;
+                                  });
+                                },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(0xFF334E7B),
+                            side: BorderSide(color: Color(0xFF334E7B), width: 2 * widget.scale),
+                            textStyle: GoogleFonts.robotoMono(
+                              fontSize: 20 * widget.scale,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12 * widget.scale,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12 * widget.scale),
                             ),
                           ),
+                          child: Text("Cancel", style: GoogleFonts.robotoMono()),
                         ),
-                        child: Text("Cancel", style: GoogleFonts.robotoMono()),
                       ),
                     ],
                   ),
