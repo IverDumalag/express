@@ -103,18 +103,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF334E7B),
+      backgroundColor: const Color.fromARGB(255, 188, 188, 188),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App logo/icon
-            Icon(Icons.sign_language, size: 100, color: Colors.white),
+            // new logo
+            Image.asset(
+              'assets/images/newlogo.png',
+              width: 200,
+              height: 200,
+            ),
             const SizedBox(height: 20),
             Text(
               'exPress',
               style: GoogleFonts.robotoMono(
-                fontSize: 32,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
