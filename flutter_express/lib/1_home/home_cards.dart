@@ -229,7 +229,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       context,
       title: "Delete Phrase",
       message: "Are you sure you want to delete this phrase?",
-      confirmText: "Yes, I am sure",
+      confirmText: "Confirm",
       cancelText: "Cancel",
     );
     if (confirmed) {
@@ -262,56 +262,57 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           (item['words'] ?? '').toString().trim().toLowerCase() ==
               newWords.toLowerCase(),
     );
-    if (isDuplicate) {
-      setState(() => editLoading = false);
-      PopupInformation.show(
-        context,
-        title: "Error",
-        message: "Duplicate entry not allowed.",
-      );
-      return;
-    }
-
-    try {
-      // Try to search for a match first
-      final searchJson = await ApiService.trySearch(newWords);
-      String signLanguageUrl = '';
-      bool matchFound = false;
-      if (searchJson?['public_id'] != null &&
-          searchJson?['all_files'] is List) {
-        final file = (searchJson!['all_files'] as List).firstWhere(
-          (f) => f['public_id'] == searchJson['public_id'],
-          orElse: () => null,
-        );
-        if (file != null) {
-          signLanguageUrl = file['url'];
-          matchFound = true;
-        }
-      }
-
-      // Show popup before updating
-      await PopupInformation.show(
-        context,
-        title: matchFound ? "Match Found!" : "No Match",
-        message: matchFound
-            ? "A match was found for your word/phrase."
-            : "No match found, but will update your entry.",
-      );
-
-      // Call API to update, now with sign_language
-      final result = await ApiService.editCard(
-        entryId: entryId,
-        words: newWords,
-        signLanguage: signLanguageUrl,
-      );
-      if (result['status'] == 200 || result['status'] == "200") {
-        setState(() {
-          editMode = false;
-          widget.items[currentIndex]['words'] = newWords;
-          widget.items[currentIndex]['sign_language'] = signLanguageUrl;
-        });
-        if (widget.onEdit != null) {
-          widget.onEdit!(widget.items[currentIndex]);
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (!editMode)
+                  Padding(
+                    padding: EdgeInsets.only(right: 16 * widget.scale),
+                    child: InteractiveSpeakerIcon(
+                      scale: widget.scale,
+                      text: displayText,
+                      color: Color(0xFF334E7B),
+                    ),
+                  ),
+                Expanded(
+                  child: editMode
+                      ? TextField(
+                          controller: _editController,
+                          enabled: !editLoading,
+                          decoration: InputDecoration(
+                            hintText: "Edit word or phrase",
+                            hintStyle: GoogleFonts.robotoMono(),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Color(0xFF334E7B)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                            ),
+                          ),
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 24 * widget.scale,
+                            color: Color(0xFF2354C7),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : Text(
+                          displayText,
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 30 * widget.scale,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF334E7B),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                ),
+              ],
+            ),
+          ),
         }
         PopupInformation.show(
           context,
@@ -404,7 +405,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           style: GoogleFonts.robotoMono(
                             fontSize: 30 * widget.scale,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2354C7),
+                            color: Color(0xFF334E7B),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -418,7 +419,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     child: InteractiveSpeakerIcon(
                       scale: widget.scale,
                       text: displayText,
-                      color: Color(0xFF2354C7),
+                      color: Color(0xFF334E7B),
                     ),
                   ),
               ],
@@ -426,7 +427,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           ),
           SizedBox(height: 20 * widget.scale),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+            padding: EdgeInsets.symmetric(horizontal: 10 * widget.scale, vertical: 10 * widget.scale),
             child: MediaViewer(filePath: signLanguagePath, scale: widget.scale),
           ),
           SizedBox(height: 40 * widget.scale),
@@ -548,62 +549,45 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
+                      SizedBox(
+                        width: 140,
+                        child: OutlinedButton(
                           onPressed: currentIndex > 0 ? _goToPrevious : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xF1C2E4A),
-                            foregroundColor: Colors.white,
-                            textStyle: GoogleFonts.robotoMono(
-                              fontSize: 20 * widget.scale,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 24 * widget.scale,
-                              vertical: 12 * widget.scale,
-                            ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(0xFF334E7B),
+                            side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                5 * widget.scale,
-                              ),
-                              side: BorderSide(
-                                color: Colors.white,
-                                width: 2 * widget.scale,
-                              ),
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
                           ),
                           child: Text(
-                            "Previous",
-                            style: GoogleFonts.robotoMono(),
+                            'Previous',
+                            style: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 10 * widget.scale),
-                      Expanded(
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 140,
                         child: ElevatedButton(
-                          onPressed: currentIndex < widget.items.length - 1
-                              ? _goToNext
-                              : null,
+                          onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF334E7B),
                             foregroundColor: Colors.white,
-                            textStyle: GoogleFonts.robotoMono(
-                              fontSize: 20 * widget.scale,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 24 * widget.scale,
-                              vertical: 12 * widget.scale,
-                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                5 * widget.scale,
-                              ),
-                              side: BorderSide(
-                                color: Colors.white,
-                                width: 2 * widget.scale,
-                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                          ),
+                          child: Text(
+                            'Next',
+                            style: GoogleFonts.robotoMono(
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          child: Text("Next", style: GoogleFonts.robotoMono()),
                         ),
                       ),
                     ],
@@ -617,8 +601,6 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
   }
 }
 
-/// A widget that displays a grid of word/phrase cards.
-/// Each card can be tapped to view details, has a speaker icon, and a favorite star.
 class Words_Phrases_Cards extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   final Color cardColor;

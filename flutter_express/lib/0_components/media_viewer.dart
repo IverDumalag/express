@@ -29,19 +29,40 @@ class _NoMatchFound extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SizedBox(
+      child: Container(
         width: 300,
         height: 300,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'No Match Found or Unsupported Media',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
+            Icon(
+              Icons.sentiment_dissatisfied_rounded,
+              size: 64,
+              color: Colors.grey[400],
             ),
-            SizedBox(height: 20),
-            // Removed Feedback or Search button and dialog
+            SizedBox(height: 16),
+            Text(
+              'No Match Found',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Unsupported media type',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 14,
+              ),
+            ),
           ],
         ),
       ),
@@ -57,42 +78,93 @@ class _ImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SizedBox(
-        // Use SizedBox to give explicit dimensions to the image container
+      child: Container(
         width: 300,
         height: 300,
-        child: filePath.startsWith('http') || filePath.startsWith('https')
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: filePath.startsWith('http') || filePath.startsWith('https')
             ? Image.network(
                 filePath,
-                fit: BoxFit
-                    .contain, // Fit the image within the SizedBox, maintaining aspect ratio
+                fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                          : null,
+                  return Container(
+                    color: Colors.grey[100],
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
                     ),
                   );
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.broken_image,
-                    size: 100,
-                    color: Colors.grey,
+                  return Container(
+                    color: Colors.grey[100],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.broken_image_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Failed to load image',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               )
             : Image.asset(
                 filePath,
-                fit: BoxFit
-                    .contain, // Fit the image within the SizedBox, maintaining aspect ratio
+                fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.error, size: 100, color: Colors.grey);
+                  return Container(
+                    color: Colors.grey[100],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Error loading image',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
+        ),
       ),
     );
   }
@@ -111,11 +183,12 @@ class _VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   late VideoPlayerController _controller;
   double _playbackSpeed = 1.0;
-  final List<double> _speedOptions = [0.5, 1.0, 1.5, 2.0];
+  final List<double> _speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+  bool _isBuffering = false;
 
-  final double displayWidth = 300; // Fixed width for video player
-  final double progressBarThickness = 20.0;
-  final double circleDiameter = 20.0;
+  final double displayWidth = 300;
+  final double progressBarThickness = 6.0;
+  final double circleDiameter = 16.0;
 
   @override
   void initState() {
@@ -138,15 +211,13 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
         })
         .catchError((error) {
           print("Error initializing video: $error");
-          if (mounted) {
-            // Optionally display an error message on the UI
-            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load video')));
-          }
         });
 
     _controller.addListener(() {
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isBuffering = _controller.value.isBuffering;
+        });
       }
     });
   }
@@ -157,76 +228,220 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     super.dispose();
   }
 
+  void _togglePlayPause() {
+    setState(() {
+      _controller.value.isPlaying ? _controller.pause() : _controller.play();
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     if (!_controller.value.isInitialized) {
       return Center(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
+        child: Container(
+          width: displayWidth,
           height: 200,
-          child: const CircularProgressIndicator(),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Loading video...',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    final double videoWidth = MediaQuery.of(context).size.width * 0.9;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: videoWidth, // 90% of screen width
+    return Container(
+      width: displayWidth,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Video display
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+              
+              // Buffering indicator
+              if (_isBuffering)
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+            ],
+          ),
+          
+          // Controls section
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
             ),
-            child: AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
+            child: Column(
+              children: [
+                _CustomProgressBar(
+                  controller: _controller,
+                  width: displayWidth - 32,
+                  height: progressBarThickness,
+                  circleDiameter: circleDiameter,
+                ),
+                SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Time indicator
+                    Text(
+                      _formatDuration(_controller.value.position),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                    
+                    // Control buttons
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.replay_10_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          onPressed: () {
+                            _controller.seekTo(_controller.value.position - Duration(seconds: 10));
+                          },
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              _controller.value.isPlaying 
+                                  ? Icons.pause_rounded 
+                                  : Icons.play_arrow_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            onPressed: _togglePlayPause,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        IconButton(
+                          icon: Icon(
+                            Icons.forward_10_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          onPressed: () {
+                            _controller.seekTo(_controller.value.position + Duration(seconds: 10));
+                          },
+                        ),
+                      ],
+                    ),
+                    
+                    // Right side controls
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Speed selector
+                        PopupMenuButton<double>(
+                          icon: Icon(Icons.speed_rounded, color: Colors.white),
+                          itemBuilder: (context) => _speedOptions.map((speed) {
+                            return PopupMenuItem<double>(
+                              value: speed,
+                              child: Text('${speed}x'),
+                            );
+                          }).toList(),
+                          onSelected: (newSpeed) {
+                            setState(() {
+                              _playbackSpeed = newSpeed;
+                              _controller.setPlaybackSpeed(_playbackSpeed);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formatDuration(_controller.value.duration),
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ),
-        _CustomProgressBar(
-          controller: _controller,
-          width: videoWidth, // match video width
-          height: progressBarThickness,
-          circleDiameter: circleDiameter,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(
-                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-              ),
-              onPressed: () {
-                setState(() {
-                  _controller.value.isPlaying
-                      ? _controller.pause()
-                      : _controller.play();
-                });
-              },
-            ),
-            DropdownButton<double>(
-              value: _playbackSpeed,
-              items: _speedOptions.map((double speed) {
-                return DropdownMenuItem<double>(
-                  value: speed,
-                  child: Text('${speed}x'),
-                );
-              }).toList(),
-              onChanged: (double? newSpeed) {
-                if (newSpeed != null) {
-                  setState(() {
-                    _playbackSpeed = newSpeed;
-                    _controller.setPlaybackSpeed(_playbackSpeed);
-                  });
-                }
-              },
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
+  }
+  
+  String _formatDuration(Duration duration) {
+    if (duration == Duration.zero) return "0:00";
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+    
+    if (hours > 0) {
+      return "$hours:${twoDigits(minutes)}:${twoDigits(seconds)}";
+    } else {
+      return "$minutes:${twoDigits(seconds)}";
+    }
   }
 }
 
@@ -262,6 +477,9 @@ class _CustomProgressBar extends StatelessWidget {
     final positionMs = controller.value.position.inMilliseconds;
     final progressRatio = durationMs > 0 ? positionMs / durationMs : 0.0;
     final double filledBarWidth = progressRatio * width;
+    final double bufferedEnd = controller.value.buffered.isNotEmpty 
+        ? controller.value.buffered.last.end.inMilliseconds / durationMs * width 
+        : 0.0;
 
     return GestureDetector(
       onTapDown: (details) {
@@ -273,23 +491,41 @@ class _CustomProgressBar extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        margin: const EdgeInsets.symmetric(vertical: 10),
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
+            // Background track
             Container(
+              width: width,
+              height: height,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Colors.white.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
+            
+            // Buffered progress
+            if (bufferedEnd > 0)
+              Container(
+                width: bufferedEnd,
+                height: height,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(height / 2),
+                ),
+              ),
+            
+            // Played progress
             Container(
               width: filledBarWidth,
+              height: height,
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.blueAccent,
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
+            
+            // Thumb
             Positioned(
               left: filledBarWidth - circleDiameter / 2,
               child: Container(
@@ -298,11 +534,10 @@ class _CustomProgressBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blue, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 3,
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
                       spreadRadius: 1,
                     ),
                   ],
