@@ -103,6 +103,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
             letterSpacing: 0.2,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF334E7B),
         elevation: 0,
@@ -189,44 +190,92 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                                 onPressed: () async {
                                   final confirm = await showDialog<bool>(
                                     context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15.0),
-                                        side: BorderSide(
-                                          color: Color(0xFF334E7B),
-                                          width: 2,
-                                        ),
-                                      ),
+                                    barrierDismissible: false,
+                                    builder: (ctx) => Dialog(
                                       backgroundColor: Colors.white,
-                                      elevation: 8,
-                                      title: Text(
-                                        'Restore Card',
-                                        style: TextStyle(
-                                          color: Color(0xFF334E7B),
-                                          fontFamily: 'RobotoMono',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
+                                      ),
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: 350,
+                                          maxHeight: 220,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'Restore Card',
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF334E7B),
+                                                  fontSize: 22,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Divider(height: 1, color: Color(0xFF334E7B)),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                'Do you want to use this card again?',
+                                                style: TextStyle(
+                                                  fontFamily: 'RobotoMono',
+                                                  color: Color(0xFF334E7B),
+                                                  fontSize: 15,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 24),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  OutlinedButton(
+                                                    onPressed: () => Navigator.pop(ctx, false),
+                                                    style: OutlinedButton.styleFrom(
+                                                      foregroundColor: Color(0xFF334E7B),
+                                                      side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                                    ),
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                        fontFamily: 'RobotoMono',
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  ElevatedButton(
+                                                    onPressed: () => Navigator.pop(ctx, true),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Color(0xFF334E7B),
+                                                      foregroundColor: Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                                    ),
+                                                    child: Text(
+                                                      'Restore',
+                                                      style: TextStyle(
+                                                        fontFamily: 'RobotoMono',
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                      content: Text(
-                                        'Do you want to use this card again?',
-                                        style: TextStyle(
-                                          color: Color(0xFF334E7B),
-                                          fontFamily: 'RobotoMono',
-                                          fontWeight: FontWeight.w500,
-
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, false),
-                                          child: Text('Cancel', style: TextStyle(color: Colors.grey[600], fontFamily: 'RobotoMono', fontWeight: FontWeight.w500)),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, true),
-                                          child: Text('Restore', style: TextStyle(color: Color(0xFF334E7B), fontFamily: 'RobotoMono', fontWeight: FontWeight.w500)),
-                                        ),
-                                      ],
                                     ),
                                   );
                                   if (confirm == true) {
@@ -244,43 +293,92 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                                 onPressed: () async {
                                   final confirm = await showDialog<bool>(
                                     context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15.0),
-                                        side: BorderSide(
-                                          color: Color(0xFF334E7B),
-                                          width: 2,
-                                        ),
-                                      ),
+                                    barrierDismissible: false,
+                                    builder: (ctx) => Dialog(
                                       backgroundColor: Colors.white,
-                                      elevation: 8,
-                                      title: Text(
-                                        'Delete Card',
-                                        style: TextStyle(
-                                          color: Color(0xFF334E7B),
-                                          fontFamily: 'RobotoMono',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                        side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
+                                      ),
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: 350,
+                                          maxHeight: 220,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'Delete Card',
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF334E7B),
+                                                  fontSize: 22,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Divider(height: 1, color: Color(0xFF334E7B)),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                'Are you sure you want to permanently delete this card?',
+                                                style: TextStyle(
+                                                  fontFamily: 'RobotoMono',
+                                                  color: Color(0xFF334E7B),
+                                                  fontSize: 15,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 24),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  OutlinedButton(
+                                                    onPressed: () => Navigator.pop(ctx, false),
+                                                    style: OutlinedButton.styleFrom(
+                                                      foregroundColor: Color(0xFF334E7B),
+                                                      side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                                    ),
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                        fontFamily: 'RobotoMono',
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  ElevatedButton(
+                                                    onPressed: () => Navigator.pop(ctx, true),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: Color(0xFF334E7B),
+                                                      foregroundColor: Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                                    ),
+                                                    child: Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        fontFamily: 'RobotoMono',
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                      content: Text(
-                                        'Are you sure you want to permanently delete this card?',
-                                        style: TextStyle(
-                                          color: Color(0xFF334E7B),
-                                          fontFamily: 'RobotoMono',
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, false),
-                                          child: Text('Cancel', style: TextStyle(color: Colors.grey[600], fontFamily: 'RobotoMono', fontWeight: FontWeight.w500)),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(ctx, true),
-                                          child: Text('Delete', style: TextStyle(color: Colors.red, fontFamily: 'RobotoMono', fontWeight: FontWeight.w500)),
-                                        ),
-                                      ],
                                     ),
                                   );
                                   if (confirm == true) {

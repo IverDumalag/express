@@ -22,6 +22,7 @@ class HelpPage extends StatelessWidget {
             letterSpacing: 0.2,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF334E7B),
         elevation: 0,
@@ -123,14 +124,7 @@ class FAQPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Frequently Asked Questions',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF334E7B),
-              ),
-            ),
+        
             const SizedBox(height: 20),
             Text(
               'Q: What is exPress?\nA: exPress is a mobile and web application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.\n\nQ: How does exPress work?\nA: exPress works by converting sign language to text and text/audio to sign language using advanced machine learning algorithms.\n\nQ: How can I provide feedback?\nA: You can provide feedback through the feedback section in the app menu.',
@@ -177,14 +171,7 @@ class HowToUsePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'How to use exPress?',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF334E7B),
-              ),
-            ),
+            
             const SizedBox(height: 20),
             Text(
               'To use exPress, simply navigate through the app menu to access features like sign language to text, text/audio to sign language, and more. Each feature provides on-screen instructions for ease of use.',

@@ -9,11 +9,11 @@ import '4_settings/about_page.dart';
 
 class MorePage extends StatelessWidget {
   final List<_MoreItem> items = const [
-    _MoreItem(icon: Icons.person, label: 'Profile'),
-    _MoreItem(icon: Icons.info, label: 'About'),
+    _MoreItem(icon: Icons.person_4, label: 'Profile'),
+    _MoreItem(icon: Icons.info_outline, label: 'About'),
     _MoreItem(icon: Icons.archive, label: 'Archive'),
     _MoreItem(icon: Icons.feedback_outlined, label: 'Feedback'),
-    _MoreItem(icon: Icons.help_outline, label: 'Help'),
+    _MoreItem(icon: Icons.help_rounded, label: 'Help'),
     _MoreItem(icon: Icons.logout, label: 'Logout'),
   ];
 
@@ -96,26 +96,90 @@ class MorePage extends StatelessWidget {
                   case 'Logout':
                     showDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
+                      builder: (context) => Dialog(
+                        backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
-                          side: BorderSide(color: Color(0xFF334E7B)),
+                          side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
                         ),
-                        title: Text('Logout', style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
-                        content: Text('Are you sure you want to logout?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: 350,
+                            maxHeight: 220,
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.of(context).pushReplacementNamed('/login');
-                            },
-                            child: Text('Logout', style: GoogleFonts.robotoMono(color: Colors.red)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Log Out',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                    color: Color(0xFF334E7B),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 12),
+                                Divider(height: 1, color: Color(0xFF334E7B)),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Are you sure you want to log out?',
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 15,
+                                    color: Color(0xFF334E7B),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    OutlinedButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Color(0xFF334E7B),
+                                        side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                      ),
+                                      child: Text(
+                                        'Cancel',
+                                        style: GoogleFonts.robotoMono(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.of(context).pushReplacementNamed('/login');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF334E7B),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                      ),
+                                      child: Text(
+                                        'Logout',
+                                        style: GoogleFonts.robotoMono(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     );
                     break;

@@ -99,6 +99,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             letterSpacing: 0.2,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF334E7B),
         elevation: 0,
@@ -156,9 +157,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Color(0xFF334E7B)),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -175,7 +177,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   color: Colors.transparent,
                   child: Container(
                     width: 300, 
-                    height: 190,// Decreased width from default
+                    height: 190,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -192,7 +194,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             padding: EdgeInsets.symmetric(vertical: 18, horizontal: 16),
                             child: Text(
                               option,
-                              style: GoogleFonts.robotoMono(fontSize: 18, color: Colors.black),
+                              style: GoogleFonts.robotoMono(fontSize: 18, color: Color(0xFF334E7B)),
                             ),
                           ),
                         );
@@ -205,16 +207,17 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 _mainConcernController.text = selection;
               },
             ),
-            SizedBox(height: 12), // Space gap between view builder and main concern text field
+            SizedBox(height: 12), 
             const SizedBox(height: 16),
             TextField(
               controller: _detailsController,
               style: GoogleFonts.robotoMono(),
-              decoration: InputDecoration(
+                decoration: InputDecoration(
                 labelText: 'Details',
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), // Reduced horizontal padding
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 16), 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Color(0xFF334E7B)),
                 ),
                 filled: true,
                 fillColor: Colors.white,

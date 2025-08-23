@@ -42,6 +42,7 @@ class _PageProfileState extends State<PageProfile> {
         letterSpacing: 0.2,
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF334E7B),
         elevation: 0,
@@ -208,13 +209,7 @@ class _PageProfileState extends State<PageProfile> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 15,
-                          offset: Offset(0, 5),
-                        ),
-                      ],
+                      
                     ),
                     child: Padding(
                       padding: EdgeInsets.all(16),

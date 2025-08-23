@@ -148,7 +148,6 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
 
-              // ...logout button removed...
             ],
           ),
         ],
