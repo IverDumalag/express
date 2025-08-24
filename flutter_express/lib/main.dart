@@ -196,7 +196,7 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Audio/Text to Sign',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.text_fields, size: 25),
+            icon: Icon(Icons.sign_language, size: 25),
             label: 'Sign to Text',
           ),
           BottomNavigationBarItem(

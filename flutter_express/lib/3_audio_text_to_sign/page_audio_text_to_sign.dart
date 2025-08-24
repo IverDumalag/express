@@ -195,11 +195,11 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(
-              top: 70.0,
+              top: 110.0, // Increased from 70.0 to lower the main box
               left: 16.0,
               right: 16.0,
               bottom: 16.0,
-            ), // Add top padding to move cards down
+            ),
             child: Column(
               children: [
                 // Entries List
@@ -270,7 +270,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                   title: Text(
                                     phrase['words'] ?? '',
                                     style: GoogleFonts.robotoMono(
-                                      fontSize: isSelected ? 32 : 22,
+                                      fontSize: isSelected ? 22 : 22,
                                       color: isSelected
                                           ? const Color(0xFF334E7B)
                                           : Colors.grey[800],
@@ -366,7 +366,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           'Tap to speak',
                           style: GoogleFonts.robotoMono(
                             color: Colors.grey[600],
-                            fontSize: 20,
+                            fontSize: 18,
                           ),
                         ),
                       ],
@@ -377,7 +377,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
             ),
           ),
           Positioned(
-            top: 16,
+            top: 56, // Lowered from 16 to 56
             right: 16,
             child: HelpIconWidget(
               helpTitle: 'Audio/Text Input',
