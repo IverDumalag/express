@@ -604,7 +604,7 @@ class _RegisterState extends State<Register> {
                                     onPressed: goBackToForm,
                                     style: OutlinedButton.styleFrom(
                                       padding: EdgeInsets.symmetric(
-                                        vertical: buttonPadding * 1.1,
+                                        vertical: buttonPadding * 1.0,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
