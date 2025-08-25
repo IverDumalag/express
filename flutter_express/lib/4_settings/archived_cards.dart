@@ -31,6 +31,215 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
   }
   List<Map<String, dynamic>> _archivedCards = [];
   bool _loading = true;
+  Set<String> _selectedCards = {};
+  bool _selectMode = false;
+
+  void _toggleSelectAll() {
+    setState(() {
+      _selectMode = !_selectMode;
+      if (_selectMode) {
+        _selectedCards = _archivedCards.map((c) => c['entry_id'].toString()).toSet();
+      } else {
+        _selectedCards.clear();
+      }
+    });
+  }
+
+  Future<void> _deleteSelectedCards() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 350, maxHeight: 220),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Delete All',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Color(0xFF334E7B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Divider(height: 1, color: Color(0xFF334E7B)),
+                const SizedBox(height: 16),
+                Text(
+                  'Are you sure you want to delete all selected cards?',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 15,
+                    color: Color(0xFF334E7B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Color(0xFF334E7B),
+                        side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF334E7B),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      ),
+                      child: Text(
+                        'Delete',
+                        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (confirm == true) {
+      final toDelete = _selectedCards.toList();
+      setState(() => _loading = true);
+      for (final entryId in toDelete) {
+        await ApiService.deleteCard(entryId: entryId);
+        _archivedCards.removeWhere((c) => c['entry_id'].toString() == entryId);
+      }
+      setState(() {
+        _selectedCards.clear();
+        _selectMode = false;
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selected cards deleted!')),
+      );
+    }
+  }
+
+  Future<void> _restoreSelectedCards() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 350, maxHeight: 220),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Restore All',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Color(0xFF334E7B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Divider(height: 1, color: Color(0xFF334E7B)),
+                const SizedBox(height: 16),
+                Text(
+                  'Are you sure you want to restore all selected cards?',
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 15,
+                    color: Color(0xFF334E7B),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Color(0xFF334E7B),
+                        side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF334E7B),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      ),
+                      child: Text(
+                        'Restore',
+                        style: GoogleFonts.robotoMono(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (confirm == true) {
+      final toRestore = _selectedCards.toList();
+      setState(() => _loading = true);
+      for (final entryId in toRestore) {
+        await ApiService.restoreCard(entryId: entryId);
+        _archivedCards.removeWhere((c) => c['entry_id'].toString() == entryId);
+      }
+      setState(() {
+        _selectedCards.clear();
+        _selectMode = false;
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Selected cards restored!')),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -128,15 +337,30 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
-
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center the text
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      
-                      
+                      IconButton(
+                        icon: Icon(
+                          _selectMode ? Icons.check_box : Icons.check_box_outline_blank,
+                          color: Color(0xFF334E7B),
+                        ),
+                        tooltip: _selectMode ? 'Deselect All' : 'Select All',
+                        onPressed: _archivedCards.isEmpty ? null : _toggleSelectAll,
+                      ),
+                      if (_selectMode) ...[
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red[700]),
+                          tooltip: 'Delete All Selected',
+                          onPressed: _selectedCards.isEmpty ? null : _deleteSelectedCards,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.restore, color: Color(0xFF334E7B)),
+                          tooltip: 'Restore All Selected',
+                          onPressed: _selectedCards.isEmpty ? null : _restoreSelectedCards,
+                        ),
+                      ],
                     ],
-
                   ),
                 ),
                 Expanded(
@@ -145,6 +369,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                     itemCount: _archivedCards.length,
                     itemBuilder: (context, index) {
                       final card = _archivedCards[index];
+                      final entryId = card['entry_id'].toString();
                       return Container(
                         margin: EdgeInsets.only(bottom: 16 * scale),
                         decoration: BoxDecoration(
@@ -163,6 +388,21 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                           ],
                         ),
                         child: ListTile(
+                          leading: _selectMode
+                              ? Checkbox(
+                                  value: _selectedCards.contains(entryId),
+                                  onChanged: (checked) {
+                                    setState(() {
+                                      if (checked == true) {
+                                        _selectedCards.add(entryId);
+                                      } else {
+                                        _selectedCards.remove(entryId);
+                                      }
+                                    });
+                                  },
+                                  activeColor: Color(0xFF334E7B),
+                                )
+                              : null,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 20 * scale,
                             vertical: 12 * scale,
@@ -175,8 +415,6 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
                               color: Color(0xFF2354C7),
                             ),
                           ),
-
-                          
                           trailing: LayoutBuilder(
                             builder: (context, constraints) {
                               double buttonSize = (constraints.maxWidth / 2).clamp(36.0, 48.0) * scale;

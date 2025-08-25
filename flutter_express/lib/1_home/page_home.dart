@@ -217,6 +217,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  int _favoriteCount = 0;
   final Color cardColor = const Color(0xFF334E7B);
 
   String greetingMessage = '';
@@ -316,6 +317,7 @@ class _HomeState extends State<Home> {
     setState(() {
       cards = data.where((c) => c['status'] == 'active').toList();
       loading = false;
+  _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters();
   }
@@ -476,6 +478,7 @@ class _HomeState extends State<Home> {
         return c;
       }).toList();
       _needsRefresh = true; // Trigger refresh for both sections
+  _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters(); // Re-apply filters to update favorite list if activeTab is 'favorite'
   }
@@ -503,6 +506,22 @@ class _HomeState extends State<Home> {
                   children: [
                     SizedBox(width: 20 * scale),
                     _buildSectionTitle("Favorites", scale),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 30 * scale),
+                          child: Text(
+                            '(${_favoriteCount})',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 15 * scale,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
@@ -867,7 +886,7 @@ class _HomeState extends State<Home> {
               children: [
                 Icon(
                   Icons.help, // Filled question mark tip icon
-                  color: Color(0xFF2E5C9A),
+                  color: Color(0xFF334E7B),
                   size: 28 * scale,
                 ),
               ],

@@ -310,25 +310,30 @@ class _RegisterState extends State<Register> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                otpStep ? "Verify Email" : "Register",
-                                style: GoogleFonts.robotoMono(
+                                Center(
+                                child: Text(
+                                  otpStep ? "Verify Email" : "Register",
+                                  style: GoogleFonts.robotoMono(
                                   fontSize: titleSize,
                                   fontWeight: FontWeight.w600,
                                   color: const Color(0xFF334E7B),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: spacing * 0.5),
-                              Text(
-                                otpStep
+                                ),
+                                  SizedBox(height: spacing * 2.9),
+                                Center(
+                                child: Text(
+                                  otpStep
                                     ? "Enter the verification code sent to your email"
                                     : "Sign up to get started",
-                                style: GoogleFonts.robotoMono(
+                                  style: GoogleFonts.robotoMono(
                                   fontSize: subtitleSize,
                                   color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                              SizedBox(height: spacing * 1.5),
+                                ),
+                              SizedBox(height: spacing * 1.1),
 
                               if (!otpStep) ...[
                                 // Registration Form
@@ -338,7 +343,7 @@ class _RegisterState extends State<Register> {
                                       v!.isEmpty ? "Required" : null,
                                   onSaved: (v) => fName = v!.trim(),
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 // Responsive row for name fields
                                 if (isSmallScreen) ...[
@@ -346,7 +351,7 @@ class _RegisterState extends State<Register> {
                                     hint: "Middle Name",
                                     onSaved: (v) => mName = v!.trim(),
                                   ),
-                                  SizedBox(height: spacing),
+                                    SizedBox(height: spacing * 0.7),
                                   _buildField(
                                     hint: "Surname",
                                     validator: (v) =>
@@ -362,7 +367,7 @@ class _RegisterState extends State<Register> {
                                           onSaved: (v) => mName = v!.trim(),
                                         ),
                                       ),
-                                      SizedBox(width: spacing),
+                                        SizedBox(width: spacing * 0.7),
                                       Expanded(
                                         child: _buildField(
                                           hint: "Surname",
@@ -374,7 +379,7 @@ class _RegisterState extends State<Register> {
                                     ],
                                   ),
                                 ],
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
@@ -421,7 +426,7 @@ class _RegisterState extends State<Register> {
                                   onChanged: (v) => sex = v ?? '',
                                   onSaved: (v) => sex = v ?? '',
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Birthdate",
@@ -449,7 +454,7 @@ class _RegisterState extends State<Register> {
                                   suffixIcon: const Icon(Icons.calendar_today),
                                   // Border color handled in _buildField
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Email",
@@ -465,7 +470,7 @@ class _RegisterState extends State<Register> {
                                   },
                                   onSaved: (v) => email = v!.trim(),
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint:
@@ -486,7 +491,7 @@ class _RegisterState extends State<Register> {
                                     },
                                   ),
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Confirm Password",
@@ -529,37 +534,40 @@ class _RegisterState extends State<Register> {
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.robotoMono(
-                                    fontSize: isSmallScreen ? 24.0 : 32.0,
+                                    fontSize: isSmallScreen ? 20.0 : 22.0, 
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: isSmallScreen ? 4.0 : 8.0,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: "Enter 6-digit code",
                                     hintStyle: GoogleFonts.robotoMono(
-                                      fontSize: 15.3,
+                                      fontSize: isSmallScreen ? 16.0 : 18.0, 
+                                      fontWeight: FontWeight.normal,
+                                      letterSpacing: isSmallScreen ? 2.0 : 4.0, 
+                                      color: Colors.grey[500],
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     contentPadding: EdgeInsets.symmetric(
-                                      horizontal: isSmallScreen ? 16 : 24,
-                                      vertical: isSmallScreen ? 16 : 16,
+                                      horizontal: isSmallScreen ? 8 : 12, // Reduce horizontal padding
+                                      vertical: isSmallScreen ? 12 : 14,  // Adjust vertical padding
                                     ),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                     enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(12),
                                       borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
                                     ),
                                   ),
                                   maxLength: 6,
                                 ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 if (resendTimer > 0)
                                   Center(
@@ -572,6 +580,7 @@ class _RegisterState extends State<Register> {
                                     ),
                                   )
                                 else
+                                  SizedBox(height: spacing * 2.7), //space pala to sa resend code text
                                   Center(
                                     child: TextButton(
                                       onPressed: otpLoading ? null : sendOTP,
@@ -587,7 +596,7 @@ class _RegisterState extends State<Register> {
                                       ),
                                     ),
                                   ),
-                                SizedBox(height: spacing),
+                                  SizedBox(height: spacing * 0.7),
 
                                 SizedBox(
                                   width: double.infinity,
@@ -595,10 +604,10 @@ class _RegisterState extends State<Register> {
                                     onPressed: goBackToForm,
                                     style: OutlinedButton.styleFrom(
                                       padding: EdgeInsets.symmetric(
-                                        vertical: buttonPadding * 0.7,
+                                        vertical: buttonPadding * 1.0,
                                       ),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       side: const BorderSide(
                                         color: Color(0xFF334E7B),
@@ -626,7 +635,7 @@ class _RegisterState extends State<Register> {
                                   ),
                                 ),
                               ],
-                              SizedBox(height: spacing * 1.6),
+                              SizedBox(height: spacing * 1.0),
 
                               SizedBox(
                                 width: double.infinity,
