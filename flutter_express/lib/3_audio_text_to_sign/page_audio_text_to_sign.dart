@@ -195,7 +195,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(
-              top: 110.0, // Increased from 70.0 to lower the main box
+              top: 110.0,
               left: 16.0,
               right: 16.0,
               bottom: 16.0,
@@ -207,7 +207,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: Color(0xFF334E7B), width: 1.5),
+                      border: Border.all(color: Color(0xFF334E7B), width: 1.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: LayoutBuilder(
@@ -318,14 +318,14 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                           controller: _textController,
                           onSubmitted: _handleSubmit,
                           style:
-                              GoogleFonts.robotoMono(), // Added Roboto Mono style
+                              GoogleFonts.robotoMono(), 
                           decoration: InputDecoration(
                             hintText: 'Type to say something...',
                             hintStyle: GoogleFonts.robotoMono(
                               color: Colors.grey[600],
-                            ), // Added Roboto Mono style
+                            ), 
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(16),
+                            contentPadding: EdgeInsets.all(8),
                           ),
                         ),
                       ),
@@ -340,7 +340,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                 Container(
                   height: 100,
                   alignment: Alignment.center,
-                  margin: EdgeInsets.only(top: 8, bottom: 8),
+                  margin: EdgeInsets.only(top: 2, bottom: 1),
                   child: GestureDetector(
                     onTap: _toggleRecording,
                     child: Column(
