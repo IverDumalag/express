@@ -311,29 +311,33 @@ class _RegisterState extends State<Register> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                                 Center(
-                                child: Text(
-                                  otpStep ? "Verify Email" : "Register",
-                                  style: GoogleFonts.robotoMono(
-                                  fontSize: titleSize,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF334E7B),
-                                  ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Register",
+                                      style: GoogleFonts.robotoMono(
+                                      fontSize: titleSize,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF334E7B),
+                                      ),
+                                    ),
+                                    SizedBox(height: spacing * 0.5),
+                                    Text(
+                                      otpStep
+                                        ? "Enter the verification code sent to your email"
+                                        : "Sign up to get started",
+                                      style: GoogleFonts.robotoMono(
+                                      fontSize: subtitleSize,
+                                      color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
                                 ),
                                   SizedBox(height: spacing * 2.9),
-                                Center(
-                                child: Text(
-                                  otpStep
-                                    ? "Enter the verification code sent to your email"
-                                    : "Sign up to get started",
-                                  style: GoogleFonts.robotoMono(
-                                  fontSize: subtitleSize,
-                                  color: Colors.grey,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                ),
-                              SizedBox(height: spacing * 1.1),
+                               
+                            
 
                               if (!otpStep) ...[
                                 // Registration Form
