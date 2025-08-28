@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:google_fonts/google_fonts.dart';
-import '../0_components/help_widget.dart';
-import '../00_services/api_services.dart';
-import 'audio_home_cards.dart';
-import '../global_variables.dart';
+
+// import 'package:flutter/material.dart';
+// import 'package:permission_handler/permission_handler.dart';
+// import 'package:speech_to_text/speech_to_text.dart' as stt;
+// import 'package:google_fonts/google_fonts.dart';
+// import '../0_components/help_widget.dart';
+// import '../00_services/api_services.dart';
+// import 'audio_home_cards.dart';
+// import '../global_variables.dart';
 
 class AudioTextToSignPage extends StatefulWidget {
   @override
@@ -371,6 +372,50 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         ),
                       ],
                     ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[50],
+                      foregroundColor: Colors.red[800],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      side: BorderSide(color: Colors.red[200]!, width: 1.2),
+                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    ),
+                    icon: Icon(Icons.delete_forever),
+                    label: Text(
+                      'Clear All',
+                      style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: _phrases.isEmpty
+                        ? null
+                        : () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: Text('Clear All?', style: GoogleFonts.robotoMono()),
+                                content: Text('Are you sure you want to delete all entries?', style: GoogleFonts.robotoMono()),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                    child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                    child: Text('Delete', style: GoogleFonts.robotoMono(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await _clearAllPhrases();
+                            }
+                          },
                   ),
                 ),
               ],
