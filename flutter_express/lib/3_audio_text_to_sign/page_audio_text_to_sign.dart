@@ -1,12 +1,11 @@
-
-// import 'package:flutter/material.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:speech_to_text/speech_to_text.dart' as stt;
-// import 'package:google_fonts/google_fonts.dart';
-// import '../0_components/help_widget.dart';
-// import '../00_services/api_services.dart';
-// import 'audio_home_cards.dart';
-// import '../global_variables.dart';
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:google_fonts/google_fonts.dart';
+import '../0_components/help_widget.dart';
+import '../00_services/api_services.dart';
+import 'audio_home_cards.dart';
+import '../global_variables.dart';
 
 class AudioTextToSignPage extends StatefulWidget {
   @override
@@ -158,6 +157,57 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     }
   }
 
+  Future<void> _clearAllPhrases() async {
+    final userId = UserSession.user?['user_id']?.toString() ?? "";
+    if (userId.isEmpty) return;
+
+    try {
+      final result = await ApiService.deleteAudioPhrase(userId: userId);
+      if (result['status'] == 200) {
+        // Successfully deleted all phrases
+        setState(() {
+          _phrases.clear();
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'All entries successfully',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error: ${result['message'] ?? 'Failed to delete entries'}',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message for exceptions
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: Failed to delete entries',
+            style: GoogleFonts.robotoMono(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   Future<void> _toggleRecording() async {
     if (!await Permission.microphone.isGranted) {
       final status = await Permission.microphone.request();
@@ -213,8 +263,6 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        const double itemHeight = 90.0;
-                        final double listViewHeight = constraints.maxHeight;
                         int selectedIndex = _phrases.isNotEmpty
                             ? _phrases.length - 1
                             : 0;
@@ -318,13 +366,12 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         child: TextField(
                           controller: _textController,
                           onSubmitted: _handleSubmit,
-                          style:
-                              GoogleFonts.robotoMono(), 
+                          style: GoogleFonts.robotoMono(),
                           decoration: InputDecoration(
                             hintText: 'Type to say something...',
                             hintStyle: GoogleFonts.robotoMono(
                               color: Colors.grey[600],
-                            ), 
+                            ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.all(8),
                           ),
@@ -385,12 +432,17 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       side: BorderSide(color: Colors.red[200]!, width: 1.2),
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
                     ),
                     icon: Icon(Icons.delete_forever),
                     label: Text(
                       'Clear All',
-                      style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     onPressed: _phrases.isEmpty
                         ? null
@@ -398,16 +450,32 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                title: Text('Clear All?', style: GoogleFonts.robotoMono()),
-                                content: Text('Are you sure you want to delete all entries?', style: GoogleFonts.robotoMono()),
+                                title: Text(
+                                  'Clear All?',
+                                  style: GoogleFonts.robotoMono(),
+                                ),
+                                content: Text(
+                                  'Are you sure you want to delete all entries?',
+                                  style: GoogleFonts.robotoMono(),
+                                ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(false),
-                                    child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(true),
-                                    child: Text('Delete', style: GoogleFonts.robotoMono(color: Colors.red)),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(true),
+                                    child: Text(
+                                      'Delete',
+                                      style: GoogleFonts.robotoMono(
+                                        color: Colors.red,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -428,8 +496,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
               helpTitle: 'Audio/Text Input',
               helpText:
                   '1. Type or speak to convert to sign language\n'
-                  '2. Tap entries to view details\n'
-                  '3. Swipe left to delete entries',
+                  '2. Tap entries to view details',
             ),
           ),
         ],

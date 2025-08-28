@@ -21,6 +21,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
   List<CameraDescription>? _cameras;
   int _currentCameraIndex = 0;
   final TextEditingController _textController = TextEditingController();
+  bool _isFlashOn = false;
 
   // Crop variables
   bool _isCropped = false;
@@ -40,6 +41,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
   @override
   void dispose() {
     _timer?.cancel();
+    _cameraController?.setFlashMode(
+      FlashMode.off,
+    ); // Turn off flash before disposing
     _cameraController?.dispose();
     _textController.dispose();
     super.dispose();
@@ -61,9 +65,36 @@ class _SignToTextPageState extends State<SignToTextPage> {
     }
   }
 
+  Future<void> _toggleFlash() async {
+    if (_cameraController != null && _cameraController!.value.isInitialized) {
+      try {
+        setState(() {
+          _isFlashOn = !_isFlashOn;
+        });
+        await _cameraController!.setFlashMode(
+          _isFlashOn ? FlashMode.torch : FlashMode.off,
+        );
+      } catch (e) {
+        // Flash not supported, revert state
+        setState(() {
+          _isFlashOn = false;
+        });
+      }
+    }
+  }
+
   Future<void> _flipCamera() async {
     if (_cameras != null && _cameras!.length > 1) {
       _timer?.cancel();
+
+      // Turn off flash before switching cameras
+      if (_cameraController != null && _isFlashOn) {
+        await _cameraController!.setFlashMode(FlashMode.off);
+        setState(() {
+          _isFlashOn = false;
+        });
+      }
+
       await _cameraController?.dispose();
 
       _currentCameraIndex = (_currentCameraIndex + 1) % _cameras!.length;
@@ -242,6 +273,112 @@ class _SignToTextPageState extends State<SignToTextPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: false,
         actions: [
+          // Help/Info button
+          IconButton(
+            icon: const Icon(Icons.help_outline, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 2,
+                      ),
+                    ),
+                    backgroundColor: Colors.white,
+                    title: Text(
+                      'How to Use Sign → Text',
+                      style: GoogleFonts.robotoMono(
+                        color: const Color(0xFF334E7B),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '🤟 Position your hand in front of the camera',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '📱 Switch between Alphabet and Words/Phrases modes',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '⚡ Use flash for better lighting',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '🔄 Flip between front/back camera',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '✂️ Use crop to focus on specific area',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '📝 Translations appear automatically in the text box',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(
+                          'Got it!',
+                          style: GoogleFonts.robotoMono(
+                            color: const Color(0xFF334E7B),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            tooltip: 'Help & Instructions',
+          ),
+          // Flash toggle button
+          IconButton(
+            icon: Icon(
+              _isFlashOn ? Icons.flash_on : Icons.flash_off,
+              color: Colors.white,
+            ),
+            onPressed: _toggleFlash,
+            tooltip: _isFlashOn ? 'Turn Off Flash' : 'Turn On Flash',
+          ),
           // Camera flip button
           IconButton(
             icon: const Icon(Icons.flip_camera_ios, color: Colors.white),
