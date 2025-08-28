@@ -448,7 +448,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                         "Introductionary Words/Phrases: Tupal, I. J. (2023). FSL-105: A dataset for recognizing 105 Filipino sign language videos. Mendeley Data, 2. https://doi.org/10.17632/48y2y99mb9.2";
                     PopupInformation.show(
                       context,
-                      title: "Dataset Sources",
+                      title: "Retrieved from:",
                       message: sourceMessage,
                     );
                   },
