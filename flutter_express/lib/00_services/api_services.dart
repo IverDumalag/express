@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static Future<Map<String, dynamic>> restoreCard({required String entryId}) async {
+  static Future<Map<String, dynamic>> restoreCard({
+    required String entryId,
+  }) async {
     // Restore by updating status to 'active'
     return await updateStatus(entryId: entryId, status: 'active');
   }
+
   static const String baseUrl = 'https://express-php.onrender.com/api';
 
   static Future<Map<String, dynamic>> login(
@@ -164,6 +167,18 @@ class ApiService {
       }),
     );
     return jsonDecode(res.body);
+  }
+
+  static Future<Map<String, dynamic>> deleteAudioPhrase({
+    required String userId,
+  }) async {
+    final url = Uri.parse('$baseUrl/audioPhrasesWordsDeleteById.php');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'user_id': userId}),
+    );
+    return jsonDecode(response.body);
   }
 
   static Future<Map<String, dynamic>> editUser({
