@@ -60,11 +60,11 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/exPress_icon.png"
+  image_path: "assets/images/newlogo.png"
 
 flutter_native_splash:
   color: "#ffffff"
-  image: assets/images/exPress_icon.png
+  image: assets/images/newlogo.png
   android: true
   ios: true
 

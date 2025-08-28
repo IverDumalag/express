@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_express/4_settings/archived_cards.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'more_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
@@ -102,18 +103,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF334E7B),
+      backgroundColor: const Color.fromARGB(255, 188, 188, 188),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App logo/icon
-            Icon(Icons.sign_language, size: 100, color: Colors.white),
+            // new logo
+            Image.asset(
+              'assets/images/newlogo.png',
+              width: 200,
+              height: 200,
+            ),
             const SizedBox(height: 20),
             Text(
               'exPress',
               style: GoogleFonts.robotoMono(
-                fontSize: 32,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -150,8 +155,7 @@ class _MainScreenState extends State<MainScreen> {
     Home(onRefresh: _refreshData),
     AudioTextToSignPage(),
     SignToTextPage(),
-    Settings(),
-    PageProfile(),
+    MorePage(),
   ];
 
   void _changeScreen(int index) {
@@ -184,24 +188,20 @@ class _MainScreenState extends State<MainScreen> {
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30),
+            icon: Icon(Icons.home, size: 25),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.hearing, size: 30),
+            icon: Icon(Icons.hearing, size: 25),
             label: 'Audio/Text to Sign',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.text_fields, size: 30),
+            icon: Icon(Icons.sign_language, size: 25),
             label: 'Sign to Text',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_outlined, size: 30),
+            icon: Icon(Icons.menu_book, size: 25),
             label: 'Menu',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_3_outlined, size: 30),
-            label: 'Profile',
           ),
         ],
       ),

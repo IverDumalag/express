@@ -240,6 +240,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
+        automaticallyImplyLeading: false,
         actions: [
           // Camera flip button
           IconButton(
