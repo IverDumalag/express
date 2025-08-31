@@ -1,0 +1,13 @@
+0 A
+1 B
+2 C
+3 D
+4 E
+5 1
+6 2
+7 3
+8 Thank You
+9 Welcome
+10 Good Morning
+11 Good Evening
+12 Good Afternoon

@@ -1,74 +1,90 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../0_components/help_widget.dart';
 
 class LandingPage extends StatefulWidget {
   @override
   _LandingPageState createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> with SingleTickerProviderStateMixin {
+class _LandingPageState extends State<LandingPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final List<String> _descriptions = [
     'exPress is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion',
     'exPress is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
-    // Add more descriptions as needed
   ];
+
+  late AudioPlayer _player;
 
   @override
   void initState() {
     super.initState();
+    _player = AudioPlayer();
     _controller = AnimationController(
-      duration: Duration(seconds: 20 * _descriptions.length), // Total duration for all texts
+      duration: Duration(seconds: 20 * _descriptions.length),
       vsync: this,
     )..repeat();
   }
 
   @override
   void dispose() {
+    _player.dispose();
     _controller.dispose();
     super.dispose();
   }
 
+  // Compute a scale factor based on a base width (e.g., 375 pixels for medium screens)
+  double _scaleFactor(BuildContext context) {
+    final baseWidth = 375.0;
+    return MediaQuery.of(context).size.width / baseWidth;
+  }
+
   // Helper method that builds a RichText with colored "exPress"
-  RichText buildDescription(String text) {
-    // Split text by "exPress"
+  RichText buildDescription(String text, double scale) {
     final parts = text.split('exPress');
     List<TextSpan> spans = [];
     for (int i = 0; i < parts.length; i++) {
-      // Add grey text span for the part before "exPress"
       if (parts[i].isNotEmpty) {
-        spans.add(TextSpan(
-          text: parts[i],
-          style: TextStyle(color: Color(0xFFBEBEBE)),
-        ));
-      }
-      // If not the last part, add the colored "exPress"
-      if (i != parts.length - 1) {
-        spans.add(TextSpan(
-          text: 'exPress',
-          style: TextStyle(
-            color: Color(0xFF2354C7),
-            fontWeight: FontWeight.bold,
+        spans.add(
+          TextSpan(
+            text: parts[i],
+            style: TextStyle(
+              color: Color(0xFFBEBEBE),
+              fontSize: 36 * scale,
+              fontFamily: 'RobotoMono',
+            ),
           ),
-        ));
+        );
+      }
+      if (i != parts.length - 1) {
+        spans.add(
+          TextSpan(
+            text: 'exPress',
+            style: GoogleFonts.robotoMono(
+              color: Color(0xFF2354C7),
+              fontWeight: FontWeight.bold,
+              fontSize: 36 * scale,
+
+            ),
+          ),
+        );
       }
     }
     return RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontSize: 40,
-          fontFamily: 'Inter',
-        ),
-        children: spans,
-      ),
+      text: TextSpan(children: spans),
       textAlign: TextAlign.right,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final scale = _scaleFactor(context);
+
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           AnimatedBuilder(
@@ -81,19 +97,19 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
 
               return Stack(
                 children: [
-                  // Current Text using RichText
+                  // Current Text using RichText (bottom to top)
                   Positioned(
-                    top: position * MediaQuery.of(context).size.height,
-                    left: 16.0,
-                    right: 16.0,
-                    child: buildDescription(_descriptions[currentIndex]),
+                    bottom: position * size.height,
+                    left: 16 * scale,
+                    right: 16 * scale,
+                    child: buildDescription(_descriptions[currentIndex], scale),
                   ),
-                  // Next Text using RichText
+                  // Next Text using RichText (bottom to top)
                   Positioned(
-                    top: (position - 1.0) * MediaQuery.of(context).size.height,
-                    left: 16.0,
-                    right: 16.0,
-                    child: buildDescription(_descriptions[nextIndex]),
+                    bottom: (position - 1.0) * size.height,
+                    left: 16 * scale,
+                    right: 16 * scale,
+                    child: buildDescription(_descriptions[nextIndex], scale),
                   ),
                 ],
               );
@@ -102,14 +118,14 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
           Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16 * scale),
               child: Text(
-                'This is your starting point.',
-                style: TextStyle(
-                  fontSize: 45,
+                '',
+                style: GoogleFonts.robotoMono(
+                  fontSize: 45 * scale,
                   fontWeight: FontWeight.w900,
-                  fontFamily: 'Inter',
-                  letterSpacing: -1,
+      
+                  letterSpacing: -1 * scale,
                 ),
                 textAlign: TextAlign.left,
               ),
@@ -119,12 +135,12 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 20),
+                SizedBox(height: 20 * scale),
                 GestureDetector(
                   onTapDown: (_) {},
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(60),
+                      borderRadius: BorderRadius.circular(24 * scale), // Reduced border radius
                       gradient: LinearGradient(
                         colors: [Color(0xFF334E7B), Color(0xFF1A2A47)],
                         begin: Alignment.topLeft,
@@ -133,39 +149,48 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.3),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                          offset: Offset(4, 6),
+                          blurRadius: 20 * scale,
+                          spreadRadius: 2 * scale,
+                          offset: Offset(4 * scale, 6 * scale),
                         ),
                         BoxShadow(
                           color: Colors.white.withOpacity(0.1),
-                          blurRadius: 10,
-                          spreadRadius: -5,
-                          offset: Offset(-4, -4),
+                          blurRadius: 10 * scale,
+                          spreadRadius: -5 * scale,
+                          offset: Offset(-4 * scale, -4 * scale),
                         ),
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MainScreen()),
-                        );
+                      onPressed: () async {
+                        final audioPlayer = AudioPlayer();
+
+                        try {
+                          await audioPlayer.play(
+                            AssetSource('sounds/button_pressed.mp3'),
+                          );
+                        } catch (e) {
+                          print("Error playing sound: $e");
+                        }
+
+                        if (mounted) {
+                          Navigator.pushNamed(context, '/main');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        minimumSize: Size(200, 60),
+                        minimumSize: Size(200 * scale, 60 * scale),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(60),
+                          borderRadius: BorderRadius.circular(4 * scale),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Press to Start',
-                        style: TextStyle(
+                        style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 22,
+                          fontSize: 20 * scale, 
                         ),
                       ),
                     ),
@@ -175,33 +200,20 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
             ),
           ),
           Positioned(
-            top: 16,
-            right: 16,
-            child: IconButton(
-              icon: Icon(Icons.help, size: 30, color: Color(0xFF334E7B)), // Changed to filled icon
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('How to Use'),
-                      content: Text(
-                        '1. Tap the camera icon to enable your camera.\n'
-                        '2. Position your hand gestures within the camera view.\n'
-                        '3. The translation of your sign gestures will appear in the output container below.',
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('Close'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
+            top: 16 * scale,
+            right: 16 * scale,
+            child: HelpIconWidget(
+              helpTitle:
+                  'exPress: Vision-Enabled TensorFlow App For Deaf and Abled Individuals',
+              helpText:
+                  'A Capstone Project submitted to the Faculty of the\n'
+                  'National University College of Computing and Information Technologies\n'
+                  'in Partial Fulfillment of the requirements for the Degree of\n'
+                  'Bachelor of Science in Information Technology\n\n'
+                  'Researchers and Developers:\n\n'
+                  'Dumalag, Iver Marl\n'
+                  'Garcia, Alyssa Umiko\n'
+                  'Ross, Angel Aisha',
             ),
           ),
         ],
