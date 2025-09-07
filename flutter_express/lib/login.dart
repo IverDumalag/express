@@ -142,15 +142,24 @@ class _LoginState extends State<Login> {
                     hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -173,15 +182,24 @@ class _LoginState extends State<Login> {
                     hintStyle: GoogleFonts.robotoMono(fontSize: 18),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF334E7B),
+                        width: 1,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
