@@ -208,21 +208,15 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     }
   }
 
-  Future<void> _toggleRecording() async {
+  Future<void> _startRecording() async {
     if (!await Permission.microphone.isGranted) {
       final status = await Permission.microphone.request();
       if (!status.isGranted) return;
     }
 
-    setState(() => _isListening = !_isListening);
-    if (_isListening) {
-      _startListening();
-    } else {
-      _stopListening();
-    }
-  }
+    setState(() => _isListening = true);
+    _textController.clear(); // Clear previous text
 
-  void _startListening() async {
     await _speech.listen(
       onResult: (result) => setState(() {
         _textController.text = result.recognizedWords;
@@ -231,9 +225,14 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     );
   }
 
-  void _stopListening() async {
+  Future<void> _stopRecording() async {
+    if (!_isListening) return;
+
+    setState(() => _isListening = false);
     await _speech.stop();
-    if (_textController.text.isNotEmpty) {
+
+    // Perform submit if there's text
+    if (_textController.text.trim().isNotEmpty) {
       await _handleSubmit(_textController.text);
     }
   }
@@ -390,7 +389,9 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   alignment: Alignment.center,
                   margin: EdgeInsets.only(top: 2, bottom: 1),
                   child: GestureDetector(
-                    onTap: _toggleRecording,
+                    onTapDown: (_) => _startRecording(),
+                    onTapUp: (_) => _stopRecording(),
+                    onTapCancel: () => _stopRecording(),
                     child: Column(
                       children: [
                         Container(
@@ -411,7 +412,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Tap to speak',
+                          _isListening ? 'Recording...' : 'Hold to speak',
                           style: GoogleFonts.robotoMono(
                             color: Colors.grey[600],
                             fontSize: 18,
