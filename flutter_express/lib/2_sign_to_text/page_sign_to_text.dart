@@ -75,10 +75,22 @@ class _SignToTextPageState extends State<SignToTextPage> {
           _isFlashOn ? FlashMode.torch : FlashMode.off,
         );
       } catch (e) {
-        // Flash not supported, revert state
+        // Flash not supported, revert state and show user-friendly message
         setState(() {
           _isFlashOn = false;
         });
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Flash is not available on this camera',
+                style: GoogleFonts.robotoMono(),
+              ),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     }
   }
@@ -233,14 +245,25 @@ class _SignToTextPageState extends State<SignToTextPage> {
       } else {
         if (mounted) {
           setState(() {
-            _prediction = "Error: ${response.statusCode}";
+            _prediction = "Unable to connect to translation service";
           });
         }
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = "Translation temporarily unavailable";
+
+        // Check for specific error types
+        if (e.toString().contains('SocketException') ||
+            e.toString().contains('TimeoutException')) {
+          errorMessage = "Check your internet connection";
+        } else if (e.toString().contains('camera') ||
+            e.toString().contains('permission')) {
+          errorMessage = "Camera access needed for translation";
+        }
+
         setState(() {
-          _prediction = "Error sending frame: $e";
+          _prediction = errorMessage;
         });
       }
     }

@@ -86,10 +86,19 @@ class _SplashScreenState extends State<SplashScreen> {
         GlobalVariables.currentIndex = 0; // Set to home tab
         Navigator.pushReplacementNamed(context, '/main');
       } catch (e) {
-        // If there's an error parsing user data, go to login
+        // If there's an error parsing user data, clear stored data and go to login
         await prefs.remove('isLoggedIn');
         await prefs.remove('userData');
         Navigator.pushReplacementNamed(context, '/login');
+
+        // Show user-friendly message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Session expired. Please log in again.'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } else if (!seenIntro) {
       // First time user, show intro

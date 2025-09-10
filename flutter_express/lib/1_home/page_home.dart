@@ -44,7 +44,7 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
   @override
   Widget build(BuildContext context) {
     final scale = MediaQuery.of(context).size.width / 375.0;
-    
+
     return DraggableScrollableSheet(
       initialChildSize: 0.5,
       minChildSize: 0.3,
@@ -82,13 +82,21 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
                   controller: scrollController,
                   padding: EdgeInsets.all(20 * scale),
                   children: [
-                    Text("Sort by", 
-                         style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                    Text(
+                      "Sort by",
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     _buildSortOptions(scale),
                     const SizedBox(height: 20),
-                    Text("Show", 
-                         style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold)),
+                    Text(
+                      "Show",
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     _buildTabOptions(scale),
                   ],
@@ -317,7 +325,7 @@ class _HomeState extends State<Home> {
     setState(() {
       cards = data.where((c) => c['status'] == 'active').toList();
       loading = false;
-  _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
+      _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters();
   }
@@ -395,7 +403,10 @@ class _HomeState extends State<Home> {
       (c) =>
           (c['words'] ?? '').toString().trim().toLowerCase() == normalizedInput,
     )) {
-      _showFeedbackPopup("Duplicate entry not allowed.", "error");
+      _showFeedbackPopup(
+        "You already have this entry in your collection.",
+        "error",
+      );
       setState(() => addLoading = false);
       return;
     }
@@ -446,10 +457,23 @@ class _HomeState extends State<Home> {
           matchFound ? "success" : "info",
         );
       } else {
-        _showFeedbackPopup("Failed to add.", "error");
+        _showFeedbackPopup(
+          "Unable to save your entry. Please try again.",
+          "error",
+        );
       }
     } catch (e) {
-      _showFeedbackPopup("Error adding word/phrase.", "error");
+      String errorMessage = "Unable to save your entry.";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('duplicate')) {
+        errorMessage = "This entry already exists in your collection.";
+      }
+
+      _showFeedbackPopup(errorMessage, "error");
     }
     setState(() => addLoading = false);
   }
@@ -478,7 +502,7 @@ class _HomeState extends State<Home> {
         return c;
       }).toList();
       _needsRefresh = true; // Trigger refresh for both sections
-  _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
+      _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters(); // Re-apply filters to update favorite list if activeTab is 'favorite'
   }
@@ -499,7 +523,6 @@ class _HomeState extends State<Home> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 _buildHeader(scale),
                 SizedBox(height: 40 * scale),
                 Row(
@@ -604,7 +627,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                                 contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,                        
+                                  horizontal: 12,
                                   vertical: 8,
                                 ),
                                 prefixIcon: Icon(
@@ -621,13 +644,17 @@ class _HomeState extends State<Home> {
                           SizedBox(width: 10 * scale),
                           IconButton(
                             icon: Icon(Icons.add, color: Color(0xFF334E7B)),
-                            onPressed: () => setState(() => showAddModal = true),
+                            onPressed: () =>
+                                setState(() => showAddModal = true),
                           ),
                           Container(
                             width: 40 * scale,
                             alignment: Alignment.center,
                             child: IconButton(
-                              icon: Icon(Icons.filter_list, color: Color(0xFF334E7B)),
+                              icon: Icon(
+                                Icons.filter_list,
+                                color: Color(0xFF334E7B),
+                              ),
                               onPressed: () {
                                 showModalBottomSheet(
                                   context: context,
@@ -651,7 +678,7 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20 * scale), 
+                      SizedBox(height: 20 * scale),
                     ],
                   ),
                 ),
@@ -709,120 +736,132 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-         if (showAddModal)
-              Dialog(
-                backgroundColor: Colors.white,
-                elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
-                ),
-                insetPadding: EdgeInsets.symmetric(
-                  horizontal: 20 * scale,
-                  vertical: 24 * scale,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 300 * scale),
-                  child: Padding(
-                    padding: EdgeInsets.all(24 * scale),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: Text(
-                            "Add Word/Phrase",
-                            style: GoogleFonts.robotoMono(
-                              color: Color(0xFF334E7B),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18 * scale,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 12 * scale),
-                        Divider(color: Color(0xFF334E7B), thickness: 1),
-                        SizedBox(height: 16 * scale),
-                        TextField(
+          if (showAddModal)
+            Dialog(
+              backgroundColor: Colors.white,
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(color: Color(0xFF334E7B), width: 2),
+              ),
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: 20 * scale,
+                vertical: 24 * scale,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 300 * scale),
+                child: Padding(
+                  padding: EdgeInsets.all(24 * scale),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Text(
+                          "Add Word/Phrase",
                           style: GoogleFonts.robotoMono(
                             color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18 * scale,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12 * scale),
+                      Divider(color: Color(0xFF334E7B), thickness: 1),
+                      SizedBox(height: 16 * scale),
+                      TextField(
+                        style: GoogleFonts.robotoMono(
+                          color: Color(0xFF334E7B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Enter word or phrase",
+                          hintStyle: GoogleFonts.robotoMono(
+                            color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
-                          decoration: InputDecoration(
-                            hintText: "Enter word or phrase",
-                            hintStyle: GoogleFonts.robotoMono(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.w500,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF334E7B)),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Color(0xFF334E7B)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                          ),
+                        ),
+                        onChanged: (v) => addInput = v,
+                      ),
+                      SizedBox(height: 24 * scale),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: addLoading
+                                  ? null
+                                  : () => setState(() => showAddModal = false),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(
+                                  color: Color(0xFF334E7B),
+                                  width: 2,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12 * scale,
+                                ),
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: GoogleFonts.robotoMono(
+                                  color: Color(0xFF334E7B),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15 * scale,
+                                ),
+                              ),
                             ),
                           ),
-                          onChanged: (v) => addInput = v,
-                        ),
-                        SizedBox(height: 24 * scale),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: addLoading ? null : () => setState(() => showAddModal = false),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Color(0xFF334E7B), width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: EdgeInsets.symmetric(vertical: 12 * scale),
+                          SizedBox(width: 12 * scale),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: addLoading ? null : _handleAddWord,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF2E5C9A),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text(
-                                  "Cancel",
-                                  style: GoogleFonts.robotoMono(
-                                    color: Color(0xFF334E7B),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15 * scale,
-                                  ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12 * scale,
                                 ),
+                                elevation: 0,
                               ),
-                            ),
-                            SizedBox(width: 12 * scale),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: addLoading ? null : _handleAddWord,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2E5C9A),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: EdgeInsets.symmetric(vertical: 12 * scale),
-                                  elevation: 0,
-                                ),
-                                child: addLoading
-                                    ? SizedBox(
-                                        width: 20 * scale,
-                                        height: 20 * scale,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                      )
-                                    : Text(
-                                        "Add",
-                                        style: GoogleFonts.robotoMono(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15 * scale,
-                                        ),
+                              child: addLoading
+                                  ? SizedBox(
+                                      width: 20 * scale,
+                                      height: 20 * scale,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
                                       ),
-                              ),
+                                    )
+                                  : Text(
+                                      "Add",
+                                      style: GoogleFonts.robotoMono(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15 * scale,
+                                      ),
+                                    ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
         ],
       ),
     );
@@ -858,14 +897,14 @@ class _HomeState extends State<Home> {
                       fontSize: 18 * scale,
                     ),
                   ),
-                    content: Text(
+                  content: Text(
                     'This is the homepage. Explore to use your favorites, words, and phrases. You may add words and phrases by navigating through this section.',
                     style: GoogleFonts.robotoMono(
                       color: Color(0xFF334E7B),
                       fontSize: 15 * scale,
                     ),
                     textAlign: TextAlign.justify,
-                    ),
+                  ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -977,11 +1016,19 @@ class _HomeState extends State<Home> {
                       });
                     },
                     children: [
-
-                        _buildSlide('Welcome to ex', 'Press!', scale, fontSize: 16),
-                        _buildSlide('Discover', 'Our Features!', scale, fontSize: 16),
-                        _buildSlide('Have', 'Fun!', scale, fontSize: 18),
-
+                      _buildSlide(
+                        'Welcome to ex',
+                        'Press!',
+                        scale,
+                        fontSize: 16,
+                      ),
+                      _buildSlide(
+                        'Discover',
+                        'Our Features!',
+                        scale,
+                        fontSize: 16,
+                      ),
+                      _buildSlide('Have', 'Fun!', scale, fontSize: 18),
                     ],
                   ),
                 ),
@@ -1015,8 +1062,12 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildSlide(String text1, String text2, double scale, {double fontSize = 14}) {
-
+  Widget _buildSlide(
+    String text1,
+    String text2,
+    double scale, {
+    double fontSize = 14,
+  }) {
     if (text1 == 'Welcome to ex' && text2 == 'Press!') {
       return GestureDetector(
         onTap: () {
@@ -1196,7 +1247,6 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text1,
                     style: GoogleFonts.robotoMono(
-
                       fontSize: fontSize * scale,
 
                       fontWeight: FontWeight.w900,
@@ -1209,7 +1259,6 @@ class _HomeState extends State<Home> {
                   child: Text(
                     text2,
                     style: GoogleFonts.robotoMono(
-
                       fontSize: fontSize * scale,
 
                       fontWeight: FontWeight.bold,
@@ -1231,7 +1280,6 @@ class _HomeState extends State<Home> {
     return Text(
       title,
       style: GoogleFonts.robotoMono(
-
         fontSize: 18 * scale,
 
         fontWeight: FontWeight.w900,

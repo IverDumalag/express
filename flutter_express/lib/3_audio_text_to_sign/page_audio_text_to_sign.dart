@@ -52,7 +52,19 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         }
       });
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for loading phrases
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to load your saved phrases',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -103,7 +115,8 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         }
       }
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for search failure (not critical)
+      // Search failed, but we'll continue saving without sign language match
     }
 
     // Close the "Finding match..." popup
@@ -153,7 +166,19 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       _textController.clear();
       await _loadPhrases();
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for saving phrase
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to save your phrase. Please try again.',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -194,24 +219,41 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         );
       }
     } catch (e) {
-      // Show error message for exceptions
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: Failed to delete entries',
-            style: GoogleFonts.robotoMono(color: Colors.white),
+      // Show user-friendly error message for delete failure
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to delete entries. Please try again.',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
           ),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
+        );
+      }
     }
   }
 
   Future<void> _startRecording() async {
     if (!await Permission.microphone.isGranted) {
       final status = await Permission.microphone.request();
-      if (!status.isGranted) return;
+      if (!status.isGranted) {
+        // Show user-friendly message for microphone permission denial
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Microphone access is needed to record your voice',
+                style: GoogleFonts.robotoMono(color: Colors.white),
+              ),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
     }
 
     setState(() => _isListening = true);
