@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'global_variables.dart';
 import '5_profile/page_profile.dart';
 import '4_settings/page_settings.dart';
 import '4_settings/archived_cards.dart';
@@ -17,6 +19,57 @@ class MorePage extends StatelessWidget {
     _MoreItem(icon: Icons.logout, label: 'Logout'),
   ];
 
+  static Future<void> _performLogout(BuildContext context) async {
+    try {
+      // Clear SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('isLoggedIn');
+      await prefs.remove('userData');
+
+      // Clear user session
+      UserSession.clear();
+
+      // Reset global variables
+      GlobalVariables.currentIndex = 0;
+
+      // Navigate to login page and clear navigation stack
+      if (context.mounted) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+
+        // Show success message after navigation
+        Future.delayed(Duration(milliseconds: 500), () {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'You have been logged out successfully',
+                  style: GoogleFonts.robotoMono(),
+                ),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      // Show error message if logout fails
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Logout failed. Please try again.',
+              style: GoogleFonts.robotoMono(),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +80,12 @@ class MorePage extends StatelessWidget {
           color: Colors.white,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 29.0, top: 8.0, right: 0, bottom: 8.0),
+              padding: const EdgeInsets.only(
+                left: 29.0,
+                top: 8.0,
+                right: 0,
+                bottom: 8.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -53,7 +111,12 @@ class MorePage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Container(
         color: Colors.white,
-        padding: const EdgeInsets.only(left: 29.0, right: 29.0, top: 8.0, bottom: 8.0),
+        padding: const EdgeInsets.only(
+          left: 29.0,
+          right: 29.0,
+          top: 8.0,
+          bottom: 8.0,
+        ),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -75,7 +138,9 @@ class MorePage extends StatelessWidget {
                   // Settings removed
                   case 'Archive':
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => ArchivedCardsPage()),
+                      MaterialPageRoute(
+                        builder: (context) => ArchivedCardsPage(),
+                      ),
                     );
                     break;
                   case 'Feedback':
@@ -89,9 +154,9 @@ class MorePage extends StatelessWidget {
                     );
                     break;
                   case 'Help':
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => HelpPage()),
-                    );
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (context) => HelpPage()));
                     break;
                   case 'Logout':
                     showDialog(
@@ -100,7 +165,10 @@ class MorePage extends StatelessWidget {
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
-                          side: BorderSide(color: Color(0xFF334E7B), width: 2.0),
+                          side: BorderSide(
+                            color: Color(0xFF334E7B),
+                            width: 2.0,
+                          ),
                         ),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
@@ -140,11 +208,19 @@ class MorePage extends StatelessWidget {
                                       onPressed: () => Navigator.pop(context),
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Color(0xFF334E7B),
-                                        side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                        side: BorderSide(
+                                          color: Color(0xFF334E7B),
+                                          width: 1.5,
                                         ),
-                                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 30,
+                                          vertical: 12,
+                                        ),
                                       ),
                                       child: Text(
                                         'Cancel',
@@ -155,17 +231,22 @@ class MorePage extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 16),
                                     ElevatedButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         Navigator.pop(context);
-                                        Navigator.of(context).pushReplacementNamed('/login');
+                                        await _performLogout(context);
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFF334E7B),
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
-                                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 30,
+                                          vertical: 12,
+                                        ),
                                       ),
                                       child: Text(
                                         'Logout',
@@ -190,7 +271,10 @@ class MorePage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF334E7B), width: 1.1),
+                  border: Border.all(
+                    color: const Color(0xFF334E7B),
+                    width: 1.1,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.04),

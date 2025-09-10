@@ -89,10 +89,30 @@ class _RegisterState extends State<Register> {
         throw Exception(result['message'] ?? 'Failed to send OTP');
       }
     } catch (e) {
+      String errorMessage =
+          "We couldn't send the verification code to your email.";
+      String errorTitle = "Email Verification Failed";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorTitle = "Connection Problem";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('FormatException') ||
+          e.toString().contains('invalid email')) {
+        errorTitle = "Invalid Email";
+        errorMessage = "Please enter a valid email address.";
+      } else if (e.toString().contains('already exists') ||
+          e.toString().contains('duplicate')) {
+        errorTitle = "Email Already Used";
+        errorMessage =
+            "This email is already registered. Please use a different email or try logging in.";
+      }
+
       await PopupInformation.show(
         context,
-        title: "Error",
-        message: "Failed to send OTP. Please try again.",
+        title: errorTitle,
+        message: errorMessage,
       );
     } finally {
       setState(() {
@@ -124,8 +144,9 @@ class _RegisterState extends State<Register> {
     if (otpCode != sentOtp) {
       await PopupInformation.show(
         context,
-        title: "Error",
-        message: "Invalid OTP. Please try again.",
+        title: "Verification Failed",
+        message:
+            "The code you entered doesn't match. Please check your email and try again.",
       );
       return;
     }
@@ -163,8 +184,28 @@ class _RegisterState extends State<Register> {
         });
       }
     } catch (e) {
+      String errorMessage = "We couldn't complete your registration.";
+      String errorTitle = "Registration Failed";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorTitle = "Connection Problem";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('already exists') ||
+          e.toString().contains('duplicate')) {
+        errorTitle = "Account Already Exists";
+        errorMessage =
+            "An account with this email already exists. Please try logging in instead.";
+      } else if (e.toString().contains('invalid') ||
+          e.toString().contains('format')) {
+        errorTitle = "Invalid Information";
+        errorMessage =
+            "Please check that all information is entered correctly.";
+      }
+
       setState(() {
-        error = 'Network error';
+        error = errorMessage;
       });
     } finally {
       setState(() {
@@ -220,8 +261,8 @@ class _RegisterState extends State<Register> {
   }) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
-  final fontSize = isSmallScreen ? 16.0 : 18.0;
-  final fieldFontSize = fontSize * 0.85;
+    final fontSize = isSmallScreen ? 16.0 : 18.0;
+    final fieldFontSize = fontSize * 0.85;
 
     return TextFormField(
       obscureText: obscure,
@@ -263,7 +304,6 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
     final isSmallScreen = screenWidth < 400;
     final isMediumScreen = screenWidth >= 400 && screenWidth < 600;
     final isLargeScreen = screenWidth >= 600;
@@ -288,7 +328,6 @@ class _RegisterState extends State<Register> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -303,41 +342,39 @@ class _RegisterState extends State<Register> {
                       child: Container(
                         width: maxWidth,
                         padding: EdgeInsets.all(containerPadding),
-                        
+
                         child: Form(
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                                Center(
+                              Center(
                                 child: Column(
                                   children: [
                                     Text(
                                       "Register",
                                       style: GoogleFonts.robotoMono(
-                                      fontSize: titleSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF334E7B),
+                                        fontSize: titleSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF334E7B),
                                       ),
                                     ),
                                     SizedBox(height: spacing * 0.5),
                                     Text(
                                       otpStep
-                                        ? "Enter the verification code sent to your email"
-                                        : "Sign up to get started",
+                                          ? "Enter the verification code sent to your email"
+                                          : "Sign up to get started",
                                       style: GoogleFonts.robotoMono(
-                                      fontSize: subtitleSize,
-                                      color: Colors.grey,
+                                        fontSize: subtitleSize,
+                                        color: Colors.grey,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
-                                ),
-                                  SizedBox(height: spacing * 2.9),
-                               
-                            
+                              ),
+                              SizedBox(height: spacing * 2.9),
 
                               if (!otpStep) ...[
                                 // Registration Form
@@ -347,7 +384,7 @@ class _RegisterState extends State<Register> {
                                       v!.isEmpty ? "Required" : null,
                                   onSaved: (v) => fName = v!.trim(),
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 // Responsive row for name fields
                                 if (isSmallScreen) ...[
@@ -355,7 +392,7 @@ class _RegisterState extends State<Register> {
                                     hint: "Middle Name",
                                     onSaved: (v) => mName = v!.trim(),
                                   ),
-                                    SizedBox(height: spacing * 0.7),
+                                  SizedBox(height: spacing * 0.7),
                                   _buildField(
                                     hint: "Surname",
                                     validator: (v) =>
@@ -371,7 +408,7 @@ class _RegisterState extends State<Register> {
                                           onSaved: (v) => mName = v!.trim(),
                                         ),
                                       ),
-                                        SizedBox(width: spacing * 0.7),
+                                      SizedBox(width: spacing * 0.7),
                                       Expanded(
                                         child: _buildField(
                                           hint: "Surname",
@@ -383,7 +420,7 @@ class _RegisterState extends State<Register> {
                                     ],
                                   ),
                                 ],
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
@@ -399,15 +436,24 @@ class _RegisterState extends State<Register> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
                                   dropdownColor: Colors.white,
@@ -430,7 +476,7 @@ class _RegisterState extends State<Register> {
                                   onChanged: (v) => sex = v ?? '',
                                   onSaved: (v) => sex = v ?? '',
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Birthdate",
@@ -458,7 +504,7 @@ class _RegisterState extends State<Register> {
                                   suffixIcon: const Icon(Icons.calendar_today),
                                   // Border color handled in _buildField
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Email",
@@ -474,7 +520,7 @@ class _RegisterState extends State<Register> {
                                   },
                                   onSaved: (v) => email = v!.trim(),
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint:
@@ -486,7 +532,9 @@ class _RegisterState extends State<Register> {
                                   onSaved: (v) => password = v!,
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      showPassword ? Icons.visibility : Icons.visibility_off,
+                                      showPassword
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -495,7 +543,7 @@ class _RegisterState extends State<Register> {
                                     },
                                   ),
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Confirm Password",
@@ -505,11 +553,14 @@ class _RegisterState extends State<Register> {
                                   onSaved: (v) => confirmPassword = v!,
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                                      showConfirmPassword
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        showConfirmPassword = !showConfirmPassword;
+                                        showConfirmPassword =
+                                            !showConfirmPassword;
                                       });
                                     },
                                   ),
@@ -538,40 +589,53 @@ class _RegisterState extends State<Register> {
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.robotoMono(
-                                    fontSize: isSmallScreen ? 20.0 : 22.0, 
+                                    fontSize: isSmallScreen ? 20.0 : 22.0,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: isSmallScreen ? 4.0 : 8.0,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: "Enter 6-digit code",
                                     hintStyle: GoogleFonts.robotoMono(
-                                      fontSize: isSmallScreen ? 16.0 : 18.0, 
+                                      fontSize: isSmallScreen ? 16.0 : 18.0,
                                       fontWeight: FontWeight.normal,
-                                      letterSpacing: isSmallScreen ? 2.0 : 4.0, 
+                                      letterSpacing: isSmallScreen ? 2.0 : 4.0,
                                       color: Colors.grey[500],
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     contentPadding: EdgeInsets.symmetric(
-                                      horizontal: isSmallScreen ? 8 : 12, // Reduce horizontal padding
-                                      vertical: isSmallScreen ? 12 : 14,  // Adjust vertical padding
+                                      horizontal: isSmallScreen
+                                          ? 8
+                                          : 12, // Reduce horizontal padding
+                                      vertical: isSmallScreen
+                                          ? 12
+                                          : 14, // Adjust vertical padding
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
                                   maxLength: 6,
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 if (resendTimer > 0)
                                   Center(
@@ -584,23 +648,23 @@ class _RegisterState extends State<Register> {
                                     ),
                                   )
                                 else
-                                  SizedBox(height: spacing * 2.7), //space pala to sa resend code text
-                                  Center(
-                                    child: TextButton(
-                                      onPressed: otpLoading ? null : sendOTP,
-                                      child: Text(
-                                        otpLoading
-                                            ? "Sending..."
-                                            : "Resend Code",
-                                        style: GoogleFonts.robotoMono(
-                                          color: const Color(0xFF334E7B),
-                                          fontSize: isSmallScreen ? 14.0 : 16.0,
-                                          decoration: TextDecoration.underline,
-                                        ),
+                                  SizedBox(
+                                    height: spacing * 2.7,
+                                  ), //space pala to sa resend code text
+                                Center(
+                                  child: TextButton(
+                                    onPressed: otpLoading ? null : sendOTP,
+                                    child: Text(
+                                      otpLoading ? "Sending..." : "Resend Code",
+                                      style: GoogleFonts.robotoMono(
+                                        color: const Color(0xFF334E7B),
+                                        fontSize: isSmallScreen ? 14.0 : 16.0,
+                                        decoration: TextDecoration.underline,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: spacing * 0.7),
+                                ),
+                                SizedBox(height: spacing * 0.7),
 
                                 SizedBox(
                                   width: double.infinity,

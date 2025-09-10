@@ -26,10 +26,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   void initState() {
     super.initState();
-  _detailsController.addListener(_updateLetterCount);
+    _detailsController.addListener(_updateLetterCount);
   }
-
-
 
   void _updateLetterCount() {
     final text = _detailsController.text;
@@ -41,7 +39,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   void dispose() {
     _mainConcernController.dispose();
-  _detailsController.removeListener(_updateLetterCount);
+    _detailsController.removeListener(_updateLetterCount);
     _detailsController.dispose();
     super.dispose();
   }
@@ -81,32 +79,61 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     setState(() => _loading = true);
 
-    final result = await ApiService.submitFeedback(
-      userId: user['user_id'].toString(),
-      email: user['email'] ?? '',
-      mainConcern: mainConcern,
-      details: details,
-    );
-
-    setState(() => _loading = false);
-
-    if (result['status'] == 201 || result['status'] == "201") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Feedback submitted successfully!',
-            style: GoogleFonts.robotoMono(),
-          ),
-        ),
+    try {
+      final result = await ApiService.submitFeedback(
+        userId: user['user_id'].toString(),
+        email: user['email'] ?? '',
+        mainConcern: mainConcern,
+        details: details,
       );
-      Navigator.pop(context);
-    } else {
+
+      setState(() => _loading = false);
+
+      if (result['status'] == 201 || result['status'] == "201") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Thank you! Your feedback has been sent successfully.',
+              style: GoogleFonts.robotoMono(),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      } else {
+        String errorMessage = "We couldn't send your feedback right now.";
+
+        if (result['status'] == 400 || result['status'] == "400") {
+          errorMessage = "Please check that all fields are filled correctly.";
+        } else if (result['status'] == 500 || result['status'] == "500") {
+          errorMessage =
+              "Our servers are temporarily busy. Please try again later.";
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage, style: GoogleFonts.robotoMono()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _loading = false);
+
+      String errorMessage = "Unable to send feedback.";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('FormatException')) {
+        errorMessage = "Please check your input and try again.";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            result['message'] ?? 'Submission failed.',
-            style: GoogleFonts.robotoMono(),
-          ),
+          content: Text(errorMessage, style: GoogleFonts.robotoMono()),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -118,7 +145,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Color(0xFF334E7B),
+            size: 32,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -159,7 +190,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Main Concern Dropdown/Autocomplete
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
@@ -184,16 +215,23 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       style: GoogleFonts.robotoMono(),
                       decoration: InputDecoration(
                         labelText: 'Main Concern',
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), 
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334E7B)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF334E7B),
+                          ),
                         ),
                         filled: true,
                         fillColor: Colors.white,
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF334E7B)),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF334E7B),
+                          ),
                         ),
                       ),
                       onEditingComplete: onEditingComplete,
@@ -210,7 +248,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF334E7B), width: 1),
+                        border: Border.all(
+                          color: const Color(0xFF334E7B),
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -228,12 +269,15 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           return InkWell(
                             onTap: () => onSelected(option),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
                               child: Text(
                                 option,
                                 style: GoogleFonts.robotoMono(
-                                  fontSize: 16, 
-                                  color: const Color(0xFF334E7B)
+                                  fontSize: 16,
+                                  color: const Color(0xFF334E7B),
                                 ),
                               ),
                             ),
@@ -249,7 +293,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Details TextField with word counter
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +304,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   decoration: InputDecoration(
                     labelText: 'Details',
                     alignLabelWithHint: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFF334E7B)),
@@ -276,9 +323,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   maxLines: 5,
                   textAlignVertical: TextAlignVertical.top,
                   maxLength: 300,
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(300),
-                  ],
+                  inputFormatters: [LengthLimitingTextInputFormatter(300)],
                 ),
                 const SizedBox(height: 4),
                 Align(
@@ -287,14 +332,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     '$_letterCount/300 words',
                     style: GoogleFonts.robotoMono(
                       fontSize: 12,
-                      color: _letterCount > 300 ? Colors.red : const Color(0xFF334E7B),
+                      color: _letterCount > 300
+                          ? Colors.red
+                          : const Color(0xFF334E7B),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            
+
             // Submit Button
             ElevatedButton(
               onPressed: _loading ? null : _submitFeedback,

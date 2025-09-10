@@ -67,8 +67,27 @@ class _LoginState extends State<Login> {
         });
       }
     } catch (e) {
+      String errorMessage = "We couldn't log you in right now.";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('invalid credentials') ||
+          e.toString().contains('unauthorized')) {
+        errorMessage = "Incorrect email or password. Please try again.";
+      } else if (e.toString().contains('account not found') ||
+          e.toString().contains('user not found')) {
+        errorMessage =
+            "No account found with this email. Please check your email or create a new account.";
+      } else if (e.toString().contains('account locked') ||
+          e.toString().contains('suspended')) {
+        errorMessage =
+            "Your account is temporarily locked. Please contact support.";
+      }
+
       setState(() {
-        error = 'Network error';
+        error = errorMessage;
       });
     }
     setState(() {
