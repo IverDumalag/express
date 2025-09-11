@@ -22,6 +22,11 @@ class _SignToTextPageState extends State<SignToTextPage> {
   int _currentCameraIndex = 0;
   final TextEditingController _textController = TextEditingController();
   bool _isFlashOn = false;
+  bool _isFlickering = false;
+
+  // Separate text storage for each model
+  String _alphabetText = "";
+  String _wordsText = "";
 
   // Crop variables
   bool _isCropped = false;
@@ -192,6 +197,20 @@ class _SignToTextPageState extends State<SignToTextPage> {
     if (_cameraController == null || !_cameraController!.value.isInitialized)
       return;
 
+    // Start flickering effect
+    setState(() {
+      _isFlickering = true;
+    });
+
+    // Stop flickering after 200ms
+    Timer(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() {
+          _isFlickering = false;
+        });
+      }
+    });
+
     try {
       final picture = await _cameraController!.takePicture();
       final file = File(picture.path);
@@ -218,27 +237,87 @@ class _SignToTextPageState extends State<SignToTextPage> {
                 : responseData.toString().trim();
 
             if (predictionText.isNotEmpty && predictionText != "Waiting...") {
+              // Check for NoSign and show appropriate popup
+              if (predictionText.toLowerCase() == "nosign") {
+                String message = _selectedModel == "alphabet"
+                    ? "No hand detected"
+                    : "No silhouette detected";
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message, style: GoogleFonts.robotoMono()),
+                    backgroundColor: Colors.orange,
+                    duration: Duration(milliseconds: 800),
+                  ),
+                );
+                return; // Don't append NoSign to text
+              }
+
               setState(() {
                 _prediction = predictionText;
-                if (_textController.text.isEmpty) {
-                  _textController.text = predictionText;
+
+                // Update appropriate model text storage
+                if (_selectedModel == "alphabet") {
+                  if (_alphabetText.isEmpty) {
+                    _alphabetText = predictionText;
+                  } else {
+                    _alphabetText += ' $predictionText';
+                  }
                 } else {
-                  _textController.text += ' $predictionText';
+                  if (_wordsText.isEmpty) {
+                    _wordsText = predictionText;
+                  } else {
+                    _wordsText += ' $predictionText';
+                  }
                 }
+
+                // Update text controller with current model's text
+                _textController.text = _selectedModel == "alphabet"
+                    ? _alphabetText
+                    : _wordsText;
               });
             }
           } catch (e) {
             // fallback if it's not JSON
             final cleaned = responseData.replaceAll('"', '').trim();
-            if (cleaned.isNotEmpty && cleaned != "Waiting...") {
+            if (cleaned.isNotEmpty &&
+                cleaned != "Waiting..." &&
+                cleaned.toLowerCase() != "nosign") {
               setState(() {
                 _prediction = cleaned;
-                if (_textController.text.isEmpty) {
-                  _textController.text = cleaned;
+
+                // Update appropriate model text storage
+                if (_selectedModel == "alphabet") {
+                  if (_alphabetText.isEmpty) {
+                    _alphabetText = cleaned;
+                  } else {
+                    _alphabetText += ' $cleaned';
+                  }
                 } else {
-                  _textController.text += ' $cleaned';
+                  if (_wordsText.isEmpty) {
+                    _wordsText = cleaned;
+                  } else {
+                    _wordsText += ' $cleaned';
+                  }
                 }
+
+                // Update text controller with current model's text
+                _textController.text = _selectedModel == "alphabet"
+                    ? _alphabetText
+                    : _wordsText;
               });
+            } else if (cleaned.toLowerCase() == "nosign") {
+              String message = _selectedModel == "alphabet"
+                  ? "No hand detected"
+                  : "No silhouette detected";
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message, style: GoogleFonts.robotoMono()),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(milliseconds: 800),
+                ),
+              );
             }
           }
         }
@@ -271,6 +350,11 @@ class _SignToTextPageState extends State<SignToTextPage> {
 
   void _clearText() {
     setState(() {
+      if (_selectedModel == "alphabet") {
+        _alphabetText = "";
+      } else {
+        _wordsText = "";
+      }
       _textController.clear();
     });
   }
@@ -494,6 +578,25 @@ class _SignToTextPageState extends State<SignToTextPage> {
                               ),
                             ),
 
+                          // Scan overlay based on selected model
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: AnimatedOpacity(
+                                opacity: _isFlickering ? 0.8 : 0.5,
+                                duration: Duration(milliseconds: 100),
+                                child: Image.asset(
+                                  _selectedModel == "alphabet"
+                                      ? 'assets/images/HandScan.png'
+                                      : 'assets/images/PersonScan.png',
+                                  fit: BoxFit.cover,
+                                  width: cameraWidth,
+                                  height: cameraHeight,
+                                ),
+                              ),
+                            ),
+                          ),
+
                           // Camera info
                           Positioned(
                             bottom: 10,
@@ -587,6 +690,11 @@ class _SignToTextPageState extends State<SignToTextPage> {
                             onTap: () {
                               setState(() {
                                 _selectedModel = entry.key;
+                                // Update text controller with the selected model's text
+                                _textController.text =
+                                    _selectedModel == "alphabet"
+                                    ? _alphabetText
+                                    : _wordsText;
                               });
                             },
                             child: Container(
