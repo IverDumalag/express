@@ -244,10 +244,26 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  static Future<Map<String, dynamic>> wake() async {
+  static Future<Map<String, dynamic>> wakephp() async {
     final url = Uri.parse('$baseUrl/wake.php');
     final response = await http.get(url);
     return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> wakenodejs() async {
+    final url = Uri.parse('https://express-nodejs-nc12.onrender.com/wake');
+    final response = await http.get(url);
+    return jsonDecode(response.body);
+  }
+
+  static Future<void> wakeAllServices() async {
+    try {
+      // Wake both services simultaneously
+      await Future.wait([wakephp(), wakenodejs()]);
+    } catch (e) {
+      // Silently handle wake errors to not disrupt app startup
+      print('Wake services error: $e');
+    }
   }
 
   static Future<bool> checkEmailExists(String email) async {
