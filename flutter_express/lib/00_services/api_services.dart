@@ -243,4 +243,33 @@ class ApiService {
     );
     return jsonDecode(response.body);
   }
+
+  static Future<Map<String, dynamic>> wake() async {
+    final url = Uri.parse('$baseUrl/wake.php');
+    final response = await http.get(url);
+    return jsonDecode(response.body);
+  }
+
+  static Future<bool> checkEmailExists(String email) async {
+    try {
+      final url = Uri.parse('$baseUrl/users.php');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> users = jsonDecode(response.body);
+
+        // Check if any user has the same email
+        for (var user in users) {
+          if (user['email']?.toString().toLowerCase() == email.toLowerCase()) {
+            return true;
+          }
+        }
+        return false;
+      } else {
+        throw Exception('Failed to fetch users');
+      }
+    } catch (e) {
+      throw Exception('Error checking email: $e');
+    }
+  }
 }

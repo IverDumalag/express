@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:convert';
+// ADDED: image package for pixel cropping
+import 'package:image/image.dart' as img;
 
 class SignToTextPage extends StatefulWidget {
   const SignToTextPage({super.key});
@@ -32,8 +34,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
   bool _isCropped = false;
   Rect? _cropRect;
   Offset? _dragStart;
-  Offset? _dragEnd;
   bool _isDragging = false;
+  String _dragMode = ''; // corner/edge/move/create
 
   final models = {"alphabet": "Alphabet", "words": "Words/Phrases"};
 
@@ -92,7 +94,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                 style: GoogleFonts.robotoMono(),
               ),
               backgroundColor: Colors.orange,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -123,6 +125,13 @@ class _SignToTextPageState extends State<SignToTextPage> {
       );
 
       await _cameraController!.initialize();
+
+      // RESET CROP to avoid mirror mismatch after flipping
+      setState(() {
+        _cropRect = null;
+        _isCropped = false;
+      });
+
       if (mounted) setState(() {});
 
       // Restart timer
@@ -153,35 +162,204 @@ class _SignToTextPageState extends State<SignToTextPage> {
     });
   }
 
+  String _detectCropHandle(Offset position) {
+    if (_cropRect == null) return '';
+
+    const handleSize = 30.0; // Increased touch area for web
+    const edgeThickness = 25.0; // Increased edge detection area
+
+    // Check corners first (priority over edges)
+    if ((position.dx - _cropRect!.left).abs() < handleSize &&
+        (position.dy - _cropRect!.top).abs() < handleSize) {
+      return 'corner_tl';
+    }
+    if ((position.dx - _cropRect!.right).abs() < handleSize &&
+        (position.dy - _cropRect!.top).abs() < handleSize) {
+      return 'corner_tr';
+    }
+    if ((position.dx - _cropRect!.left).abs() < handleSize &&
+        (position.dy - _cropRect!.bottom).abs() < handleSize) {
+      return 'corner_bl';
+    }
+    if ((position.dx - _cropRect!.right).abs() < handleSize &&
+        (position.dy - _cropRect!.bottom).abs() < handleSize) {
+      return 'corner_br';
+    }
+
+    // Check edges
+    if ((position.dy - _cropRect!.top).abs() < edgeThickness &&
+        position.dx > _cropRect!.left - edgeThickness &&
+        position.dx < _cropRect!.right + edgeThickness) {
+      return 'edge_top';
+    }
+    if ((position.dy - _cropRect!.bottom).abs() < edgeThickness &&
+        position.dx > _cropRect!.left - edgeThickness &&
+        position.dx < _cropRect!.right + edgeThickness) {
+      return 'edge_bottom';
+    }
+    if ((position.dx - _cropRect!.left).abs() < edgeThickness &&
+        position.dy > _cropRect!.top - edgeThickness &&
+        position.dy < _cropRect!.bottom + edgeThickness) {
+      return 'edge_left';
+    }
+    if ((position.dx - _cropRect!.right).abs() < edgeThickness &&
+        position.dy > _cropRect!.top - edgeThickness &&
+        position.dy < _cropRect!.bottom + edgeThickness) {
+      return 'edge_right';
+    }
+
+    // Inside crop area for moving
+    if (_cropRect!.contains(position)) {
+      return 'move';
+    }
+
+    return 'create'; // Create new crop area
+  }
+
   void _onPanStart(DragStartDetails details) {
     if (_isCropped) {
+      _dragStart = details.localPosition;
+      _dragMode = _detectCropHandle(details.localPosition);
+
       setState(() {
-        _dragStart = details.localPosition;
         _isDragging = true;
       });
     }
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    if (_isCropped && _isDragging && _dragStart != null) {
+    if (_isCropped && _isDragging && _dragStart != null && _cropRect != null) {
+      final currentPos = details.localPosition;
+      final delta = currentPos - _dragStart!;
+
+      // Get camera view bounds
+      final size = MediaQuery.of(context).size;
+      final cameraWidth = size.width * 0.8;
+      final cameraHeight = cameraWidth * (4 / 3);
+
       setState(() {
-        _dragEnd = details.localPosition;
+        switch (_dragMode) {
+          case 'corner_tl':
+            _cropRect = Rect.fromLTRB(
+              (_cropRect!.left + delta.dx).clamp(0.0, _cropRect!.right - 50),
+              (_cropRect!.top + delta.dy).clamp(0.0, _cropRect!.bottom - 50),
+              _cropRect!.right,
+              _cropRect!.bottom,
+            );
+            break;
+          case 'corner_tr':
+            _cropRect = Rect.fromLTRB(
+              _cropRect!.left,
+              (_cropRect!.top + delta.dy).clamp(0.0, _cropRect!.bottom - 50),
+              (_cropRect!.right + delta.dx).clamp(
+                _cropRect!.left + 50,
+                cameraWidth,
+              ),
+              _cropRect!.bottom,
+            );
+            break;
+          case 'corner_bl':
+            _cropRect = Rect.fromLTRB(
+              (_cropRect!.left + delta.dx).clamp(0.0, _cropRect!.right - 50),
+              _cropRect!.top,
+              _cropRect!.right,
+              (_cropRect!.bottom + delta.dy).clamp(
+                _cropRect!.top + 50,
+                cameraHeight,
+              ),
+            );
+            break;
+          case 'corner_br':
+            _cropRect = Rect.fromLTRB(
+              _cropRect!.left,
+              _cropRect!.top,
+              (_cropRect!.right + delta.dx).clamp(
+                _cropRect!.left + 50,
+                cameraWidth,
+              ),
+              (_cropRect!.bottom + delta.dy).clamp(
+                _cropRect!.top + 50,
+                cameraHeight,
+              ),
+            );
+            break;
+          case 'edge_top':
+            _cropRect = Rect.fromLTRB(
+              _cropRect!.left,
+              (_cropRect!.top + delta.dy).clamp(0.0, _cropRect!.bottom - 50),
+              _cropRect!.right,
+              _cropRect!.bottom,
+            );
+            break;
+          case 'edge_bottom':
+            _cropRect = Rect.fromLTRB(
+              _cropRect!.left,
+              _cropRect!.top,
+              _cropRect!.right,
+              (_cropRect!.bottom + delta.dy).clamp(
+                _cropRect!.top + 50,
+                cameraHeight,
+              ),
+            );
+            break;
+          case 'edge_left':
+            _cropRect = Rect.fromLTRB(
+              (_cropRect!.left + delta.dx).clamp(0.0, _cropRect!.right - 50),
+              _cropRect!.top,
+              _cropRect!.right,
+              _cropRect!.bottom,
+            );
+            break;
+          case 'edge_right':
+            _cropRect = Rect.fromLTRB(
+              _cropRect!.left,
+              _cropRect!.top,
+              (_cropRect!.right + delta.dx).clamp(
+                _cropRect!.left + 50,
+                cameraWidth,
+              ),
+              _cropRect!.bottom,
+            );
+            break;
+          case 'move':
+            final newLeft = _cropRect!.left + delta.dx;
+            final newTop = _cropRect!.top + delta.dy;
+            final width = _cropRect!.width;
+            final height = _cropRect!.height;
 
-        final left = _dragStart!.dx < _dragEnd!.dx
-            ? _dragStart!.dx
-            : _dragEnd!.dx;
-        final top = _dragStart!.dy < _dragEnd!.dy
-            ? _dragStart!.dy
-            : _dragEnd!.dy;
-        final right = _dragStart!.dx > _dragEnd!.dx
-            ? _dragStart!.dx
-            : _dragEnd!.dx;
-        final bottom = _dragStart!.dy > _dragEnd!.dy
-            ? _dragStart!.dy
-            : _dragEnd!.dy;
+            _cropRect = Rect.fromLTWH(
+              newLeft.clamp(0.0, cameraWidth - width),
+              newTop.clamp(0.0, cameraHeight - height),
+              width,
+              height,
+            );
+            break;
+          case 'create':
+            final left = _dragStart!.dx < currentPos.dx
+                ? _dragStart!.dx
+                : currentPos.dx;
+            final top = _dragStart!.dy < currentPos.dy
+                ? _dragStart!.dy
+                : currentPos.dy;
+            final right = _dragStart!.dx > currentPos.dx
+                ? _dragStart!.dx
+                : currentPos.dx;
+            final bottom = _dragStart!.dy > currentPos.dy
+                ? _dragStart!.dy
+                : currentPos.dy;
 
-        _cropRect = Rect.fromLTRB(left, top, right, bottom);
+            _cropRect = Rect.fromLTRB(
+              left.clamp(0.0, cameraWidth),
+              top.clamp(0.0, cameraHeight),
+              right.clamp(0.0, cameraWidth),
+              bottom.clamp(0.0, cameraHeight),
+            );
+            break;
+        }
       });
+
+      // Update drag start for continuous movement
+      _dragStart = currentPos;
     }
   }
 
@@ -189,8 +367,70 @@ class _SignToTextPageState extends State<SignToTextPage> {
     setState(() {
       _isDragging = false;
       _dragStart = null;
-      _dragEnd = null;
+      _dragMode = '';
     });
+  }
+
+  // ADDED: actually crop the captured image file if crop mode is active
+  Future<File> _maybeCropFile(File original) async {
+    if (!_isCropped || _cropRect == null) return original;
+
+    // Decode captured image
+    final bytes = await original.readAsBytes();
+    final decoded = img.decodeImage(bytes);
+    if (decoded == null) return original;
+
+    // Preview size used for your overlay (same as in build)
+    final screenSize = MediaQuery.of(context).size;
+    final previewW = screenSize.width * 0.8; // cameraWidth
+    final previewH = previewW * (4 / 3); // cameraHeight
+
+    // Actual image size
+    final imgW = decoded.width.toDouble();
+    final imgH = decoded.height.toDouble();
+
+    // Scale factors from preview space -> image pixels
+    final scaleX = imgW / previewW;
+    final scaleY = imgH / previewH;
+
+    // Handle mirrored front camera preview: preview shows mirror, file is not mirrored
+    final isFront =
+        _cameras != null &&
+        _cameras!.isNotEmpty &&
+        _cameras![_currentCameraIndex].lensDirection ==
+            CameraLensDirection.front;
+
+    // Compute left/top in preview space (flip X for front camera)
+    final leftPreview = isFront
+        ? (previewW - _cropRect!.right)
+        : _cropRect!.left;
+    final topPreview = _cropRect!.top;
+
+    // Convert to pixel coordinates
+    int leftPx = (leftPreview * scaleX).round();
+    int topPx = (topPreview * scaleY).round();
+    int widthPx = (_cropRect!.width * scaleX).round();
+    int heightPx = (_cropRect!.height * scaleY).round();
+
+    // Clamp to image bounds & minimums
+    leftPx = leftPx.clamp(0, imgW.toInt() - 1);
+    topPx = topPx.clamp(0, imgH.toInt() - 1);
+    widthPx = widthPx.clamp(1, imgW.toInt() - leftPx);
+    heightPx = heightPx.clamp(1, imgH.toInt() - topPx);
+
+    // Perform crop
+    final cropped = img.copyCrop(
+      decoded,
+      x: leftPx,
+      y: topPx,
+      width: widthPx,
+      height: heightPx,
+    );
+
+    // Re-encode (JPEG) and overwrite same file
+    final croppedBytes = img.encodeJpg(cropped, quality: 95);
+    await original.writeAsBytes(croppedBytes, flush: true);
+    return original;
   }
 
   Future<void> _sendFrame() async {
@@ -213,7 +453,10 @@ class _SignToTextPageState extends State<SignToTextPage> {
 
     try {
       final picture = await _cameraController!.takePicture();
-      final file = File(picture.path);
+      File file = File(picture.path);
+
+      // ADDED: Apply crop if enabled
+      file = await _maybeCropFile(file);
 
       final uri = Uri.parse(
         "https://express-nodejs-nc12.onrender.com/predict/$_selectedModel",
@@ -247,7 +490,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                   SnackBar(
                     content: Text(message, style: GoogleFonts.robotoMono()),
                     backgroundColor: Colors.orange,
-                    duration: Duration(milliseconds: 800),
+                    duration: const Duration(milliseconds: 800),
                   ),
                 );
                 return; // Don't append NoSign to text
@@ -315,7 +558,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                 SnackBar(
                   content: Text(message, style: GoogleFonts.robotoMono()),
                   backgroundColor: Colors.orange,
-                  duration: Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 800),
                 ),
               );
             }
@@ -332,7 +575,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
       if (mounted) {
         String errorMessage = "Translation temporarily unavailable";
 
-        // Check for specific error types
         if (e.toString().contains('SocketException') ||
             e.toString().contains('TimeoutException')) {
           errorMessage = "Check your internet connection";
@@ -539,14 +781,22 @@ class _SignToTextPageState extends State<SignToTextPage> {
                           // Crop overlay
                           if (_isCropped)
                             Positioned.fill(
-                              child: GestureDetector(
-                                onPanStart: _onPanStart,
-                                onPanUpdate: _onPanUpdate,
-                                onPanEnd: _onPanEnd,
-                                child: CustomPaint(
-                                  painter: CropOverlayPainter(
-                                    cropRect: _cropRect,
-                                    screenSize: Size(cameraWidth, cameraHeight),
+                              child: MouseRegion(
+                                cursor: _isDragging
+                                    ? SystemMouseCursors.grabbing
+                                    : SystemMouseCursors.grab,
+                                child: GestureDetector(
+                                  onPanStart: _onPanStart,
+                                  onPanUpdate: _onPanUpdate,
+                                  onPanEnd: _onPanEnd,
+                                  child: CustomPaint(
+                                    painter: CropOverlayPainter(
+                                      cropRect: _cropRect,
+                                      screenSize: Size(
+                                        cameraWidth,
+                                        cameraHeight,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -567,10 +817,10 @@ class _SignToTextPageState extends State<SignToTextPage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'Drag to select capture area',
+                                  'Drag corners to resize • Drag edges to adjust • Drag inside to move',
                                   style: GoogleFonts.robotoMono(
                                     color: Colors.white,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   textAlign: TextAlign.center,
@@ -584,7 +834,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                               borderRadius: BorderRadius.circular(16),
                               child: AnimatedOpacity(
                                 opacity: _isFlickering ? 0.8 : 0.5,
-                                duration: Duration(milliseconds: 100),
+                                duration: const Duration(milliseconds: 100),
                                 child: Image.asset(
                                   _selectedModel == "alphabet"
                                       ? 'assets/images/HandScan.png'
@@ -738,9 +988,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.crop,
-                            color: const Color(0xFF334E7B),
+                            color: Color(0xFF334E7B),
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -861,11 +1111,20 @@ class CropOverlayPainter extends CustomPainter {
 
     final paint = Paint()
       ..color = Colors
-          .black26 // More transparent overlay
+          .black38 // Semi-transparent overlay
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()
       ..color = const Color(0xFF334E7B)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    final handlePaint = Paint()
+      ..color = const Color(0xFF334E7B)
+      ..style = PaintingStyle.fill;
+
+    final handleBorderPaint = Paint()
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -884,54 +1143,75 @@ class CropOverlayPainter extends CustomPainter {
     // Draw crop border
     canvas.drawRect(cropRect!, borderPaint);
 
-    // Draw corner handles (smaller and more subtle)
-    final handleSize = 12.0;
-    final handlePaint = Paint()
+    // Draw corner handles (larger and more visible)
+    const handleSize = 16.0;
+
+    final corners = [
+      Offset(cropRect!.left, cropRect!.top), // Top-left
+      Offset(cropRect!.right, cropRect!.top), // Top-right
+      Offset(cropRect!.left, cropRect!.bottom), // Bottom-left
+      Offset(cropRect!.right, cropRect!.bottom), // Bottom-right
+    ];
+
+    for (final corner in corners) {
+      final handleRect = Rect.fromCenter(
+        center: corner,
+        width: handleSize,
+        height: handleSize,
+      );
+
+      canvas.drawRect(handleRect, handleBorderPaint);
+      canvas.drawRect(handleRect, handlePaint);
+    }
+
+    // Draw edge handles (middle of each side)
+    const edgeHandleSize = 12.0;
+    final edgeHandlePaint = Paint()
       ..color = const Color(0xFF334E7B)
       ..style = PaintingStyle.fill;
 
-    // Top-left handle
-    canvas.drawRect(
-      Rect.fromLTWH(
-        cropRect!.left - handleSize / 2,
-        cropRect!.top - handleSize / 2,
-        handleSize,
-        handleSize,
-      ),
-      handlePaint,
+    final edges = [
+      Offset(cropRect!.center.dx, cropRect!.top), // Top edge
+      Offset(cropRect!.center.dx, cropRect!.bottom), // Bottom edge
+      Offset(cropRect!.left, cropRect!.center.dy), // Left edge
+      Offset(cropRect!.right, cropRect!.center.dy), // Right edge
+    ];
+
+    for (final edge in edges) {
+      canvas.drawCircle(edge, edgeHandleSize / 2 + 1, handleBorderPaint);
+      canvas.drawCircle(edge, edgeHandleSize / 2, edgeHandlePaint);
+    }
+
+    // Grid lines for guidance
+    final gridPaint = Paint()
+      ..color = const Color(0xFF334E7B).withOpacity(0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    // Vertical grid lines
+    final thirdWidth = cropRect!.width / 3;
+    canvas.drawLine(
+      Offset(cropRect!.left + thirdWidth, cropRect!.top),
+      Offset(cropRect!.left + thirdWidth, cropRect!.bottom),
+      gridPaint,
+    );
+    canvas.drawLine(
+      Offset(cropRect!.left + thirdWidth * 2, cropRect!.top),
+      Offset(cropRect!.left + thirdWidth * 2, cropRect!.bottom),
+      gridPaint,
     );
 
-    // Top-right handle
-    canvas.drawRect(
-      Rect.fromLTWH(
-        cropRect!.right - handleSize / 2,
-        cropRect!.top - handleSize / 2,
-        handleSize,
-        handleSize,
-      ),
-      handlePaint,
+    // Horizontal grid lines
+    final thirdHeight = cropRect!.height / 3;
+    canvas.drawLine(
+      Offset(cropRect!.left, cropRect!.top + thirdHeight),
+      Offset(cropRect!.right, cropRect!.top + thirdHeight),
+      gridPaint,
     );
-
-    // Bottom-left handle
-    canvas.drawRect(
-      Rect.fromLTWH(
-        cropRect!.left - handleSize / 2,
-        cropRect!.bottom - handleSize / 2,
-        handleSize,
-        handleSize,
-      ),
-      handlePaint,
-    );
-
-    // Bottom-right handle
-    canvas.drawRect(
-      Rect.fromLTWH(
-        cropRect!.right - handleSize / 2,
-        cropRect!.bottom - handleSize / 2,
-        handleSize,
-        handleSize,
-      ),
-      handlePaint,
+    canvas.drawLine(
+      Offset(cropRect!.left, cropRect!.top + thirdHeight * 2),
+      Offset(cropRect!.right, cropRect!.top + thirdHeight * 2),
+      gridPaint,
     );
   }
 

@@ -63,7 +63,47 @@ class AudioCardDetailScreen extends StatelessWidget {
             ),
             SizedBox(height: 24 * scale),
             if (signLanguagePath.isNotEmpty)
-              MediaViewer(filePath: signLanguagePath, scale: scale),
+              Center(
+                child: MediaViewer(filePath: signLanguagePath, scale: scale),
+              )
+            else
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(32 * scale),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12 * scale),
+                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 48 * scale,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 12 * scale),
+                    Text(
+                      "No Match Found",
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 18 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    SizedBox(height: 6 * scale),
+                    Text(
+                      "No sign language equivalent available for this phrase",
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 12 * scale,
+                        color: Colors.grey[500],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

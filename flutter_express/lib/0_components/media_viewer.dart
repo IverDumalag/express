@@ -337,18 +337,29 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.replay_10_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            _controller.seekTo(
-                              _controller.value.position -
-                                  Duration(seconds: 10),
-                            );
-                          },
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.arrow_left_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                _controller.seekTo(
+                                  _controller.value.position -
+                                      Duration(seconds: 1),
+                                );
+                              },
+                            ),
+                            Text(
+                              '1s',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(width: 8),
                         Container(
@@ -368,18 +379,29 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(
-                            Icons.forward_10_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            _controller.seekTo(
-                              _controller.value.position +
-                                  Duration(seconds: 10),
-                            );
-                          },
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.arrow_right_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                _controller.seekTo(
+                                  _controller.value.position +
+                                      Duration(seconds: 1),
+                                );
+                              },
+                            ),
+                            Text(
+                              '1s',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
