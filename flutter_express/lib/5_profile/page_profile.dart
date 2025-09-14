@@ -30,16 +30,20 @@ class _PageProfileState extends State<PageProfile> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Color(0xFF334E7B),
+            size: 32,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           "Profile",
           style: GoogleFonts.poppins(
-        color: const Color(0xFF334E7B),
-        fontWeight: FontWeight.w700,
-        fontSize: 22,
-        letterSpacing: 0.2,
+            color: const Color(0xFF334E7B),
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            letterSpacing: 0.2,
           ),
         ),
         centerTitle: true,
@@ -50,23 +54,12 @@ class _PageProfileState extends State<PageProfile> {
         shadowColor: Colors.transparent,
       ),
       body: user == null
-          ? Center(
-              child: Text(
-                "No user data",
-                style: GoogleFonts.robotoMono(),
-              ),
-            )
+          ? Center(child: Text("No user data", style: GoogleFonts.robotoMono()))
           : SingleChildScrollView(
-              padding: EdgeInsets.only(
-                top: 0, 
-                left: 24,
-                right: 24,
-                bottom: 24,
-              ),
+              padding: EdgeInsets.only(top: 0, left: 24, right: 24, bottom: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  
                   Center(
                     child: Text(
                       "",
@@ -79,7 +72,7 @@ class _PageProfileState extends State<PageProfile> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 20), 
+                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -104,10 +97,7 @@ class _PageProfileState extends State<PageProfile> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(
-                          color: Color(0xFF334E7B),
-                          width: 2,
-                        ),
+                        border: Border.all(color: Color(0xFF334E7B), width: 2),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -132,11 +122,7 @@ class _PageProfileState extends State<PageProfile> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Icon(
-                            Icons.check_circle,
-                            color: themeBlue,
-                            size: 22,
-                          ),
+                          Icon(Icons.check_circle, color: themeBlue, size: 22),
                         ],
                       ),
                     ),
@@ -211,7 +197,12 @@ class _PageProfileState extends State<PageProfile> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Padding(
-                      padding: EdgeInsets.only(left: 0, right: 16, top: 16, bottom: 16),
+                      padding: EdgeInsets.only(
+                        left: 0,
+                        right: 16,
+                        top: 16,
+                        bottom: 16,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -244,18 +235,27 @@ class _PageProfileState extends State<PageProfile> {
                               ),
                             ],
                           ),
-                          Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
+                          Divider(
+                            height: 16,
+                            thickness: 1,
+                            color: Color(0xFF334E7B),
+                          ),
                           // Birthdate
                           _profileItem(
                             icon: null,
                             label: "Birthdate",
-                            value: user!['birthdate'] != null &&
+                            value:
+                                user!['birthdate'] != null &&
                                     user!['birthdate'] != ''
                                 ? _formatDate(user!['birthdate'])
                                 : '',
                             themeBlue: themeBlue,
                           ),
-                          Divider(height: 16, thickness: 1, color: Color(0xFF334E7B)),
+                          Divider(
+                            height: 16,
+                            thickness: 1,
+                            color: Color(0xFF334E7B),
+                          ),
                           // Sex
                           _profileItem(
                             icon: null,
@@ -310,7 +310,7 @@ class _PageProfileState extends State<PageProfile> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(width: 12),
-                          Text( 
+                          Text(
                             "Edit Profile",
                             style: GoogleFonts.robotoMono(
                               fontSize: 16,
@@ -319,7 +319,11 @@ class _PageProfileState extends State<PageProfile> {
                             ),
                           ),
                           SizedBox(width: 12),
-                          Icon(Icons.chevron_right_outlined, color: Colors.white, size: 30),
+                          Icon(
+                            Icons.chevron_right_outlined,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ],
                       ),
                     ),
@@ -399,7 +403,7 @@ class _PageProfileState extends State<PageProfile> {
       "September",
       "October",
       "November",
-      "December"
+      "December",
     ];
     return months[month - 1];
   }
@@ -422,14 +426,20 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   bool loading = false;
   final List<String> sexOptions = ['Male', 'Female', 'Prefer not to say it'];
 
+  // Validation state variables
+  String? fNameError;
+  String? mNameError;
+  String? lNameError;
+
   @override
   void initState() {
     super.initState();
     fNameController = TextEditingController(text: widget.user['f_name'] ?? '');
     mNameController = TextEditingController(text: widget.user['m_name'] ?? '');
     lNameController = TextEditingController(text: widget.user['l_name'] ?? '');
-    birthdateController =
-        TextEditingController(text: widget.user['birthdate'] ?? '');
+    birthdateController = TextEditingController(
+      text: widget.user['birthdate'] ?? '',
+    );
     sexController = TextEditingController(text: widget.user['sex'] ?? '');
   }
 
@@ -443,24 +453,37 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     super.dispose();
   }
 
-  Future<void> _pickBirthdate() async {
-    DateTime? initialDate;
-    try {
-      initialDate = DateTime.parse(birthdateController.text);
-    } catch (_) {
-      initialDate = DateTime(2000, 1, 1);
+  // Validation helper functions
+  bool hasInvalidNameCharacters(String name) {
+    // Check for numbers and special characters (allow only letters, spaces, hyphens, and apostrophes)
+    return name.contains(RegExp(r'[0-9!@#$%^&*(),.?":{}|<>+=\[\]\\/_~`]'));
+  }
+
+  String? validateName(String value, String fieldName) {
+    if (fieldName == "Middle Name") {
+      // Middle name is optional but can't have invalid characters
+      if (value.trim().isNotEmpty && hasInvalidNameCharacters(value)) {
+        return "Numbers and special characters are not allowed";
+      }
+      return null;
+    } else {
+      // First name and last name are required
+      if (value.trim().isEmpty) {
+        return "$fieldName is required";
+      }
+      if (hasInvalidNameCharacters(value)) {
+        return "Numbers and special characters are not allowed";
+      }
+      return null;
     }
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      birthdateController.text =
-          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-      setState(() {});
-    }
+  }
+
+  void validateAllFields() {
+    setState(() {
+      fNameError = validateName(fNameController.text, "First Name");
+      mNameError = validateName(mNameController.text, "Middle Name");
+      lNameError = validateName(lNameController.text, "Last Name");
+    });
   }
 
   @override
@@ -512,6 +535,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 label: "First Name",
                 icon: null,
                 themeBlue: themeBlue,
+                errorText: fNameError,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -519,6 +543,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 label: "Middle Name",
                 icon: null,
                 themeBlue: themeBlue,
+                errorText: mNameError,
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -526,70 +551,25 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 label: "Last Name",
                 icon: null,
                 themeBlue: themeBlue,
+                errorText: lNameError,
               ),
               const SizedBox(height: 16),
-              GestureDetector(
-                onTap: _pickBirthdate,
-                child: AbsorbPointer(
-                  child: _buildTextField(
-                    controller: birthdateController,
-                    label: "Birthdate",
-                    icon: Icons.cake_outlined,
-                    suffixIcon: Icons.calendar_today_outlined,
-                    themeBlue: themeBlue,
-                  ),
-                ),
+              // Birthdate - Non-editable
+              _buildTextField(
+                controller: birthdateController,
+                label: "Birthdate",
+                icon: Icons.cake_outlined,
+                themeBlue: themeBlue,
+                readOnly: true,
               ),
               const SizedBox(height: 16),
-              SizedBox(
-                height: 64,
-                child: DropdownButtonFormField<String>(
-                  value: sexOptions.contains(sexController.text)
-                      ? sexController.text
-                      : null,
-                  items: sexOptions
-                      .map(
-                        (sex) => DropdownMenuItem(
-                          value: sex,
-                          child: Text(
-                            sex,
-                            style: GoogleFonts.robotoMono(
-                                color: themeBlue, fontSize: 15),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (val) {
-                    sexController.text = val ?? '';
-                    setState(() {});
-                  },
-                  dropdownColor: Colors.white,
-                  style:
-                      GoogleFonts.robotoMono(color: themeBlue, fontSize: 15),
-                  decoration: InputDecoration(
-                    labelText: "Sex",
-                    labelStyle: GoogleFonts.robotoMono(
-                        color: Colors.grey[600], fontSize: 14),
-                    prefixIcon: Icon(Icons.wc_outlined,
-                        color: Color(0xFF334E7B), size: 22),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: themeBlue, width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[400]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: themeBlue, width: 1.5),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 20, horizontal: 18),
-                  ),
-                ),
+              // Sex - Non-editable
+              _buildTextField(
+                controller: sexController,
+                label: "Sex",
+                icon: Icons.wc_outlined,
+                themeBlue: themeBlue,
+                readOnly: true,
               ),
               const SizedBox(height: 24),
               Row(
@@ -599,7 +579,10 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                     onPressed: loading ? null : () => Navigator.pop(context),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.grey[700],
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
                     child: Text(
                       "Cancel",
@@ -625,28 +608,37 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 10,
+                        ),
                       ),
                       onPressed: loading
                           ? null
                           : () async {
+                              // Validate all fields first
+                              validateAllFields();
+
+                              // Check if there are any validation errors
+                              if (fNameError != null ||
+                                  mNameError != null ||
+                                  lNameError != null) {
+                                return; // Don't proceed if there are validation errors
+                              }
+
                               setState(() => loading = true);
-                              final updatedUser = {
-                                ...widget.user,
-                                'f_name': fNameController.text.trim(),
-                                'm_name': mNameController.text.trim(),
-                                'l_name': lNameController.text.trim(),
-                                'birthdate': birthdateController.text.trim(),
-                                'sex': sexController.text.trim(),
-                              };
                               final result = await ApiService.editUser(
                                 userId: widget.user['user_id'].toString(),
                                 email: widget.user['email'] ?? '',
                                 fName: fNameController.text.trim(),
                                 mName: mNameController.text.trim(),
                                 lName: lNameController.text.trim(),
-                                sex: sexController.text.trim(),
-                                birthdate: birthdateController.text.trim(),
+                                sex:
+                                    widget.user['sex'] ??
+                                    '', // Keep original value
+                                birthdate:
+                                    widget.user['birthdate'] ??
+                                    '', // Keep original value
                               );
                               setState(() => loading = false);
                               if (result['status'] == 200 ||
@@ -656,8 +648,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                   'f_name': fNameController.text.trim(),
                                   'm_name': mNameController.text.trim(),
                                   'l_name': lNameController.text.trim(),
-                                  'birthdate': birthdateController.text.trim(),
-                                  'sex': sexController.text.trim(),
+                                  // Keep original birthdate and sex
                                 });
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -700,40 +691,108 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-  IconData? icon,
+    IconData? icon,
     IconData? suffixIcon,
     required Color themeBlue,
+    bool readOnly = false,
+    String? errorText,
   }) {
-    return SizedBox(
-      height: 64,
-      child: TextField(
-        controller: controller,
-        style: GoogleFonts.robotoMono(color: themeBlue, fontSize: 15),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle:
-              GoogleFonts.robotoMono(color: Color(0xFF334E7B), fontSize: 14, fontWeight: FontWeight.w500),
-          prefixIcon: icon != null ? Icon(icon, color: Color(0xFF334E7B), size: 22) : null,
-          suffixIcon: suffixIcon != null
-              ? Icon(suffixIcon, color: Colors.grey[600], size: 20)
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: themeBlue, width: 1.5),
+    final hasError = errorText != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 64,
+          child: TextField(
+            controller: controller,
+            readOnly: readOnly,
+            style: GoogleFonts.robotoMono(
+              color: readOnly ? Colors.grey[600] : themeBlue,
+              fontSize: 15,
+            ),
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: GoogleFonts.robotoMono(
+                color: hasError
+                    ? Colors.red[600]
+                    : readOnly
+                    ? Colors.grey[600]
+                    : Color(0xFF334E7B),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              prefixIcon: icon != null
+                  ? Icon(
+                      icon,
+                      color: hasError
+                          ? Colors.red[600]
+                          : readOnly
+                          ? Colors.grey[500]
+                          : Color(0xFF334E7B),
+                      size: 22,
+                    )
+                  : null,
+              suffixIcon: suffixIcon != null
+                  ? Icon(suffixIcon, color: Colors.grey[600], size: 20)
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: hasError
+                      ? Colors.red[600]!
+                      : readOnly
+                      ? Colors.grey[400]!
+                      : themeBlue,
+                  width: hasError ? 1.5 : 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: hasError ? Colors.red[600]! : Colors.grey[400]!,
+                  width: hasError ? 1.5 : 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: hasError
+                      ? Colors.red[600]!
+                      : readOnly
+                      ? Colors.grey[400]!
+                      : themeBlue,
+                  width: hasError
+                      ? 1.5
+                      : readOnly
+                      ? 1
+                      : 1.5,
+                ),
+              ),
+              filled: true,
+              fillColor: readOnly ? Colors.grey[100] : Colors.grey[50],
+              contentPadding: EdgeInsets.symmetric(
+                vertical: 20,
+                horizontal: 18,
+              ),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[400]!),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: themeBlue, width: 1.5),
-          ),
-          filled: true,
-          fillColor: Colors.grey[50],
-          contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 18),
         ),
-      ),
+        if (hasError) ...[
+          SizedBox(height: 6),
+          Padding(
+            padding: EdgeInsets.only(left: 12),
+            child: Text(
+              errorText,
+              style: GoogleFonts.robotoMono(
+                color: Colors.red[600],
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

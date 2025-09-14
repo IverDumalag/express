@@ -45,6 +45,7 @@ dependencies:
   intl: ^0.17.0
   speech_to_text: ^7.0.0
   camera: ^0.10.5+5
+  image: ^4.2.0
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -17,6 +17,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
   bool _loading = false;
   int _letterCount = 0;
 
+  // Validation state variables
+  String? _mainConcernError;
+  String? _detailsError;
+
   final List<String> _mainConcernOptions = [
     "Word/Phrases No Match",
     "Bug Found",
@@ -44,38 +48,50 @@ class _FeedbackPageState extends State<FeedbackPage> {
     super.dispose();
   }
 
+  // Validation functions
+  void _validateFields() {
+    setState(() {
+      // Validate main concern
+      if (_mainConcernController.text.trim().isEmpty) {
+        _mainConcernError = "Required";
+      } else {
+        _mainConcernError = null;
+      }
+
+      // Validate details
+      if (_detailsController.text.trim().isEmpty) {
+        _detailsError = "Required";
+      } else {
+        final letterCount = _detailsController.text
+            .replaceAll(RegExp(r'\s+'), '')
+            .length;
+        if (letterCount > 300) {
+          _detailsError = "Please limit your feedback to 300 letters";
+        } else {
+          _detailsError = null;
+        }
+      }
+    });
+  }
+
+  bool _hasValidationErrors() {
+    return _mainConcernError != null || _detailsError != null;
+  }
+
   Future<void> _submitFeedback() async {
     final user = UserSession.user;
     if (user == null) return;
 
+    // Validate fields first
+    _validateFields();
+
+    // Check if there are validation errors
+    if (_hasValidationErrors()) {
+      return; // Don't proceed if there are validation errors
+    }
+
     final mainConcern = _mainConcernController.text.trim();
     final details = _detailsController.text.trim();
-
-    if (mainConcern.isEmpty || details.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please fill in all fields.',
-            style: GoogleFonts.robotoMono(),
-          ),
-        ),
-      );
-      return;
-    }
-
-    // Check letter limit
-    final letterCount = details.replaceAll(RegExp(r'\s+'), '').length;
-    if (letterCount > 300) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please limit your feedback to 300 letters.',
-            style: GoogleFonts.robotoMono(),
-          ),
-        ),
-      );
-      return;
-    }
 
     setState(() => _loading = true);
 
@@ -192,105 +208,141 @@ class _FeedbackPageState extends State<FeedbackPage> {
             const SizedBox(height: 24),
 
             // Main Concern Dropdown/Autocomplete
-            Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text.isEmpty) {
-                  return _mainConcernOptions;
-                }
-                return _mainConcernOptions.where((String option) {
-                  return option.toLowerCase().contains(
-                    textEditingValue.text.toLowerCase(),
-                  );
-                });
-              },
-              fieldViewBuilder:
-                  (context, controller, focusNode, onEditingComplete) {
-                    _mainConcernController.text = controller.text;
-                    controller.addListener(() {
-                      _mainConcernController.text = controller.text;
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Autocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text.isEmpty) {
+                      return _mainConcernOptions;
+                    }
+                    return _mainConcernOptions.where((String option) {
+                      return option.toLowerCase().contains(
+                        textEditingValue.text.toLowerCase(),
+                      );
                     });
-                    return TextField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      style: GoogleFonts.robotoMono(),
-                      decoration: InputDecoration(
-                        labelText: 'Main Concern',
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF334E7B),
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF334E7B),
-                          ),
-                        ),
-                      ),
-                      onEditingComplete: onEditingComplete,
-                    );
                   },
-              optionsViewBuilder: (context, onSelected, options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    color: const Color.fromARGB(0, 84, 26, 26),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 40,
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFF334E7B),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: options.length,
-                        itemBuilder: (context, index) {
-                          final option = options.elementAt(index);
-                          return InkWell(
-                            onTap: () => onSelected(option),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              child: Text(
-                                option,
-                                style: GoogleFonts.robotoMono(
-                                  fontSize: 16,
-                                  color: const Color(0xFF334E7B),
-                                ),
+                  fieldViewBuilder:
+                      (context, controller, focusNode, onEditingComplete) {
+                        _mainConcernController.text = controller.text;
+                        controller.addListener(() {
+                          _mainConcernController.text = controller.text;
+                        });
+                        return TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          style: GoogleFonts.robotoMono(),
+                          decoration: InputDecoration(
+                            labelText: 'Main Concern',
+                            labelStyle: GoogleFonts.robotoMono(
+                              color: _mainConcernError != null
+                                  ? Colors.red[600]
+                                  : const Color(0xFF334E7B),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _mainConcernError != null
+                                    ? Colors.red[600]!
+                                    : const Color(0xFF334E7B),
                               ),
                             ),
-                          );
-                        },
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _mainConcernError != null
+                                    ? Colors.red[600]!
+                                    : Colors.grey[400]!,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _mainConcernError != null
+                                    ? Colors.red[600]!
+                                    : const Color(0xFF334E7B),
+                              ),
+                            ),
+                          ),
+                          onEditingComplete: onEditingComplete,
+                        );
+                      },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        color: const Color.fromARGB(0, 84, 26, 26),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 40,
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF334E7B),
+                              width: 1,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (context, index) {
+                              final option = options.elementAt(index);
+                              return InkWell(
+                                onTap: () => onSelected(option),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    option,
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 16,
+                                      color: const Color(0xFF334E7B),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  onSelected: (String selection) {
+                    _mainConcernController.text = selection;
+                  },
+                ),
+                if (_mainConcernError != null) ...[
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      _mainConcernError!,
+                      style: GoogleFonts.robotoMono(
+                        color: Colors.red[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                );
-              },
-              onSelected: (String selection) {
-                _mainConcernController.text = selection;
-              },
+                ],
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -303,6 +355,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   style: GoogleFonts.robotoMono(),
                   decoration: InputDecoration(
                     labelText: 'Details',
+                    labelStyle: GoogleFonts.robotoMono(
+                      color: _detailsError != null
+                          ? Colors.red[600]
+                          : const Color(0xFF334E7B),
+                    ),
                     alignLabelWithHint: true,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -310,13 +367,29 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B)),
+                      borderSide: BorderSide(
+                        color: _detailsError != null
+                            ? Colors.red[600]!
+                            : const Color(0xFF334E7B),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: _detailsError != null
+                            ? Colors.red[600]!
+                            : Colors.grey[400]!,
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.white,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFF334E7B)),
+                      borderSide: BorderSide(
+                        color: _detailsError != null
+                            ? Colors.red[600]!
+                            : const Color(0xFF334E7B),
+                      ),
                     ),
                     counterText: '',
                   ),
@@ -326,6 +399,20 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   inputFormatters: [LengthLimitingTextInputFormatter(300)],
                 ),
                 const SizedBox(height: 4),
+                if (_detailsError != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Text(
+                      _detailsError!,
+                      style: GoogleFonts.robotoMono(
+                        color: Colors.red[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
                 Align(
                   alignment: Alignment.centerRight,
                   child: Text(

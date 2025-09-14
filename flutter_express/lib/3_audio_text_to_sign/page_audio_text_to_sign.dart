@@ -3,6 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:google_fonts/google_fonts.dart';
 import '../0_components/help_widget.dart';
+import '../0_components/popup_information.dart';
 import '../00_services/api_services.dart';
 import 'audio_home_cards.dart';
 import '../global_variables.dart';
@@ -69,7 +70,15 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
   }
 
   Future<void> _handleSubmit(String text) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty) {
+      await PopupInformation.show(
+        context,
+        title: "Input Required",
+        message: "Please enter some text before submitting.",
+      );
+      return;
+    }
+
     final userId = UserSession.user?['user_id']?.toString() ?? "";
 
     String signLanguageUrl = '';
@@ -307,6 +316,43 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         int selectedIndex = _phrases.isNotEmpty
                             ? _phrases.length - 1
                             : 0;
+
+                        // Show "no match found" message when list is empty
+                        if (_phrases.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    "No Entry Yet",
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "Start typing or speaking to find sign language matches",
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
 
                         return ListView.builder(
                           controller: _scrollController,
