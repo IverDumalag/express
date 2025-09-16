@@ -1,12 +1,12 @@
-
-// import 'package:flutter/material.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:speech_to_text/speech_to_text.dart' as stt;
-// import 'package:google_fonts/google_fonts.dart';
-// import '../0_components/help_widget.dart';
-// import '../00_services/api_services.dart';
-// import 'audio_home_cards.dart';
-// import '../global_variables.dart';
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:google_fonts/google_fonts.dart';
+import '../0_components/help_widget.dart';
+import '../0_components/popup_information.dart';
+import '../00_services/api_services.dart';
+import 'audio_home_cards.dart';
+import '../global_variables.dart';
 
 class AudioTextToSignPage extends StatefulWidget {
   @override
@@ -53,12 +53,32 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         }
       });
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for loading phrases
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to load your saved phrases',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _handleSubmit(String text) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty) {
+      await PopupInformation.show(
+        context,
+        title: "Input Required",
+        message: "Please enter some text before submitting.",
+      );
+      return;
+    }
+
     final userId = UserSession.user?['user_id']?.toString() ?? "";
 
     String signLanguageUrl = '';
@@ -104,7 +124,8 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         }
       }
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for search failure (not critical)
+      // Search failed, but we'll continue saving without sign language match
     }
 
     // Close the "Finding match..." popup
@@ -154,25 +175,99 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       _textController.clear();
       await _loadPhrases();
     } catch (e) {
-      // Optionally show error
+      // Show user-friendly error for saving phrase
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to save your phrase. Please try again.',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
-  Future<void> _toggleRecording() async {
+  Future<void> _clearAllPhrases() async {
+    final userId = UserSession.user?['user_id']?.toString() ?? "";
+    if (userId.isEmpty) return;
+
+    try {
+      final result = await ApiService.deleteAudioPhrase(userId: userId);
+      if (result['status'] == 200) {
+        // Successfully deleted all phrases
+        setState(() {
+          _phrases.clear();
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'All entries successfully',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error: ${result['message'] ?? 'Failed to delete entries'}',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show user-friendly error message for delete failure
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to delete entries. Please try again.',
+              style: GoogleFonts.robotoMono(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _startRecording() async {
     if (!await Permission.microphone.isGranted) {
       final status = await Permission.microphone.request();
-      if (!status.isGranted) return;
+      if (!status.isGranted) {
+        // Show user-friendly message for microphone permission denial
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Microphone access is needed to record your voice',
+                style: GoogleFonts.robotoMono(color: Colors.white),
+              ),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
+      }
     }
 
-    setState(() => _isListening = !_isListening);
-    if (_isListening) {
-      _startListening();
-    } else {
-      _stopListening();
-    }
-  }
+    setState(() => _isListening = true);
+    _textController.clear(); // Clear previous text
 
-  void _startListening() async {
     await _speech.listen(
       onResult: (result) => setState(() {
         _textController.text = result.recognizedWords;
@@ -181,9 +276,14 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     );
   }
 
-  void _stopListening() async {
+  Future<void> _stopRecording() async {
+    if (!_isListening) return;
+
+    setState(() => _isListening = false);
     await _speech.stop();
-    if (_textController.text.isNotEmpty) {
+
+    // Perform submit if there's text
+    if (_textController.text.trim().isNotEmpty) {
       await _handleSubmit(_textController.text);
     }
   }
@@ -213,11 +313,46 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                     ),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        const double itemHeight = 90.0;
-                        final double listViewHeight = constraints.maxHeight;
                         int selectedIndex = _phrases.isNotEmpty
                             ? _phrases.length - 1
                             : 0;
+
+                        // Show "no match found" message when list is empty
+                        if (_phrases.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    "No Entry Yet",
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    "Start typing or speaking to find sign language matches",
+                                    style: GoogleFonts.robotoMono(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
 
                         return ListView.builder(
                           controller: _scrollController,
@@ -318,13 +453,12 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         child: TextField(
                           controller: _textController,
                           onSubmitted: _handleSubmit,
-                          style:
-                              GoogleFonts.robotoMono(), 
+                          style: GoogleFonts.robotoMono(),
                           decoration: InputDecoration(
                             hintText: 'Type to say something...',
                             hintStyle: GoogleFonts.robotoMono(
                               color: Colors.grey[600],
-                            ), 
+                            ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.all(8),
                           ),
@@ -343,7 +477,9 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                   alignment: Alignment.center,
                   margin: EdgeInsets.only(top: 2, bottom: 1),
                   child: GestureDetector(
-                    onTap: _toggleRecording,
+                    onTapDown: (_) => _startRecording(),
+                    onTapUp: (_) => _stopRecording(),
+                    onTapCancel: () => _stopRecording(),
                     child: Column(
                       children: [
                         Container(
@@ -364,7 +500,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Tap to speak',
+                          _isListening ? 'Recording...' : 'Hold to speak',
                           style: GoogleFonts.robotoMono(
                             color: Colors.grey[600],
                             fontSize: 18,
@@ -385,12 +521,17 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       side: BorderSide(color: Colors.red[200]!, width: 1.2),
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
                     ),
                     icon: Icon(Icons.delete_forever),
                     label: Text(
                       'Clear All',
-                      style: GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     onPressed: _phrases.isEmpty
                         ? null
@@ -398,16 +539,32 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (ctx) => AlertDialog(
-                                title: Text('Clear All?', style: GoogleFonts.robotoMono()),
-                                content: Text('Are you sure you want to delete all entries?', style: GoogleFonts.robotoMono()),
+                                title: Text(
+                                  'Clear All?',
+                                  style: GoogleFonts.robotoMono(),
+                                ),
+                                content: Text(
+                                  'Are you sure you want to delete all entries?',
+                                  style: GoogleFonts.robotoMono(),
+                                ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(false),
-                                    child: Text('Cancel', style: GoogleFonts.robotoMono()),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
                                   ),
                                   TextButton(
-                                    onPressed: () => Navigator.of(ctx).pop(true),
-                                    child: Text('Delete', style: GoogleFonts.robotoMono(color: Colors.red)),
+                                    onPressed: () =>
+                                        Navigator.of(ctx).pop(true),
+                                    child: Text(
+                                      'Delete',
+                                      style: GoogleFonts.robotoMono(
+                                        color: Colors.red,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -428,8 +585,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
               helpTitle: 'Audio/Text Input',
               helpText:
                   '1. Type or speak to convert to sign language\n'
-                  '2. Tap entries to view details\n'
-                  '3. Swipe left to delete entries',
+                  '2. Tap entries to view details',
             ),
           ),
         ],

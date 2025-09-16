@@ -40,6 +40,166 @@ class _RegisterState extends State<Register> {
   final birthdateController = TextEditingController();
   final otpController = TextEditingController();
 
+  // Password validation state
+  bool hasMinLength = false;
+  bool hasUppercase = false;
+  bool hasLowercase = false;
+  bool hasSpecialChar = false;
+  bool passwordsMatch = false;
+
+  // Name validation state
+  bool firstNameHasInvalidChars = false;
+  bool middleNameHasInvalidChars = false;
+  bool lastNameHasInvalidChars = false;
+
+  // Password validation functions
+  void validatePassword(String password) {
+    setState(() {
+      hasMinLength = password.length >= 8;
+      hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      hasLowercase = password.contains(RegExp(r'[a-z]'));
+      hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    });
+  }
+
+  void validatePasswordMatch() {
+    setState(() {
+      passwordsMatch =
+          password.isNotEmpty &&
+          confirmPassword.isNotEmpty &&
+          password == confirmPassword;
+    });
+  }
+
+  bool isPasswordValid() {
+    return hasMinLength && hasUppercase && hasLowercase && hasSpecialChar;
+  }
+
+  // Name validation functions
+  bool hasInvalidNameCharacters(String name) {
+    // Check for numbers and special characters (allow only letters, spaces, hyphens, and apostrophes)
+    return name.contains(RegExp(r'[0-9!@#$%^&*(),.?":{}|<>+=\[\]\\/_~`]'));
+  }
+
+  void validateFirstName(String name) {
+    setState(() {
+      firstNameHasInvalidChars = hasInvalidNameCharacters(name);
+    });
+  }
+
+  void validateMiddleName(String name) {
+    setState(() {
+      middleNameHasInvalidChars = hasInvalidNameCharacters(name);
+    });
+  }
+
+  void validateLastName(String name) {
+    setState(() {
+      lastNameHasInvalidChars = hasInvalidNameCharacters(name);
+    });
+  }
+
+  // Helper widget for validation indicators
+  Widget _buildValidationIndicator({
+    required String text,
+    required bool isValid,
+    required bool isSmallScreen,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.cancel,
+            color: isValid ? Colors.green : Colors.red,
+            size: isSmallScreen ? 16.0 : 18.0,
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.robotoMono(
+                color: isValid ? Colors.green : Colors.red,
+                fontSize: isSmallScreen ? 12.0 : 14.0,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper widget for password match indicator
+  Widget _buildPasswordMatchIndicator({required bool isSmallScreen}) {
+    if (confirmPassword.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            passwordsMatch ? Icons.check_circle : Icons.cancel,
+            color: passwordsMatch ? Colors.green : Colors.red,
+            size: isSmallScreen ? 16.0 : 18.0,
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Text(
+              passwordsMatch ? "Passwords match" : "Passwords don't match",
+              style: GoogleFonts.robotoMono(
+                color: passwordsMatch ? Colors.green : Colors.red,
+                fontSize: isSmallScreen ? 12.0 : 14.0,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper widget for name validation indicator
+  Widget _buildNameValidationIndicator({
+    required bool hasInvalidChars,
+    required bool isSmallScreen,
+  }) {
+    if (!hasInvalidChars) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.cancel,
+            color: Colors.red,
+            size: isSmallScreen ? 16.0 : 18.0,
+          ),
+          const SizedBox(width: 8.0),
+          Expanded(
+            child: Text(
+              "Numbers and special characters not allowed",
+              style: GoogleFonts.robotoMono(
+                color: Colors.red,
+                fontSize: isSmallScreen ? 12.0 : 14.0,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Generate random 6-digit OTP
   String generateOTP() {
     return (100000 + (900000 * (DateTime.now().millisecond / 1000)).floor())
@@ -60,12 +220,25 @@ class _RegisterState extends State<Register> {
       error = null;
     });
 
-    final otp = generateOTP();
-    setState(() {
-      sentOtp = otp;
-    });
-
     try {
+      // Check if email already exists
+      bool emailExists = await ApiService.checkEmailExists(email.trim());
+
+      if (emailExists) {
+        await PopupInformation.show(
+          context,
+          title: "Email Already Registered",
+          message:
+              "This email address is already registered. Please use a different email or try logging in instead.",
+        );
+        return;
+      }
+
+      final otp = generateOTP();
+      setState(() {
+        sentOtp = otp;
+      });
+
       const otpUrl = 'https://express-nodejs-nc12.onrender.com/send-otp';
       final response = await http.post(
         Uri.parse(otpUrl),
@@ -89,10 +262,34 @@ class _RegisterState extends State<Register> {
         throw Exception(result['message'] ?? 'Failed to send OTP');
       }
     } catch (e) {
+      String errorMessage =
+          "We couldn't send the verification code to your email.";
+      String errorTitle = "Email Verification Failed";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorTitle = "Connection Problem";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('FormatException') ||
+          e.toString().contains('invalid email')) {
+        errorTitle = "Invalid Email";
+        errorMessage = "Please enter a valid email address.";
+      } else if (e.toString().contains('Error checking email') ||
+          e.toString().contains('Failed to fetch users')) {
+        errorTitle = "Verification Error";
+        errorMessage = "Unable to verify email availability. Please try again.";
+      } else if (e.toString().contains('already exists') ||
+          e.toString().contains('duplicate')) {
+        errorTitle = "Email Already Used";
+        errorMessage =
+            "This email is already registered. Please use a different email or try logging in.";
+      }
+
       await PopupInformation.show(
         context,
-        title: "Error",
-        message: "Failed to send OTP. Please try again.",
+        title: errorTitle,
+        message: errorMessage,
       );
     } finally {
       setState(() {
@@ -124,8 +321,9 @@ class _RegisterState extends State<Register> {
     if (otpCode != sentOtp) {
       await PopupInformation.show(
         context,
-        title: "Error",
-        message: "Invalid OTP. Please try again.",
+        title: "Verification Failed",
+        message:
+            "The code you entered doesn't match. Please check your email and try again.",
       );
       return;
     }
@@ -163,9 +361,31 @@ class _RegisterState extends State<Register> {
         });
       }
     } catch (e) {
-      setState(() {
-        error = 'Network error';
-      });
+      String errorMessage = "We couldn't complete your registration.";
+      String errorTitle = "Registration Failed";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorTitle = "Connection Problem";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('already exists') ||
+          e.toString().contains('duplicate')) {
+        errorTitle = "Account Already Exists";
+        errorMessage =
+            "An account with this email already exists. Please try logging in instead.";
+      } else if (e.toString().contains('invalid') ||
+          e.toString().contains('format')) {
+        errorTitle = "Invalid Information";
+        errorMessage =
+            "Please check that all information is entered correctly.";
+      }
+
+      await PopupInformation.show(
+        context,
+        title: errorTitle,
+        message: errorMessage,
+      );
     } finally {
       setState(() {
         loading = false;
@@ -177,6 +397,12 @@ class _RegisterState extends State<Register> {
     if (!otpStep) {
       // First step: Validate form and send OTP
       if (!_formKey.currentState!.validate()) return;
+      if (!isPasswordValid()) {
+        setState(() {
+          error = "Password must meet all requirements";
+        });
+        return;
+      }
       if (password != confirmPassword) {
         setState(() {
           error = "Passwords do not match";
@@ -213,24 +439,28 @@ class _RegisterState extends State<Register> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     void Function(String?)? onSaved,
+    void Function(String)? onChanged,
     TextEditingController? controller,
     VoidCallback? onTap,
     bool readOnly = false,
     Widget? suffixIcon,
+    int? maxLength,
   }) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
-  final fontSize = isSmallScreen ? 16.0 : 18.0;
-  final fieldFontSize = fontSize * 0.85;
+    final fontSize = isSmallScreen ? 16.0 : 18.0;
+    final fieldFontSize = fontSize * 0.85;
 
     return TextFormField(
       obscureText: obscure,
       keyboardType: keyboardType,
       validator: validator,
       onSaved: onSaved,
+      onChanged: onChanged,
       controller: controller,
       onTap: onTap,
       readOnly: readOnly,
+      maxLength: maxLength,
       style: GoogleFonts.robotoMono(fontSize: fieldFontSize),
       decoration: InputDecoration(
         hintText: hint,
@@ -263,7 +493,6 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
     final isSmallScreen = screenWidth < 400;
     final isMediumScreen = screenWidth >= 400 && screenWidth < 600;
     final isLargeScreen = screenWidth >= 600;
@@ -288,7 +517,6 @@ class _RegisterState extends State<Register> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -303,87 +531,217 @@ class _RegisterState extends State<Register> {
                       child: Container(
                         width: maxWidth,
                         padding: EdgeInsets.all(containerPadding),
-                        
+
                         child: Form(
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                                Center(
+                              Center(
                                 child: Column(
                                   children: [
                                     Text(
                                       "Register",
                                       style: GoogleFonts.robotoMono(
-                                      fontSize: titleSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF334E7B),
+                                        fontSize: titleSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF334E7B),
                                       ),
                                     ),
                                     SizedBox(height: spacing * 0.5),
                                     Text(
                                       otpStep
-                                        ? "Enter the verification code sent to your email"
-                                        : "Sign up to get started",
+                                          ? "Enter the verification code sent to your email"
+                                          : "Sign up to get started",
                                       style: GoogleFonts.robotoMono(
-                                      fontSize: subtitleSize,
-                                      color: Colors.grey,
+                                        fontSize: subtitleSize,
+                                        color: Colors.grey,
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
-                                ),
-                                  SizedBox(height: spacing * 2.9),
-                               
-                            
+                              ),
+                              SizedBox(height: spacing * 2.9),
 
                               if (!otpStep) ...[
                                 // Registration Form
-                                _buildField(
-                                  hint: "First Name",
-                                  validator: (v) =>
-                                      v!.isEmpty ? "Required" : null,
-                                  onSaved: (v) => fName = v!.trim(),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildField(
+                                      hint: "First Name",
+                                      maxLength: 50,
+                                      validator: (v) {
+                                        if (v == null || v.trim().isEmpty) {
+                                          return "First name is required";
+                                        }
+                                        if (v.trim().length > 50) {
+                                          return "First name must be 50 characters or less";
+                                        }
+                                        if (hasInvalidNameCharacters(v)) {
+                                          return "Only letters, spaces, hyphens, and apostrophes are allowed";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (v) => fName = v!.trim(),
+                                      onChanged: (v) {
+                                        validateFirstName(v);
+                                      },
+                                    ),
+                                    _buildNameValidationIndicator(
+                                      hasInvalidChars: firstNameHasInvalidChars,
+                                      isSmallScreen: isSmallScreen,
+                                    ),
+                                  ],
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 // Responsive row for name fields
                                 if (isSmallScreen) ...[
-                                  _buildField(
-                                    hint: "Middle Name",
-                                    onSaved: (v) => mName = v!.trim(),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildField(
+                                        hint: "Middle Name",
+                                        maxLength: 50,
+                                        validator: (v) {
+                                          if (v != null &&
+                                              v.trim().length > 50) {
+                                            return "Middle name must be 50 characters or less";
+                                          }
+                                          if (v != null &&
+                                              hasInvalidNameCharacters(v)) {
+                                            return "Only letters, spaces, hyphens, and apostrophes are allowed";
+                                          }
+                                          return null;
+                                        },
+                                        onSaved: (v) => mName = v!.trim(),
+                                        onChanged: (v) {
+                                          validateMiddleName(v);
+                                        },
+                                      ),
+                                      _buildNameValidationIndicator(
+                                        hasInvalidChars:
+                                            middleNameHasInvalidChars,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                    ],
                                   ),
-                                    SizedBox(height: spacing * 0.7),
-                                  _buildField(
-                                    hint: "Surname",
-                                    validator: (v) =>
-                                        v!.isEmpty ? "Required" : null,
-                                    onSaved: (v) => lName = v!.trim(),
+                                  SizedBox(height: spacing * 0.7),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildField(
+                                        hint: "Surname",
+                                        maxLength: 50,
+                                        validator: (v) {
+                                          if (v == null || v.trim().isEmpty) {
+                                            return "Surname is required";
+                                          }
+                                          if (v.trim().length > 50) {
+                                            return "Surname must be 50 characters or less";
+                                          }
+                                          if (hasInvalidNameCharacters(v)) {
+                                            return "Only letters, spaces, hyphens, and apostrophes are allowed";
+                                          }
+                                          return null;
+                                        },
+                                        onSaved: (v) => lName = v!.trim(),
+                                        onChanged: (v) {
+                                          validateLastName(v);
+                                        },
+                                      ),
+                                      _buildNameValidationIndicator(
+                                        hasInvalidChars:
+                                            lastNameHasInvalidChars,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                    ],
                                   ),
                                 ] else ...[
                                   Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
-                                        child: _buildField(
-                                          hint: "Middle Name",
-                                          onSaved: (v) => mName = v!.trim(),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            _buildField(
+                                              hint: "Middle Name",
+                                              maxLength: 50,
+                                              validator: (v) {
+                                                if (v != null &&
+                                                    v.trim().length > 50) {
+                                                  return "Middle name must be 50 characters or less";
+                                                }
+                                                if (v != null &&
+                                                    hasInvalidNameCharacters(
+                                                      v,
+                                                    )) {
+                                                  return "Only letters, spaces, hyphens, and apostrophes are allowed";
+                                                }
+                                                return null;
+                                              },
+                                              onSaved: (v) => mName = v!.trim(),
+                                              onChanged: (v) {
+                                                validateMiddleName(v);
+                                              },
+                                            ),
+                                            _buildNameValidationIndicator(
+                                              hasInvalidChars:
+                                                  middleNameHasInvalidChars,
+                                              isSmallScreen: isSmallScreen,
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                        SizedBox(width: spacing * 0.7),
+                                      SizedBox(width: spacing * 0.7),
                                       Expanded(
-                                        child: _buildField(
-                                          hint: "Surname",
-                                          validator: (v) =>
-                                              v!.isEmpty ? "Required" : null,
-                                          onSaved: (v) => lName = v!.trim(),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            _buildField(
+                                              hint: "Surname",
+                                              maxLength: 50,
+                                              validator: (v) {
+                                                if (v == null ||
+                                                    v.trim().isEmpty) {
+                                                  return "Surname is required";
+                                                }
+                                                if (v.trim().length > 50) {
+                                                  return "Surname must be 50 characters or less";
+                                                }
+                                                if (hasInvalidNameCharacters(
+                                                  v,
+                                                )) {
+                                                  return "Only letters, spaces, hyphens, and apostrophes are allowed";
+                                                }
+                                                return null;
+                                              },
+                                              onSaved: (v) => lName = v!.trim(),
+                                              onChanged: (v) {
+                                                validateLastName(v);
+                                              },
+                                            ),
+                                            _buildNameValidationIndicator(
+                                              hasInvalidChars:
+                                                  lastNameHasInvalidChars,
+                                              isSmallScreen: isSmallScreen,
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ],
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
@@ -399,15 +757,24 @@ class _RegisterState extends State<Register> {
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
                                   dropdownColor: Colors.white,
@@ -430,7 +797,7 @@ class _RegisterState extends State<Register> {
                                   onChanged: (v) => sex = v ?? '',
                                   onSaved: (v) => sex = v ?? '',
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Birthdate",
@@ -458,7 +825,7 @@ class _RegisterState extends State<Register> {
                                   suffixIcon: const Icon(Icons.calendar_today),
                                   // Border color handled in _buildField
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
                                 _buildField(
                                   hint: "Email",
@@ -474,45 +841,109 @@ class _RegisterState extends State<Register> {
                                   },
                                   onSaved: (v) => email = v!.trim(),
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
-                                _buildField(
-                                  hint:
-                                      "Password (At least 8+ strong characters)",
-                                  obscure: !showPassword,
-                                  validator: (v) => v!.length < 8
-                                      ? "Minimum 8 characters"
-                                      : null,
-                                  onSaved: (v) => password = v!,
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      showPassword ? Icons.visibility : Icons.visibility_off,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildField(
+                                      hint: "Password",
+                                      obscure: !showPassword,
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) {
+                                          return "Password is required";
+                                        }
+                                        if (!isPasswordValid()) {
+                                          return "Password must meet all requirements below";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (v) => password = v!,
+                                      onChanged: (v) {
+                                        password = v;
+                                        validatePassword(v);
+                                        validatePasswordMatch();
+                                      },
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          showPassword
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            showPassword = !showPassword;
+                                          });
+                                        },
+                                      ),
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        showPassword = !showPassword;
-                                      });
-                                    },
-                                  ),
+                                    // Password validation indicators
+                                    if (password.isNotEmpty) ...[
+                                      const SizedBox(height: 8.0),
+                                      _buildValidationIndicator(
+                                        text: "At least 8 characters",
+                                        isValid: hasMinLength,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                      _buildValidationIndicator(
+                                        text: "1 uppercase letter",
+                                        isValid: hasUppercase,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                      _buildValidationIndicator(
+                                        text: "1 lowercase letter",
+                                        isValid: hasLowercase,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                      _buildValidationIndicator(
+                                        text: "1 special character",
+                                        isValid: hasSpecialChar,
+                                        isSmallScreen: isSmallScreen,
+                                      ),
+                                    ],
+                                  ],
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 0.7),
 
-                                _buildField(
-                                  hint: "Confirm Password",
-                                  obscure: !showConfirmPassword,
-                                  validator: (v) =>
-                                      v!.isEmpty ? "Confirm password" : null,
-                                  onSaved: (v) => confirmPassword = v!,
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildField(
+                                      hint: "Confirm Password",
+                                      obscure: !showConfirmPassword,
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) {
+                                          return "Please confirm your password";
+                                        }
+                                        if (v != password) {
+                                          return "Passwords don't match";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (v) => confirmPassword = v!,
+                                      onChanged: (v) {
+                                        confirmPassword = v;
+                                        validatePasswordMatch();
+                                      },
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          showConfirmPassword
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            showConfirmPassword =
+                                                !showConfirmPassword;
+                                          });
+                                        },
+                                      ),
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        showConfirmPassword = !showConfirmPassword;
-                                      });
-                                    },
-                                  ),
+                                    // Password match indicator
+                                    _buildPasswordMatchIndicator(
+                                      isSmallScreen: isSmallScreen,
+                                    ),
+                                  ],
                                 ),
                               ] else ...[
                                 // OTP Verification Form
@@ -538,69 +969,79 @@ class _RegisterState extends State<Register> {
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.robotoMono(
-                                    fontSize: isSmallScreen ? 20.0 : 22.0, 
+                                    fontSize: isSmallScreen ? 20.0 : 22.0,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: isSmallScreen ? 4.0 : 8.0,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: "Enter 6-digit code",
                                     hintStyle: GoogleFonts.robotoMono(
-                                      fontSize: isSmallScreen ? 16.0 : 18.0, 
+                                      fontSize: isSmallScreen ? 16.0 : 18.0,
                                       fontWeight: FontWeight.normal,
-                                      letterSpacing: isSmallScreen ? 2.0 : 4.0, 
+                                      letterSpacing: isSmallScreen ? 2.0 : 4.0,
                                       color: Colors.grey[500],
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
                                     contentPadding: EdgeInsets.symmetric(
-                                      horizontal: isSmallScreen ? 8 : 12, // Reduce horizontal padding
-                                      vertical: isSmallScreen ? 12 : 14,  // Adjust vertical padding
+                                      horizontal: isSmallScreen
+                                          ? 8
+                                          : 12, // Reduce horizontal padding
+                                      vertical: isSmallScreen
+                                          ? 12
+                                          : 14, // Adjust vertical padding
                                     ),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Color(0xFF334E7B), width: 1),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF334E7B),
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
                                   maxLength: 6,
                                 ),
-                                  SizedBox(height: spacing * 0.7),
+                                SizedBox(height: spacing * 1.5),
 
-                                if (resendTimer > 0)
-                                  Center(
+                                Center(
+                                  child: TextButton(
+                                    onPressed: (otpLoading || resendTimer > 0)
+                                        ? null
+                                        : sendOTP,
                                     child: Text(
-                                      "Resend code in ${resendTimer}s",
+                                      otpLoading
+                                          ? "Sending..."
+                                          : resendTimer > 0
+                                          ? "Resend Code (${resendTimer}s)"
+                                          : "Resend Code",
                                       style: GoogleFonts.robotoMono(
-                                        color: Colors.grey,
+                                        color: (otpLoading || resendTimer > 0)
+                                            ? Colors.grey
+                                            : const Color(0xFF334E7B),
                                         fontSize: isSmallScreen ? 14.0 : 16.0,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  SizedBox(height: spacing * 2.7), //space pala to sa resend code text
-                                  Center(
-                                    child: TextButton(
-                                      onPressed: otpLoading ? null : sendOTP,
-                                      child: Text(
-                                        otpLoading
-                                            ? "Sending..."
-                                            : "Resend Code",
-                                        style: GoogleFonts.robotoMono(
-                                          color: const Color(0xFF334E7B),
-                                          fontSize: isSmallScreen ? 14.0 : 16.0,
-                                          decoration: TextDecoration.underline,
-                                        ),
+                                        decoration:
+                                            (otpLoading || resendTimer > 0)
+                                            ? TextDecoration.none
+                                            : TextDecoration.underline,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: spacing * 0.7),
+                                ),
+                                SizedBox(height: spacing * 0.7),
 
                                 SizedBox(
                                   width: double.infinity,

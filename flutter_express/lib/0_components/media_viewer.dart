@@ -58,10 +58,7 @@ class _NoMatchFound extends StatelessWidget {
             Text(
               'Unsupported media type',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 14),
             ),
           ],
         ),
@@ -94,76 +91,78 @@ class _ImageViewer extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: filePath.startsWith('http') || filePath.startsWith('https')
-            ? Image.network(
-                filePath,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey[100],
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ? Image.network(
+                  filePath,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      color: Colors.grey[100],
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[100],
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.broken_image_rounded,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Failed to load image',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[100],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.broken_image_rounded,
+                            size: 64,
+                            color: Colors.grey[400],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )
-            : Image.asset(
-                filePath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[100],
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline_rounded,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Error loading image',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+                          SizedBox(height: 8),
+                          Text(
+                            'Image not available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : Image.asset(
+                  filePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[100],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Image not available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
         ),
       ),
     );
@@ -210,6 +209,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
           }
         })
         .catchError((error) {
+          // Video loading failed - the UI will handle this gracefully
           print("Error initializing video: $error");
         });
 
@@ -234,7 +234,6 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (!_controller.value.isInitialized) {
@@ -256,10 +255,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
               SizedBox(height: 16),
               Text(
                 'Loading video...',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
             ],
           ),
@@ -294,7 +290,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                   child: VideoPlayer(_controller),
                 ),
               ),
-              
+
               // Buffering indicator
               if (_isBuffering)
                 Container(
@@ -311,7 +307,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                 ),
             ],
           ),
-          
+
           // Controls section
           Container(
             padding: EdgeInsets.all(16),
@@ -334,25 +330,36 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                     // Time indicator
                     Text(
                       _formatDuration(_controller.value.position),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
-                    
+
                     // Control buttons
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.replay_10_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            _controller.seekTo(_controller.value.position - Duration(seconds: 10));
-                          },
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.arrow_left_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                _controller.seekTo(
+                                  _controller.value.position -
+                                      Duration(seconds: 1),
+                                );
+                              },
+                            ),
+                            Text(
+                              '1s',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(width: 8),
                         Container(
@@ -362,8 +369,8 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              _controller.value.isPlaying 
-                                  ? Icons.pause_rounded 
+                              _controller.value.isPlaying
+                                  ? Icons.pause_rounded
                                   : Icons.play_arrow_rounded,
                               color: Colors.white,
                               size: 28,
@@ -372,19 +379,33 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        IconButton(
-                          icon: Icon(
-                            Icons.forward_10_rounded,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          onPressed: () {
-                            _controller.seekTo(_controller.value.position + Duration(seconds: 10));
-                          },
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.arrow_right_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () {
+                                _controller.seekTo(
+                                  _controller.value.position +
+                                      Duration(seconds: 1),
+                                );
+                              },
+                            ),
+                            Text(
+                              '1s',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    
+
                     // Right side controls
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -415,10 +436,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                   children: [
                     Text(
                       _formatDuration(_controller.value.duration),
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   ],
                 ),
@@ -429,14 +447,14 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
       ),
     );
   }
-  
+
   String _formatDuration(Duration duration) {
     if (duration == Duration.zero) return "0:00";
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return "$hours:${twoDigits(minutes)}:${twoDigits(seconds)}";
     } else {
@@ -477,8 +495,8 @@ class _CustomProgressBar extends StatelessWidget {
     final positionMs = controller.value.position.inMilliseconds;
     final progressRatio = durationMs > 0 ? positionMs / durationMs : 0.0;
     final double filledBarWidth = progressRatio * width;
-    final double bufferedEnd = controller.value.buffered.isNotEmpty 
-        ? controller.value.buffered.last.end.inMilliseconds / durationMs * width 
+    final double bufferedEnd = controller.value.buffered.isNotEmpty
+        ? controller.value.buffered.last.end.inMilliseconds / durationMs * width
         : 0.0;
 
     return GestureDetector(
@@ -503,7 +521,7 @@ class _CustomProgressBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
-            
+
             // Buffered progress
             if (bufferedEnd > 0)
               Container(
@@ -514,7 +532,7 @@ class _CustomProgressBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(height / 2),
                 ),
               ),
-            
+
             // Played progress
             Container(
               width: filledBarWidth,
@@ -524,7 +542,7 @@ class _CustomProgressBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
-            
+
             // Thumb
             Positioned(
               left: filledBarWidth - circleDiameter / 2,

@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static Future<Map<String, dynamic>> restoreCard({required String entryId}) async {
+  static Future<Map<String, dynamic>> restoreCard({
+    required String entryId,
+  }) async {
     // Restore by updating status to 'active'
     return await updateStatus(entryId: entryId, status: 'active');
   }
+
   static const String baseUrl = 'https://express-php.onrender.com/api';
 
   static Future<Map<String, dynamic>> login(
@@ -166,6 +169,18 @@ class ApiService {
     return jsonDecode(res.body);
   }
 
+  static Future<Map<String, dynamic>> deleteAudioPhrase({
+    required String userId,
+  }) async {
+    final url = Uri.parse('$baseUrl/audioPhrasesWordsDeleteById.php');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'user_id': userId}),
+    );
+    return jsonDecode(response.body);
+  }
+
   static Future<Map<String, dynamic>> editUser({
     required String userId,
     required String email,
@@ -227,5 +242,47 @@ class ApiService {
       body: jsonEncode({'entry_id': entryId}),
     );
     return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> wakephp() async {
+    final url = Uri.parse('$baseUrl/wake.php');
+    final response = await http.get(url);
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> wakenodejs() async {
+    final url = Uri.parse('https://express-nodejs-nc12.onrender.com/wake');
+    final response = await http.get(url);
+    return jsonDecode(response.body);
+  }
+
+  static Future<void> wakeAllServices() async {
+    try {
+      // Wake both services simultaneously
+      await Future.wait([wakephp(), wakenodejs()]);
+    } catch (e) {
+      // Silently handle wake errors to not disrupt app startup
+      print('Wake services error: $e');
+    }
+  }
+
+  static Future<bool> checkEmailExists(String email) async {
+    try {
+      final url = Uri.parse('$baseUrl/users.php');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email}),
+      );
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        return result['exists'] ?? false;
+      } else {
+        throw Exception('Failed to check email availability');
+      }
+    } catch (e) {
+      throw Exception('Error checking email: $e');
+    }
   }
 }

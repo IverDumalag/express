@@ -7,6 +7,7 @@ import 'more_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
+import '00_services/api_services.dart';
 import '1_home/page_home.dart';
 import '2_sign_to_text/page_sign_to_text.dart';
 import '3_audio_text_to_sign/page_audio_text_to_sign.dart';
@@ -62,6 +63,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
+    // Wake up backend services (run in background)
+    ApiService.wakeAllServices();
+
     final prefs = await SharedPreferences.getInstance();
 
     // Check if intro has been seen
@@ -86,10 +90,19 @@ class _SplashScreenState extends State<SplashScreen> {
         GlobalVariables.currentIndex = 0; // Set to home tab
         Navigator.pushReplacementNamed(context, '/main');
       } catch (e) {
-        // If there's an error parsing user data, go to login
+        // If there's an error parsing user data, clear stored data and go to login
         await prefs.remove('isLoggedIn');
         await prefs.remove('userData');
         Navigator.pushReplacementNamed(context, '/login');
+
+        // Show user-friendly message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Session expired. Please log in again.'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } else if (!seenIntro) {
       // First time user, show intro
@@ -109,11 +122,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // new logo
-            Image.asset(
-              'assets/images/newlogo.png',
-              width: 200,
-              height: 200,
-            ),
+            Image.asset('assets/images/newlogo.png', width: 200, height: 200),
             const SizedBox(height: 20),
             Text(
               'exPress',

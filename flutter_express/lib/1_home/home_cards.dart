@@ -99,6 +99,15 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
     });
     flutterTts.setErrorHandler((msg) {
       _resetLoud();
+      // Show user-friendly error popup
+      if (context.mounted) {
+        PopupInformation.show(
+          context,
+          title: "Audio Not Available",
+          message:
+              "Sorry, we couldn't read this text aloud. Please check your device's audio settings.",
+        );
+      }
     });
   }
 
@@ -129,15 +138,32 @@ class _InteractiveSpeakerIconState extends State<InteractiveSpeakerIcon> {
           // Fallback: reset after 3 seconds if TTS doesn't call handler
           _fallbackTimer?.cancel();
           _fallbackTimer = Timer(Duration(seconds: 3), _resetLoud);
-          await flutterTts.speak(widget.text);
+
+          try {
+            await flutterTts.speak(widget.text);
+          } catch (e) {
+            _resetLoud();
+            if (context.mounted) {
+              PopupInformation.show(
+                context,
+                title: "Audio Not Available",
+                message:
+                    "Sorry, we couldn't read this text aloud. Please check your device's audio settings.",
+              );
+            }
+          }
         } else {
-          await flutterTts.stop();
+          try {
+            await flutterTts.stop();
+          } catch (e) {
+            // Silent fail for stop operation
+          }
           _resetLoud();
         }
       },
       child: Icon(
-        isLoud ? Icons.speaker_phone : Icons.speaker,
-        color: widget.color,
+        Icons.volume_up,
+        color: isLoud ? const Color(0xFF2E5C9A) : widget.color,
         size: 30 * widget.scale,
       ),
     );
@@ -248,11 +274,13 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
     // Prevent empty or duplicate
     if (newWords.isEmpty) {
       setState(() => editLoading = false);
-      PopupInformation.show(
-        context,
-        title: "Error",
-        message: "Word/Phrase cannot be empty.",
-      );
+      if (context.mounted) {
+        PopupInformation.show(
+          context,
+          title: "Text Required",
+          message: "Please enter some text before saving.",
+        );
+      }
       return;
     }
     // Check for duplicate in the list (excluding current)
@@ -264,39 +292,50 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
     );
     if (isDuplicate) {
       setState(() => editLoading = false);
-      PopupInformation.show(
-        context,
-        title: "Error",
-        message: "Duplicate entry not allowed.",
-      );
+      if (context.mounted) {
+        PopupInformation.show(
+          context,
+          title: "Already Exists",
+          message:
+              "This text already exists in your collection. Please enter something different.",
+        );
+      }
       return;
     }
 
     try {
       // Try to search for a match first
-      final searchJson = await ApiService.trySearch(newWords);
       String signLanguageUrl = '';
       bool matchFound = false;
-      if (searchJson?['public_id'] != null &&
-          searchJson?['all_files'] is List) {
-        final file = (searchJson!['all_files'] as List).firstWhere(
-          (f) => f['public_id'] == searchJson['public_id'],
-          orElse: () => null,
-        );
-        if (file != null) {
-          signLanguageUrl = file['url'];
-          matchFound = true;
+
+      try {
+        final searchJson = await ApiService.trySearch(newWords);
+        if (searchJson?['public_id'] != null &&
+            searchJson?['all_files'] is List) {
+          final file = (searchJson!['all_files'] as List).firstWhere(
+            (f) => f['public_id'] == searchJson['public_id'],
+            orElse: () => null,
+          );
+          if (file != null) {
+            signLanguageUrl = file['url'];
+            matchFound = true;
+          }
         }
+      } catch (searchError) {
+        // Search failed, but we'll continue with empty sign language
+        // This is not a critical error - just means no match found
       }
 
       // Show popup before updating
-      await PopupInformation.show(
-        context,
-        title: matchFound ? "Match Found!" : "No Match",
-        message: matchFound
-            ? "A match was found for your word/phrase."
-            : "No match found, but will update your entry.",
-      );
+      if (context.mounted) {
+        await PopupInformation.show(
+          context,
+          title: matchFound ? "Match Found!" : "No Match",
+          message: matchFound
+              ? "A match was found for your word/phrase."
+              : "No match found, but will update your entry.",
+        );
+      }
 
       // Call API to update, now with sign_language
       final result = await ApiService.editCard(
@@ -313,24 +352,58 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
         if (widget.onEdit != null) {
           widget.onEdit!(widget.items[currentIndex]);
         }
-        PopupInformation.show(
-          context,
-          title: "Success!",
-          message: "Updated successfully.",
-        );
+        if (context.mounted) {
+          PopupInformation.show(
+            context,
+            title: "Success!",
+            message: "Your changes have been saved successfully.",
+          );
+        }
       } else {
-        PopupInformation.show(
-          context,
-          title: "Error",
-          message: "Failed to update.",
-        );
+        // More specific error message based on status
+        String errorMessage = "Unable to save your changes.";
+        if (result['status'] == 404 || result['status'] == "404") {
+          errorMessage =
+              "This item could not be found. It may have been removed.";
+        } else if (result['status'] == 403 || result['status'] == "403") {
+          errorMessage = "You don't have permission to edit this item.";
+        } else if (result['status'] == 500 || result['status'] == "500") {
+          errorMessage =
+              "Server is temporarily unavailable. Please try again later.";
+        }
+
+        if (context.mounted) {
+          PopupInformation.show(
+            context,
+            title: "Save Failed",
+            message: errorMessage,
+          );
+        }
       }
     } catch (e) {
-      PopupInformation.show(
-        context,
-        title: "Error",
-        message: "Error updating phrase.",
-      );
+      // More user-friendly error messages based on error type
+      String errorMessage = "Something went wrong while saving your changes.";
+      String errorTitle = "Save Failed";
+
+      // Check for common error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException') ||
+          e.toString().contains('NetworkException')) {
+        errorTitle = "Connection Problem";
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('FormatException')) {
+        errorTitle = "Invalid Input";
+        errorMessage =
+            "The text you entered contains invalid characters. Please try different text.";
+      }
+
+      if (context.mounted) {
+        PopupInformation.show(
+          context,
+          title: errorTitle,
+          message: errorMessage,
+        );
+      }
     }
     setState(() => editLoading = false);
   }
@@ -362,7 +435,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             },
           ),
           Padding(
-            padding: EdgeInsets.only(right: 20.0), 
+            padding: EdgeInsets.only(right: 20.0),
             child: IconButton(
               icon: Icon(Icons.archive, color: Color(0xFF334E7B)),
               onPressed: _deletePhrase,
@@ -375,7 +448,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           padding: EdgeInsets.only(
             left: 0,
             right: 0,
-            top: 48 * widget.scale, 
+            top: 48 * widget.scale,
             bottom: MediaQuery.of(context).viewInsets.bottom + 16,
           ),
           child: Column(
@@ -397,11 +470,15 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                                 hintStyle: GoogleFonts.robotoMono(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: Color(0xFF334E7B)),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFF334E7B),
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                                  borderSide: BorderSide(
+                                    color: Color(0xFF2E5C9A),
+                                  ),
                                 ),
                               ),
                               style: GoogleFonts.robotoMono(
@@ -420,10 +497,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               textAlign: TextAlign.center,
                             ),
                     ),
-                    SizedBox(width: 2 * widget.scale), 
+                    SizedBox(width: 2 * widget.scale),
                     if (!editMode)
                       Padding(
-                        padding: EdgeInsets.only(left: 0), // Changed from 2 to 0
+                        padding: EdgeInsets.only(
+                          left: 0,
+                        ), // Changed from 2 to 0
                         child: InteractiveSpeakerIcon(
                           scale: widget.scale,
                           text: displayText,
@@ -435,12 +514,25 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
               ),
               SizedBox(height: 20 * widget.scale),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10 * widget.scale, vertical: 10 * widget.scale),
-                child: MediaViewer(filePath: signLanguagePath, scale: widget.scale),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10 * widget.scale,
+                  vertical: 10 * widget.scale,
+                ),
+                child: MediaViewer(
+                  key: ValueKey(
+                    signLanguagePath,
+                  ), // Add key to force rebuild when path changes
+                  filePath: signLanguagePath,
+                  scale: widget.scale,
+                ),
               ),
               // Source icon and text, left-aligned directly under media viewer
               Padding(
-                padding: EdgeInsets.only(left: 1 * widget.scale, top: 0, bottom: 8),
+                padding: EdgeInsets.only(
+                  left: 1 * widget.scale,
+                  top: 0,
+                  bottom: 8,
+                ),
                 child: GestureDetector(
                   onTap: () {
                     String sourceMessage =
@@ -456,7 +548,11 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.info_outline, size: 18 * widget.scale, color: Color(0xFF334E7B)),
+                      Icon(
+                        Icons.info_outline,
+                        size: 18 * widget.scale,
+                        color: Color(0xFF334E7B),
+                      ),
                       SizedBox(width: 6),
                       Text(
                         "Source",
@@ -494,7 +590,9 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               vertical: 12 * widget.scale,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12 * widget.scale),
+                              borderRadius: BorderRadius.circular(
+                                12 * widget.scale,
+                              ),
                             ),
                           ),
                           child: editLoading
@@ -524,7 +622,10 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                                 },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Color(0xFF334E7B),
-                            side: BorderSide(color: Color(0xFF334E7B), width: 2 * widget.scale),
+                            side: BorderSide(
+                              color: Color(0xFF334E7B),
+                              width: 2 * widget.scale,
+                            ),
                             textStyle: GoogleFonts.robotoMono(
                               fontSize: 20 * widget.scale,
                             ),
@@ -532,10 +633,15 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                               vertical: 12 * widget.scale,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12 * widget.scale),
+                              borderRadius: BorderRadius.circular(
+                                12 * widget.scale,
+                              ),
                             ),
                           ),
-                          child: Text("Cancel", style: GoogleFonts.robotoMono()),
+                          child: Text(
+                            "Cancel",
+                            style: GoogleFonts.robotoMono(),
+                          ),
                         ),
                       ),
                     ],
@@ -547,21 +653,31 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                     SizedBox(height: 15 * widget.scale),
                     // Previous and Next buttons
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20 * widget.scale),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20 * widget.scale,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           SizedBox(
                             width: 140,
                             child: OutlinedButton(
-                              onPressed: currentIndex > 0 ? _goToPrevious : null,
+                              onPressed: currentIndex > 0
+                                  ? _goToPrevious
+                                  : null,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Color(0xFF334E7B),
-                                side: BorderSide(color: Color(0xFF334E7B), width: 1.5),
+                                side: BorderSide(
+                                  color: Color(0xFF334E7B),
+                                  width: 1.5,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 12,
+                                ),
                               ),
                               child: Text(
                                 'Previous',
@@ -575,14 +691,19 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                           SizedBox(
                             width: 140,
                             child: ElevatedButton(
-                              onPressed: currentIndex < widget.items.length - 1 ? _goToNext : null,
+                              onPressed: currentIndex < widget.items.length - 1
+                                  ? _goToNext
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF334E7B),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 12,
+                                ),
                               ),
                               child: Text(
                                 'Next',
