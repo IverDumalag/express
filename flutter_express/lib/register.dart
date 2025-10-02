@@ -186,7 +186,7 @@ class _RegisterState extends State<Register> {
           const SizedBox(width: 8.0),
           Expanded(
             child: Text(
-              "Numbers and special characters not allowed",
+              "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed",
               style: GoogleFonts.robotoMono(
                 color: Colors.red,
                 fontSize: isSmallScreen ? 12.0 : 14.0,
