@@ -456,15 +456,15 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   // Validation helper functions
   bool hasInvalidNameCharacters(String name) {
-    // Check for numbers and special characters (allow only letters, spaces, hyphens, and apostrophes)
-    return name.contains(RegExp(r'[0-9!@#$%^&*(),.?":{}|<>+=\[\]\\/_~`]'));
+    // Check for numbers and special characters (allow only letters, spaces, hyphens, apostrophes, and periods)
+    return name.contains(RegExp(r'[0-9!@#$%^&*(),?":{}|<>+=\[\]\\/_~`]'));
   }
 
   String? validateName(String value, String fieldName) {
     if (fieldName == "Middle Name") {
       // Middle name is optional but can't have invalid characters
       if (value.trim().isNotEmpty && hasInvalidNameCharacters(value)) {
-        return "Numbers and special characters are not allowed";
+        return "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed";
       }
       return null;
     } else {
@@ -473,7 +473,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         return "$fieldName is required";
       }
       if (hasInvalidNameCharacters(value)) {
-        return "Numbers and special characters are not allowed";
+        return "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed";
       }
       return null;
     }
