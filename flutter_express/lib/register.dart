@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '00_services/api_services.dart';
 import '0_components/popup_information.dart';
+import '4_settings/about_page.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -1081,6 +1082,76 @@ class _RegisterState extends State<Register> {
                                 ),
                               ],
                               SizedBox(height: spacing * 1.0),
+
+                              // Terms and Privacy Policy Acceptance
+                              if (!otpStep) ...[
+                                Center(
+                                  child: RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: GoogleFonts.robotoMono(
+                                        fontSize: 12.0,
+                                        color: Colors.grey[700],
+                                        height: 1.4,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              'By registering, you agree to our\n',
+                                        ),
+                                        WidgetSpan(
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      TermsConditionsPage(),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              'Terms & Conditions',
+                                              style: GoogleFonts.robotoMono(
+                                                fontSize: 12.0,
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TextSpan(text: ' and '),
+                                        WidgetSpan(
+                                          child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PrivacyPolicyPage(),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              'Privacy Policy',
+                                              style: GoogleFonts.robotoMono(
+                                                fontSize: 12.0,
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                height: 1.4,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: spacing * 1.0),
+                              ],
 
                               SizedBox(
                                 width: double.infinity,
