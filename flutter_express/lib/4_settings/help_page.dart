@@ -9,7 +9,11 @@ class HelpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Color(0xFF334E7B),
+            size: 32,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -38,9 +42,7 @@ class HelpPage extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => FAQPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => FAQPage()),
                 );
               },
               child: Row(
@@ -72,7 +74,11 @@ class FAQPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Color(0xFF334E7B), size: 32),
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Color(0xFF334E7B),
+            size: 32,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -95,7 +101,7 @@ class FAQPage extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Text(
           '''What is exPress?
-- exPress is a mobile and web-based communication tool that translates sign language into text and text or audio into sign language animations, helping bridge conversations between deaf-mute individuals and non-signers.
+- exPress is a mobile and web-based communication tool that translates sign language into text and text or audio into sign language animations, helping bridge conversations between deaf individuals and non-signers.
 
 Is exPress an e-learning app?
 - No. exPress is not an e-learning platform. Its main purpose is to support real-time communication, not structured teaching.

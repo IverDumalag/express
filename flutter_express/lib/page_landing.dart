@@ -12,8 +12,8 @@ class _LandingPageState extends State<LandingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final List<String> _descriptions = [
-    'exPress is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion',
-    'exPress is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
+    'exPress is a mobile application designed to allow abled people to connect within deaf communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion',
+    'exPress is a mobile application designed to allow abled people to connect within deaf communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
   ];
 
   late AudioPlayer _player;
@@ -66,7 +66,6 @@ class _LandingPageState extends State<LandingPage>
               color: Color(0xFF2354C7),
               fontWeight: FontWeight.bold,
               fontSize: 36 * scale,
-
             ),
           ),
         );
@@ -124,7 +123,7 @@ class _LandingPageState extends State<LandingPage>
                 style: GoogleFonts.robotoMono(
                   fontSize: 45 * scale,
                   fontWeight: FontWeight.w900,
-      
+
                   letterSpacing: -1 * scale,
                 ),
                 textAlign: TextAlign.left,
@@ -140,7 +139,9 @@ class _LandingPageState extends State<LandingPage>
                   onTapDown: (_) {},
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24 * scale), // Reduced border radius
+                      borderRadius: BorderRadius.circular(
+                        24 * scale,
+                      ), // Reduced border radius
                       gradient: LinearGradient(
                         colors: [Color(0xFF334E7B), Color(0xFF1A2A47)],
                         begin: Alignment.topLeft,
@@ -190,7 +191,7 @@ class _LandingPageState extends State<LandingPage>
                         style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 20 * scale, 
+                          fontSize: 20 * scale,
                         ),
                       ),
                     ),
