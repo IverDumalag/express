@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
+import '../0_components/popup_information.dart';
 
 class SignToTextPage extends StatefulWidget {
   const SignToTextPage({super.key});
@@ -42,6 +43,20 @@ class _SignToTextPageState extends State<SignToTextPage> {
   void initState() {
     super.initState();
     _initCamera();
+
+    // Show disclaimer popup when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDisclaimerPopup();
+    });
+  }
+
+  void _showDisclaimerPopup() async {
+    await PopupInformation.show(
+      context,
+      title: "Dataset Information",
+      message:
+          "Note: The dataset is limited and may not recognize a sign language.",
+    );
   }
 
   @override
