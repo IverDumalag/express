@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
+import '../3_audio_text_to_sign/audio_home_cards.dart'; // For FullScreenMediaViewer
 import 'dart:async';
 
 class InteractiveStarIcon extends StatefulWidget {
@@ -518,12 +519,29 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   horizontal: 10 * widget.scale,
                   vertical: 10 * widget.scale,
                 ),
-                child: MediaViewer(
-                  key: ValueKey(
-                    signLanguagePath,
-                  ), // Add key to force rebuild when path changes
-                  filePath: signLanguagePath,
-                  scale: widget.scale,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12 * widget.scale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12 * widget.scale),
+                    child: MediaViewer(
+                      key: ValueKey(
+                        signLanguagePath,
+                      ), // Add key to force rebuild when path changes
+                      filePath: signLanguagePath,
+                      scale: widget.scale,
+                      onFullScreenToggle: () =>
+                          _enterFullScreen(signLanguagePath, displayText),
+                    ),
+                  ),
                 ),
               ),
               // Source icon and text, left-aligned directly under media viewer
@@ -721,6 +739,15 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _enterFullScreen(String filePath, String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            FullScreenMediaViewer(filePath: filePath, title: title),
       ),
     );
   }
