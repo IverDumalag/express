@@ -416,9 +416,10 @@ class _HomeState extends State<Home> {
     bool matchFound = false;
     try {
       final searchJson = await ApiService.trySearch(addInput);
-      if (searchJson?['public_id'] != null &&
-          searchJson?['all_files'] is List) {
-        final file = (searchJson!['all_files'] as List).firstWhere(
+      if (searchJson != null &&
+          searchJson['public_id'] != null &&
+          searchJson['all_files'] is List) {
+        final file = (searchJson['all_files'] as List).firstWhere(
           (f) => f['public_id'] == searchJson['public_id'],
           orElse: () => null,
         );
@@ -777,7 +778,7 @@ class _HomeState extends State<Home> {
                           color: Colors.amber[50],
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: Colors.amber[300]!,
+                            color: Colors.amber[300] ?? Colors.amber,
                             width: 1,
                           ),
                         ),

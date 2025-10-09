@@ -51,9 +51,7 @@ class _InteractiveStarIconState extends State<InteractiveStarIcon> {
         });
         // The onToggle callback should be called with the *intended* new state
         // The parent is still responsible for updating the actual data.
-        if (widget.onToggle != null) {
-          widget.onToggle!(isStarred); // Pass the new internal state
-        }
+        widget.onToggle?.call(isStarred); // Pass the new internal state
       },
       child: Icon(
         isStarred ? Icons.star : Icons.star_border,
@@ -311,9 +309,10 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
 
       try {
         final searchJson = await ApiService.trySearch(newWords);
-        if (searchJson?['public_id'] != null &&
-            searchJson?['all_files'] is List) {
-          final file = (searchJson!['all_files'] as List).firstWhere(
+        if (searchJson != null &&
+            searchJson['public_id'] != null &&
+            searchJson['all_files'] is List) {
+          final file = (searchJson['all_files'] as List).firstWhere(
             (f) => f['public_id'] == searchJson['public_id'],
             orElse: () => null,
           );
@@ -350,9 +349,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           widget.items[currentIndex]['words'] = newWords;
           widget.items[currentIndex]['sign_language'] = signLanguageUrl;
         });
-        if (widget.onEdit != null) {
-          widget.onEdit!(widget.items[currentIndex]);
-        }
+        widget.onEdit?.call(widget.items[currentIndex]);
         if (context.mounted) {
           PopupInformation.show(
             context,
@@ -853,7 +850,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                         InteractiveSpeakerIcon(
                           scale: scale,
                           text: displayText,
-                          color: Colors.grey[700]!,
+                          color: Colors.grey[700] ?? Colors.grey,
                         ),
                       ],
                     ),

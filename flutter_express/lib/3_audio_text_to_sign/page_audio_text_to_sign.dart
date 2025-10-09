@@ -425,7 +425,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                   border: Border.all(
                                     color: isSelected
                                         ? const Color(0xFF334E7B)
-                                        : Colors.grey[300]!,
+                                        : Colors.grey[300] ?? Colors.grey,
                                     width: isSelected ? 2 : 1,
                                   ),
                                   boxShadow: [
@@ -555,7 +555,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      side: BorderSide(color: Colors.red[200]!, width: 1.2),
+                      side: BorderSide(
+                        color: Colors.red[200] ?? Colors.red.shade200,
+                        width: 1.2,
+                      ),
                       padding: EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 10,
