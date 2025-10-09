@@ -754,9 +754,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: hasError
-                      ? Colors.red[600]!
+                      ? Colors.red[600] ?? Colors.red
                       : readOnly
-                      ? Colors.grey[400]!
+                      ? Colors.grey[400] ?? Colors.grey
                       : themeBlue,
                   width: hasError ? 1.5 : 1,
                 ),
@@ -764,7 +764,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: hasError ? Colors.red[600]! : Colors.grey[400]!,
+                  color: hasError
+                      ? Colors.red[600] ?? Colors.red
+                      : Colors.grey[400] ?? Colors.grey,
                   width: hasError ? 1.5 : 1,
                 ),
               ),
@@ -772,9 +774,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: hasError
-                      ? Colors.red[600]!
+                      ? Colors.red[600] ?? Colors.red
                       : readOnly
-                      ? Colors.grey[400]!
+                      ? Colors.grey[400] ?? Colors.grey
                       : themeBlue,
                   width: hasError
                       ? 1.5

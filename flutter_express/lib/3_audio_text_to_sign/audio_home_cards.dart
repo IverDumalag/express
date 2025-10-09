@@ -98,7 +98,10 @@ class AudioCardDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   borderRadius: BorderRadius.circular(12 * scale),
-                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                  border: Border.all(
+                    color: Colors.grey[300] ?? Colors.grey,
+                    width: 1,
+                  ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

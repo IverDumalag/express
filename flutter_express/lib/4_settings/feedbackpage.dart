@@ -247,7 +247,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
                                 color: _mainConcernError != null
-                                    ? Colors.red[600]!
+                                    ? Colors.red[600] ?? Colors.red
                                     : const Color(0xFF334E7B),
                               ),
                             ),
@@ -255,8 +255,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
                                 color: _mainConcernError != null
-                                    ? Colors.red[600]!
-                                    : Colors.grey[400]!,
+                                    ? Colors.red[600] ?? Colors.red
+                                    : Colors.grey[400] ?? Colors.grey,
                               ),
                             ),
                             filled: true,
@@ -265,7 +265,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
                                 color: _mainConcernError != null
-                                    ? Colors.red[600]!
+                                    ? Colors.red[600] ?? Colors.red
                                     : const Color(0xFF334E7B),
                               ),
                             ),
@@ -369,7 +369,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
                         color: _detailsError != null
-                            ? Colors.red[600]!
+                            ? Colors.red[600] ?? Colors.red
                             : const Color(0xFF334E7B),
                       ),
                     ),
@@ -377,8 +377,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
                         color: _detailsError != null
-                            ? Colors.red[600]!
-                            : Colors.grey[400]!,
+                            ? Colors.red[600] ?? Colors.red
+                            : Colors.grey[400] ?? Colors.grey,
                       ),
                     ),
                     filled: true,
@@ -387,7 +387,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
                         color: _detailsError != null
-                            ? Colors.red[600]!
+                            ? Colors.red[600] ?? Colors.red
                             : const Color(0xFF334E7B),
                       ),
                     ),
