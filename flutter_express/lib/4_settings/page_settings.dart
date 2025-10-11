@@ -46,20 +46,17 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xFFF5F7FB),
+      backgroundColor: Color(0xFFF5F7FB),
       body: Stack(
         children: [
           // Background decorative elements
-    
           ListView(
             padding: EdgeInsets.only(bottom: 80),
             children: <Widget>[
               SizedBox(height: 64),
-              
+
               // Header without background
-              SizedBox(
-                height: 0,
-              ),
+              SizedBox(height: 0),
               Center(
                 child: Text(
                   'Menu',
@@ -80,7 +77,10 @@ class _SettingsState extends State<Settings> {
               // ...FAQ section removed...
               SectionLabel("Others"),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 8.0,
+                ),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -120,9 +120,16 @@ class _SettingsState extends State<Settings> {
                         value: 'privacy',
                         child: Row(
                           children: [
-                            Icon(Icons.privacy_tip_outlined, size: 20, color: Color(0xFF334E7B)),
+                            Icon(
+                              Icons.privacy_tip_outlined,
+                              size: 20,
+                              color: Color(0xFF334E7B),
+                            ),
                             SizedBox(width: 12),
-                            Text('Privacy Policy', style: GoogleFonts.robotoMono()),
+                            Text(
+                              'Privacy Policy',
+                              style: GoogleFonts.robotoMono(),
+                            ),
                           ],
                         ),
                       ),
@@ -130,24 +137,38 @@ class _SettingsState extends State<Settings> {
                         value: 'terms',
                         child: Row(
                           children: [
-                            Icon(Icons.description_outlined, size: 20, color: Color(0xFF334E7B)),
+                            Icon(
+                              Icons.description_outlined,
+                              size: 20,
+                              color: Color(0xFF334E7B),
+                            ),
                             SizedBox(width: 12),
-                            Text('Terms & Conditions', style: GoogleFonts.robotoMono()),
+                            Text(
+                              'Terms & Conditions',
+                              style: GoogleFonts.robotoMono(),
+                            ),
                           ],
                         ),
                       ),
                     ],
                     onChanged: (value) {
                       if (value == 'privacy') {
-                        _showInfoDialog(context, 'Privacy Policy', 'Privacy Policy details go here.');
+                        _showInfoDialog(
+                          context,
+                          'Privacy Policy',
+                          'Privacy Policy details go here.',
+                        );
                       } else if (value == 'terms') {
-                        _showInfoDialog(context, 'Terms & Conditions', 'Terms & Conditions details go here.');
+                        _showInfoDialog(
+                          context,
+                          'Terms & Conditions',
+                          'Terms & Conditions details go here.',
+                        );
                       }
                     },
                   ),
                 ),
               ),
-
             ],
           ),
         ],
@@ -160,9 +181,7 @@ class _SettingsState extends State<Settings> {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -182,7 +201,7 @@ class _SettingsState extends State<Settings> {
               Container(
                 width: double.maxFinite,
                 child: Text(
-                  content, 
+                  content,
                   style: GoogleFonts.robotoMono(
                     color: Colors.grey[700],
                     fontSize: 14,
@@ -209,11 +228,14 @@ class _SettingsState extends State<Settings> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
                     ),
                     onPressed: () => Navigator.pop(context),
                     child: Text(
-                      'Close', 
+                      'Close',
                       style: GoogleFonts.robotoMono(
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -339,7 +361,7 @@ class FAQContainer extends StatelessWidget {
                 FAQItem(
                   question: 'What is exPress?',
                   answer:
-                      'exPress is a mobile and web application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
+                      'exPress is a mobile and web application designed to allow abled people to connect within deaf communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion.',
                   questionFontSize: 15,
                   answerFontSize: 13,
                 ),

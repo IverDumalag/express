@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../global_variables.dart';
+import '../0_components/popup_confirmation.dart';
 
 class PageProfile extends StatefulWidget {
   const PageProfile({Key? key}) : super(key: key);
@@ -455,15 +456,15 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   // Validation helper functions
   bool hasInvalidNameCharacters(String name) {
-    // Check for numbers and special characters (allow only letters, spaces, hyphens, and apostrophes)
-    return name.contains(RegExp(r'[0-9!@#$%^&*(),.?":{}|<>+=\[\]\\/_~`]'));
+    // Check for numbers and special characters (allow only letters, spaces, hyphens, apostrophes, and periods)
+    return name.contains(RegExp(r'[0-9!@#$%^&*(),?":{}|<>+=\[\]\\/_~`]'));
   }
 
   String? validateName(String value, String fieldName) {
     if (fieldName == "Middle Name") {
       // Middle name is optional but can't have invalid characters
       if (value.trim().isNotEmpty && hasInvalidNameCharacters(value)) {
-        return "Numbers and special characters are not allowed";
+        return "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed";
       }
       return null;
     } else {
@@ -472,7 +473,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         return "$fieldName is required";
       }
       if (hasInvalidNameCharacters(value)) {
-        return "Numbers and special characters are not allowed";
+        return "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed";
       }
       return null;
     }
@@ -626,6 +627,19 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                 return; // Don't proceed if there are validation errors
                               }
 
+                              // Show confirmation dialog
+                              final confirmed = await PopupConfirmation.show(
+                                context,
+                                title: "Save Changes",
+                                message:
+                                    "Are you sure you want to save these changes to your profile?",
+                                confirmText: "Save",
+                                cancelText: "Cancel",
+                              );
+
+                              // If user didn't confirm, return
+                              if (!confirmed) return;
+
                               setState(() => loading = true);
                               final result = await ApiService.editUser(
                                 userId: widget.user['user_id'].toString(),
@@ -740,9 +754,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: hasError
-                      ? Colors.red[600]!
+                      ? Colors.red[600] ?? Colors.red
                       : readOnly
-                      ? Colors.grey[400]!
+                      ? Colors.grey[400] ?? Colors.grey
                       : themeBlue,
                   width: hasError ? 1.5 : 1,
                 ),
@@ -750,7 +764,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: hasError ? Colors.red[600]! : Colors.grey[400]!,
+                  color: hasError
+                      ? Colors.red[600] ?? Colors.red
+                      : Colors.grey[400] ?? Colors.grey,
                   width: hasError ? 1.5 : 1,
                 ),
               ),
@@ -758,9 +774,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
                   color: hasError
-                      ? Colors.red[600]!
+                      ? Colors.red[600] ?? Colors.red
                       : readOnly
-                      ? Colors.grey[400]!
+                      ? Colors.grey[400] ?? Colors.grey
                       : themeBlue,
                   width: hasError
                       ? 1.5

@@ -416,9 +416,10 @@ class _HomeState extends State<Home> {
     bool matchFound = false;
     try {
       final searchJson = await ApiService.trySearch(addInput);
-      if (searchJson?['public_id'] != null &&
-          searchJson?['all_files'] is List) {
-        final file = (searchJson!['all_files'] as List).firstWhere(
+      if (searchJson != null &&
+          searchJson['public_id'] != null &&
+          searchJson['all_files'] is List) {
+        final file = (searchJson['all_files'] as List).firstWhere(
           (f) => f['public_id'] == searchJson['public_id'],
           orElse: () => null,
         );
@@ -769,6 +770,42 @@ class _HomeState extends State<Home> {
                       SizedBox(height: 12 * scale),
                       Divider(color: Color(0xFF334E7B), thickness: 1),
                       SizedBox(height: 16 * scale),
+
+                      // Disclaimer about dataset limitations
+                      Container(
+                        padding: EdgeInsets.all(12 * scale),
+                        decoration: BoxDecoration(
+                          color: Colors.amber[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.amber[300] ?? Colors.amber,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.amber[700],
+                              size: 16 * scale,
+                            ),
+                            SizedBox(width: 8 * scale),
+                            Expanded(
+                              child: Text(
+                                "Note: Our dataset has limited coverage and contains introductory words/phrases and alphabet. Some words may not have sign language matches available.",
+                                style: GoogleFonts.robotoMono(
+                                  fontSize: 12 * scale,
+                                  color: Colors.amber[800],
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16 * scale),
+
                       TextField(
                         style: GoogleFonts.robotoMono(
                           color: Color(0xFF334E7B),

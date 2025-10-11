@@ -26,6 +26,20 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     _speech = stt.SpeechToText();
     _initializeSpeech();
     _loadPhrases();
+
+    // Show disclaimer popup when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDisclaimerPopup();
+    });
+  }
+
+  void _showDisclaimerPopup() async {
+    await PopupInformation.show(
+      context,
+      title: "Dataset Information",
+      message:
+          "Note: Our dataset has limited coverage and contains introductory words/phrases and alphabet. Some words may not have sign language matches available.",
+    );
   }
 
   Future<void> _initializeSpeech() async {
@@ -166,7 +180,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     final isMatch = matchFound ? 1 : 0;
 
     try {
-      await ApiService.insertAudioPhrase(
+      final insertResult = await ApiService.insertAudioPhrase(
         userId: userId,
         words: text.trim(),
         signLanguage: signLanguageUrl,
@@ -174,6 +188,27 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       );
       _textController.clear();
       await _loadPhrases();
+
+      // Auto-open the result if submission was successful and match was found
+      if (matchFound && signLanguageUrl.isNotEmpty) {
+        final newPhrase = {
+          'entry_id': insertResult['entry_id'] ?? '',
+          'words': text.trim(),
+          'sign_language': signLanguageUrl,
+          'created_at': DateTime.now().toIso8601String(),
+          'is_match': isMatch,
+        };
+
+        // Navigate to the detail screen automatically
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AudioCardDetailScreen(
+              phrase: newPhrase,
+              scale: MediaQuery.of(context).size.width / 375.0,
+            ),
+          ),
+        );
+      }
     } catch (e) {
       // Show user-friendly error for saving phrase
       if (context.mounted) {
@@ -390,7 +425,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                                   border: Border.all(
                                     color: isSelected
                                         ? const Color(0xFF334E7B)
-                                        : Colors.grey[300]!,
+                                        : Colors.grey[300] ?? Colors.grey,
                                     width: isSelected ? 2 : 1,
                                   ),
                                   boxShadow: [
@@ -520,7 +555,10 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      side: BorderSide(color: Colors.red[200]!, width: 1.2),
+                      side: BorderSide(
+                        color: Colors.red[200] ?? Colors.red.shade200,
+                        width: 1.2,
+                      ),
                       padding: EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 10,

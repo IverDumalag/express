@@ -1,5 +1,5 @@
 # exPress
-## A Mobile Application for Seamless Communication Between Abled and Deaf-Mute Individuals
+## A Mobile Application for Seamless Communication Between Abled and Deaf Individuals
 
 ### National University of Dasmariñas: Capstone Project
 
@@ -14,7 +14,7 @@
 
 ## Overview
 
-**exPress** is a mobile application designed to allow abled people to connect within deaf-mute communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion, exPress breaks down the barrier between abled people and deaf-mute individuals.
+**exPress** is a mobile application designed to allow abled people to connect within deaf communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion, exPress breaks down the barrier between abled people and deaf individuals.
 
 ---
 

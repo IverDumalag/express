@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../00_services/api_services.dart';
 import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
+import '../3_audio_text_to_sign/audio_home_cards.dart'; // For FullScreenMediaViewer
 import 'dart:async';
 
 class InteractiveStarIcon extends StatefulWidget {
@@ -50,9 +51,7 @@ class _InteractiveStarIconState extends State<InteractiveStarIcon> {
         });
         // The onToggle callback should be called with the *intended* new state
         // The parent is still responsible for updating the actual data.
-        if (widget.onToggle != null) {
-          widget.onToggle!(isStarred); // Pass the new internal state
-        }
+        widget.onToggle?.call(isStarred); // Pass the new internal state
       },
       child: Icon(
         isStarred ? Icons.star : Icons.star_border,
@@ -310,9 +309,10 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
 
       try {
         final searchJson = await ApiService.trySearch(newWords);
-        if (searchJson?['public_id'] != null &&
-            searchJson?['all_files'] is List) {
-          final file = (searchJson!['all_files'] as List).firstWhere(
+        if (searchJson != null &&
+            searchJson['public_id'] != null &&
+            searchJson['all_files'] is List) {
+          final file = (searchJson['all_files'] as List).firstWhere(
             (f) => f['public_id'] == searchJson['public_id'],
             orElse: () => null,
           );
@@ -349,9 +349,7 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           widget.items[currentIndex]['words'] = newWords;
           widget.items[currentIndex]['sign_language'] = signLanguageUrl;
         });
-        if (widget.onEdit != null) {
-          widget.onEdit!(widget.items[currentIndex]);
-        }
+        widget.onEdit?.call(widget.items[currentIndex]);
         if (context.mounted) {
           PopupInformation.show(
             context,
@@ -518,12 +516,29 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
                   horizontal: 10 * widget.scale,
                   vertical: 10 * widget.scale,
                 ),
-                child: MediaViewer(
-                  key: ValueKey(
-                    signLanguagePath,
-                  ), // Add key to force rebuild when path changes
-                  filePath: signLanguagePath,
-                  scale: widget.scale,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12 * widget.scale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12 * widget.scale),
+                    child: MediaViewer(
+                      key: ValueKey(
+                        signLanguagePath,
+                      ), // Add key to force rebuild when path changes
+                      filePath: signLanguagePath,
+                      scale: widget.scale,
+                      onFullScreenToggle: () =>
+                          _enterFullScreen(signLanguagePath, displayText),
+                    ),
+                  ),
                 ),
               ),
               // Source icon and text, left-aligned directly under media viewer
@@ -724,6 +739,15 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       ),
     );
   }
+
+  void _enterFullScreen(String filePath, String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            FullScreenMediaViewer(filePath: filePath, title: title),
+      ),
+    );
+  }
 }
 
 class Words_Phrases_Cards extends StatelessWidget {
@@ -826,7 +850,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                         InteractiveSpeakerIcon(
                           scale: scale,
                           text: displayText,
-                          color: Colors.grey[700]!,
+                          color: Colors.grey[700] ?? Colors.grey,
                         ),
                       ],
                     ),

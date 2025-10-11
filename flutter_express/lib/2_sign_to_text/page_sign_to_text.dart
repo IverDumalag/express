@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
+import '../0_components/popup_information.dart';
 
 class SignToTextPage extends StatefulWidget {
   const SignToTextPage({super.key});
@@ -42,6 +43,20 @@ class _SignToTextPageState extends State<SignToTextPage> {
   void initState() {
     super.initState();
     _initCamera();
+
+    // Show disclaimer popup when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDisclaimerPopup();
+    });
+  }
+
+  void _showDisclaimerPopup() async {
+    await PopupInformation.show(
+      context,
+      title: "Dataset Information",
+      message:
+          "Note: The dataset is limited and may not recognize a sign language.",
+    );
   }
 
   @override
@@ -462,7 +477,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
       file = await _maybeCropFile(file);
 
       final uri = Uri.parse(
-        "https://express-nodejs-nc12.onrender.com/predict/$_selectedModel",
+        _selectedModel == "alphabet" 
+          ? "https://express-nodejs-nc12.onrender.com/fsl-model-alphabet-predict"
+          : "https://express-nodejs-nc12.onrender.com/predict/$_selectedModel",
       );
       final request = http.MultipartRequest("POST", uri)
         ..files.add(await http.MultipartFile.fromPath("image", file.path));
@@ -584,6 +601,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
     final cameraWidth = screenSize.width * 0.8;
+    // Use fixed 4:3 aspect ratio for the container
+    // Camera will fill this space and excess will be cropped
     final cameraHeight = cameraWidth * (4 / 3);
 
     return Scaffold(
@@ -744,11 +763,19 @@ class _SignToTextPageState extends State<SignToTextPage> {
                         _cameraController!.value.isInitialized
                     ? Stack(
                         children: [
-                          // 1) Camera preview (bottom)
+                          // 1) Camera preview (bottom) - uses BoxFit.cover to fill and crop excess
                           Positioned.fill(
-                            child: AspectRatio(
-                              aspectRatio: _cameraController!.value.aspectRatio,
-                              child: CameraPreview(_cameraController!),
+                            child: FittedBox(
+                              fit: BoxFit.cover,
+                              child: SizedBox(
+                                width: _cameraController!
+                                    .value
+                                    .previewSize!
+                                    .height,
+                                height:
+                                    _cameraController!.value.previewSize!.width,
+                                child: CameraPreview(_cameraController!),
+                              ),
                             ),
                           ),
 
@@ -1047,6 +1074,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                         ),
                         child: TextField(
                           controller: _textController,
+                          readOnly: true,
                           maxLines: null,
                           expands: true,
                           style: GoogleFonts.robotoMono(

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '00_services/api_services.dart';
 import '0_components/popup_information.dart';
+import '4_settings/about_page.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -29,6 +30,7 @@ class _RegisterState extends State<Register> {
   // Password visibility toggles
   bool showPassword = false;
   bool showConfirmPassword = false;
+  bool acceptTerms = false;
 
   // OTP related variables
   bool otpStep = false;
@@ -185,7 +187,7 @@ class _RegisterState extends State<Register> {
           const SizedBox(width: 8.0),
           Expanded(
             child: Text(
-              "Numbers and special characters not allowed",
+              "Only letters, spaces, hyphens (-), apostrophes ('), and periods (.) allowed",
               style: GoogleFonts.robotoMono(
                 color: Colors.red,
                 fontSize: isSmallScreen ? 12.0 : 14.0,
@@ -346,11 +348,40 @@ class _RegisterState extends State<Register> {
       );
 
       if (result['status'] == 201) {
+        // Registration successful, create default cards
+        String newUserId = result['user_id']?.toString() ?? '';
+
+        if (newUserId.isNotEmpty) {
+          // Create default "Hello" card
+          try {
+            await ApiService.addCard(
+              userId: newUserId,
+              words: 'Hello',
+              signLanguageUrl: '', // Empty URL as default
+              isMatch: 0, // Default not matched
+            );
+          } catch (e) {
+            print('Failed to create Hello card: $e');
+          }
+
+          // Create default "Good Morning" card
+          try {
+            await ApiService.addCard(
+              userId: newUserId,
+              words: 'Good Morning',
+              signLanguageUrl: '', // Empty URL as default
+              isMatch: 0, // Default not matched
+            );
+          } catch (e) {
+            print('Failed to create Good Morning card: $e');
+          }
+        }
+
         await PopupInformation.show(
           context,
           title: "Registration Successful",
           message:
-              "Your account has been created successfully! You can now login.",
+              "Your account has been created successfully! You can now login with your new account and start using the default cards.",
           onOk: () {
             Navigator.pushReplacementNamed(context, '/login');
           },
@@ -396,6 +427,12 @@ class _RegisterState extends State<Register> {
   void _submit() async {
     if (!otpStep) {
       // First step: Validate form and send OTP
+      if (!acceptTerms) {
+        setState(() {
+          error = "Please accept the Terms & Conditions and Privacy Policy";
+        });
+        return;
+      }
       if (!_formKey.currentState!.validate()) return;
       if (!isPasswordValid()) {
         setState(() {
@@ -445,6 +482,7 @@ class _RegisterState extends State<Register> {
     bool readOnly = false,
     Widget? suffixIcon,
     int? maxLength,
+    bool isRequired = false,
   }) {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
@@ -465,7 +503,11 @@ class _RegisterState extends State<Register> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: GoogleFonts.robotoMono(fontSize: fieldFontSize),
-        labelStyle: GoogleFonts.robotoMono(fontSize: 15.3),
+        labelText: isRequired ? '$hint *' : hint,
+        labelStyle: GoogleFonts.robotoMono(
+          fontSize: 15.3,
+          color: isRequired ? Colors.grey[700] : null,
+        ),
         filled: true,
         fillColor: Colors.white,
         contentPadding: EdgeInsets.symmetric(
@@ -566,6 +608,17 @@ class _RegisterState extends State<Register> {
                               SizedBox(height: spacing * 2.9),
 
                               if (!otpStep) ...[
+                                // Required fields note
+                                Text(
+                                  '* Required fields are marked with an asterisk',
+                                  style: GoogleFonts.robotoMono(
+                                    fontSize: 12.0,
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                                SizedBox(height: spacing * 0.7),
+
                                 // Registration Form
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,6 +626,7 @@ class _RegisterState extends State<Register> {
                                     _buildField(
                                       hint: "First Name",
                                       maxLength: 50,
+                                      isRequired: true,
                                       validator: (v) {
                                         if (v == null || v.trim().isEmpty) {
                                           return "First name is required";
@@ -638,6 +692,7 @@ class _RegisterState extends State<Register> {
                                       _buildField(
                                         hint: "Surname",
                                         maxLength: 50,
+                                        isRequired: true,
                                         validator: (v) {
                                           if (v == null || v.trim().isEmpty) {
                                             return "Surname is required";
@@ -710,6 +765,7 @@ class _RegisterState extends State<Register> {
                                             _buildField(
                                               hint: "Surname",
                                               maxLength: 50,
+                                              isRequired: true,
                                               validator: (v) {
                                                 if (v == null ||
                                                     v.trim().isEmpty) {
@@ -745,7 +801,7 @@ class _RegisterState extends State<Register> {
 
                                 DropdownButtonFormField<String>(
                                   decoration: InputDecoration(
-                                    hintText: "Select your Sex",
+                                    hintText: "Select your Sex *",
                                     hintStyle: GoogleFonts.robotoMono(
                                       fontSize: 15.3,
                                     ),
@@ -803,6 +859,7 @@ class _RegisterState extends State<Register> {
                                   hint: "Birthdate",
                                   controller: birthdateController,
                                   readOnly: true,
+                                  isRequired: true,
                                   onTap: () async {
                                     final picked = await showDatePicker(
                                       context: context,
@@ -830,6 +887,7 @@ class _RegisterState extends State<Register> {
                                 _buildField(
                                   hint: "Email",
                                   keyboardType: TextInputType.emailAddress,
+                                  isRequired: true,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty)
                                       return "Email is required";
@@ -849,6 +907,7 @@ class _RegisterState extends State<Register> {
                                     _buildField(
                                       hint: "Password",
                                       obscure: !showPassword,
+                                      isRequired: true,
                                       validator: (v) {
                                         if (v == null || v.isEmpty) {
                                           return "Password is required";
@@ -911,6 +970,7 @@ class _RegisterState extends State<Register> {
                                     _buildField(
                                       hint: "Confirm Password",
                                       obscure: !showConfirmPassword,
+                                      isRequired: true,
                                       validator: (v) {
                                         if (v == null || v.isEmpty) {
                                           return "Please confirm your password";
@@ -1082,10 +1142,109 @@ class _RegisterState extends State<Register> {
                               ],
                               SizedBox(height: spacing * 1.0),
 
+                              // Terms and Privacy Policy Acceptance
+                              if (!otpStep) ...[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Checkbox(
+                                      value: acceptTerms,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          acceptTerms = value ?? false;
+                                        });
+                                      },
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                      activeColor: const Color(0xFF334E7B),
+                                    ),
+                                    Expanded(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            acceptTerms = !acceptTerms;
+                                          });
+                                        },
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: GoogleFonts.robotoMono(
+                                              fontSize: 12.0,
+                                              color: Colors.grey[700],
+                                              height: 1.4,
+                                            ),
+                                            children: [
+                                              const TextSpan(
+                                                text: 'I agree to the ',
+                                              ),
+                                              WidgetSpan(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            TermsConditionsPage(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    'Terms & Conditions',
+                                                    style:
+                                                        GoogleFonts.robotoMono(
+                                                          fontSize: 12.0,
+                                                          color: Colors.blue,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                          height: 1.4,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const TextSpan(text: ' and '),
+                                              WidgetSpan(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            PrivacyPolicyPage(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    'Privacy Policy',
+                                                    style:
+                                                        GoogleFonts.robotoMono(
+                                                          fontSize: 12.0,
+                                                          color: Colors.blue,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                          height: 1.4,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: spacing * 1.0),
+                              ],
+
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: (loading || otpLoading)
+                                  onPressed:
+                                      (loading ||
+                                          otpLoading ||
+                                          (!otpStep && !acceptTerms))
                                       ? null
                                       : _submit,
                                   style: ElevatedButton.styleFrom(

@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 class MediaViewer extends StatelessWidget {
   final String filePath;
   final double scale;
+  final VoidCallback? onFullScreenToggle;
 
-  const MediaViewer({Key? key, required this.filePath, required this.scale})
-    : super(key: key);
+  const MediaViewer({
+    Key? key,
+    required this.filePath,
+    required this.scale,
+    this.onFullScreenToggle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,10 @@ class MediaViewer extends StatelessWidget {
       return _NoMatchFound();
     } else if (filePath.toLowerCase().endsWith('.mp4') ||
         filePath.toLowerCase().endsWith('.mov')) {
-      return _VideoPlayerWidget(filePath: filePath);
+      return _VideoPlayerWidget(
+        filePath: filePath,
+        onFullScreenToggle: onFullScreenToggle,
+      );
     } else if (filePath.toLowerCase().endsWith('.png') ||
         filePath.toLowerCase().endsWith('.jpg') ||
         filePath.toLowerCase().endsWith('.jpeg')) {
@@ -171,9 +179,13 @@ class _ImageViewer extends StatelessWidget {
 
 class _VideoPlayerWidget extends StatefulWidget {
   final String filePath;
+  final VoidCallback? onFullScreenToggle;
 
-  const _VideoPlayerWidget({Key? key, required this.filePath})
-    : super(key: key);
+  const _VideoPlayerWidget({
+    Key? key,
+    required this.filePath,
+    this.onFullScreenToggle,
+  }) : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -303,6 +315,28 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+
+              // Fullscreen button
+              if (widget.onFullScreenToggle != null)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: widget.onFullScreenToggle,
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(
+                        Icons.fullscreen,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
                   ),
                 ),
             ],
