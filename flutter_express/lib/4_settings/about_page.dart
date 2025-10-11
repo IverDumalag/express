@@ -189,7 +189,7 @@ class AppInfoPage extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
             Text(
-              'Version: 1.0.0\nBuild Number: basta number d2 \nRelease Date: Di ko pa sure\n\nexPress is a communication app designed to bridge the gap between the deaf community and the general public. It offers real-time speech-to-text and text-to-speech functionalities, making conversations seamless and inclusive.\n\nFor support or inquiries, contact us at @exPress@gmail.com',
+              'Version: v1.1.0\nRelease Date: September 16, 2025\n\nexPress is a communication app designed to bridge the gap between the deaf community and the general public. It offers real-time speech-to-text and text-to-speech functionalities, making conversations seamless and inclusive.\n\nFor support or inquiries, contact us at @exPress@gmail.com',
               style: GoogleFonts.robotoMono(
                 fontSize: 15,
                 color: Colors.blueGrey[800],
