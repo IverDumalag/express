@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../0_components/help_widget.dart';
 import '../0_components/popup_information.dart';
 import 'popup_home_welcome.dart';
 import 'waving_hand.dart';
@@ -241,9 +240,9 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> cards = [];
   List<Map<String, dynamic>> filteredCards = [];
 
-  late final PageController _pageController;
+  PageController? _pageController;
   int _currentPage = 0;
-  late Timer _timer;
+  Timer? _timer;
   final int _numSlides = 3;
 
   bool _popupShown = false;
@@ -272,7 +271,7 @@ class _HomeState extends State<Home> {
       if (nextPage >= _numSlides) {
         nextPage = 0;
       }
-      _pageController.animateToPage(
+      _pageController?.animateToPage(
         nextPage,
         duration: Duration(milliseconds: 300),
         curve: Curves.easeIn,
@@ -282,8 +281,8 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    _timer.cancel();
-    _pageController.dispose();
+    _timer?.cancel();
+    _pageController?.dispose();
     super.dispose();
   }
 
@@ -1045,29 +1044,31 @@ class _HomeState extends State<Home> {
                   padding: EdgeInsets.only(
                     left: 20 * scale,
                   ), // Move slides a bit to the right
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (int index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    children: [
-                      _buildSlide(
-                        'Welcome to ex',
-                        'Press!',
-                        scale,
-                        fontSize: 16,
-                      ),
-                      _buildSlide(
-                        'Discover',
-                        'Our Features!',
-                        scale,
-                        fontSize: 16,
-                      ),
-                      _buildSlide('Have', 'Fun!', scale, fontSize: 18),
-                    ],
-                  ),
+                  child: _pageController != null
+                      ? PageView(
+                          controller: _pageController,
+                          onPageChanged: (int index) {
+                            setState(() {
+                              _currentPage = index;
+                            });
+                          },
+                          children: [
+                            _buildSlide(
+                              'Welcome to ex',
+                              'Press!',
+                              scale,
+                              fontSize: 16,
+                            ),
+                            _buildSlide(
+                              'Discover',
+                              'Our Features!',
+                              scale,
+                              fontSize: 16,
+                            ),
+                            _buildSlide('Have', 'Fun!', scale, fontSize: 18),
+                          ],
+                        )
+                      : Container(), // Fallback when _pageController is null
                 ),
                 Positioned(
                   bottom: 8 * scale,

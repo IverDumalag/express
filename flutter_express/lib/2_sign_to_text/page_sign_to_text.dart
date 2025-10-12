@@ -477,30 +477,60 @@ class _SignToTextPageState extends State<SignToTextPage> {
       file = await _maybeCropFile(file);
 
       final uri = Uri.parse(
-        _selectedModel == "alphabet" 
-          ? "https://express-nodejs-nc12.onrender.com/fsl-model-alphabet-predict"
-          : "https://express-nodejs-nc12.onrender.com/predict/$_selectedModel",
+        _selectedModel == "alphabet"
+            ? "https://express-nodejs-nc12.onrender.com/fsl-model-alphabet-predict"
+            : "https://express-nodejs-nc12.onrender.com/fsl-model-wordsphrases-predict",
       );
       final request = http.MultipartRequest("POST", uri)
         ..files.add(await http.MultipartFile.fromPath("image", file.path));
 
-      final response = await request.send();
+      final response = await request.send().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('Request timeout - please check your connection');
+        },
+      );
       final responseData = await response.stream.bytesToString();
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 400) {
         if (mounted && responseData.isNotEmpty) {
           try {
             final decoded = jsonDecode(responseData);
-            final predictionText =
-                decoded is Map && decoded.containsKey("label")
-                ? decoded["label"].toString().trim()
-                : responseData.toString().trim();
+            String predictionText = "";
+
+            // Try to get label from response
+            if (decoded is Map && decoded.containsKey("label")) {
+              predictionText = decoded["label"].toString().trim();
+            } else if (decoded is Map && decoded.containsKey("error")) {
+              // Handle cases where backend doesn't include label field
+              String errorMsg = decoded["error"].toString().toLowerCase();
+              if (errorMsg.contains("no hand") ||
+                  errorMsg.contains("hand not found")) {
+                predictionText = "no hand detected";
+              } else if (errorMsg.contains("no person") ||
+                  errorMsg.contains("no landmarks") ||
+                  errorMsg.contains("person not found")) {
+                predictionText = "no person detected";
+              } else {
+                predictionText = responseData.toString().trim();
+              }
+            } else {
+              predictionText = responseData.toString().trim();
+            }
 
             if (predictionText.isNotEmpty && predictionText != "Waiting...") {
-              if (predictionText.toLowerCase() == "nosign") {
-                String message = _selectedModel == "alphabet"
+              // Handle fallback responses from backend
+              if (predictionText.toLowerCase() == "no hand detected" ||
+                  predictionText.toLowerCase() == "no person detected" ||
+                  predictionText.toLowerCase() == "nosign") {
+                String message =
+                    predictionText.toLowerCase() == "no hand detected"
                     ? "No hand detected"
-                    : "No silhouette detected";
+                    : predictionText.toLowerCase() == "no person detected"
+                    ? "No person detected"
+                    : _selectedModel == "alphabet"
+                    ? "No hand detected"
+                    : "No person detected";
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(message, style: GoogleFonts.robotoMono()),
@@ -529,9 +559,41 @@ class _SignToTextPageState extends State<SignToTextPage> {
             }
           } catch (e) {
             final cleaned = responseData.replaceAll('"', '').trim();
-            if (cleaned.isNotEmpty &&
-                cleaned != "Waiting..." &&
-                cleaned.toLowerCase() != "nosign") {
+            if (cleaned.isNotEmpty && cleaned != "Waiting...") {
+              // Check for error messages that indicate no detection
+              if (cleaned.toLowerCase().contains("no hand") ||
+                  cleaned.toLowerCase().contains("hand not found") ||
+                  cleaned.toLowerCase() == "no hand detected" ||
+                  cleaned.toLowerCase() == "nosign") {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "No hand detected",
+                      style: GoogleFonts.robotoMono(),
+                    ),
+                    backgroundColor: Colors.orange,
+                    duration: const Duration(milliseconds: 800),
+                  ),
+                );
+                return;
+              } else if (cleaned.toLowerCase().contains("no person") ||
+                  cleaned.toLowerCase().contains("no landmarks") ||
+                  cleaned.toLowerCase().contains("person not found") ||
+                  cleaned.toLowerCase() == "no person detected") {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "No person detected",
+                      style: GoogleFonts.robotoMono(),
+                    ),
+                    backgroundColor: Colors.orange,
+                    duration: const Duration(milliseconds: 800),
+                  ),
+                );
+                return;
+              }
+
+              // Valid prediction - add to text
               setState(() {
                 _prediction = cleaned;
                 if (_selectedModel == "alphabet") {
@@ -547,17 +609,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
                     ? _alphabetText
                     : _wordsText;
               });
-            } else if (cleaned.toLowerCase() == "nosign") {
-              String message = _selectedModel == "alphabet"
-                  ? "No hand detected"
-                  : "No silhouette detected";
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message, style: GoogleFonts.robotoMono()),
-                  backgroundColor: Colors.orange,
-                  duration: const Duration(milliseconds: 800),
-                ),
-              );
             }
           }
         }
@@ -788,14 +839,27 @@ class _SignToTextPageState extends State<SignToTextPage> {
                                 child: AnimatedOpacity(
                                   opacity: _isFlickering ? 0.8 : 0.5,
                                   duration: const Duration(milliseconds: 100),
-                                  child: Image.asset(
-                                    _selectedModel == "alphabet"
-                                        ? 'assets/images/HandScan.png'
-                                        : 'assets/images/PersonScan.png',
-                                    fit: BoxFit.cover,
-                                    width: cameraWidth,
-                                    height: cameraHeight,
-                                  ),
+                                  child: _selectedModel == "alphabet"
+                                      ? Center(
+                                          child: SizedBox(
+                                            width: cameraWidth - 20,
+                                            height: cameraHeight - 20,
+                                            child: Image.asset(
+                                              'assets/images/HandScan.png',
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        )
+                                      : Center(
+                                          child: SizedBox(
+                                            width: cameraWidth - 50,
+                                            height: cameraHeight - 50,
+                                            child: Image.asset(
+                                              'assets/images/PersonScan.png',
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
                                 ),
                               ),
                             ),

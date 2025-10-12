@@ -10,8 +10,8 @@ class WavingHandIcon extends StatefulWidget {
 
 class _WavingHandIconState extends State<WavingHandIcon>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+  AnimationController? _controller;
+  Animation<double>? _animation;
 
   @override
   void initState() {
@@ -20,24 +20,33 @@ class _WavingHandIconState extends State<WavingHandIcon>
       duration: const Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: -0.1, end: 0.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: -0.1,
+      end: 0.1,
+    ).animate(CurvedAnimation(parent: _controller!, curve: Curves.easeInOut));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_animation == null) {
+      return Image.asset(
+        'assets/images/wavinghand.png',
+        width: 50 * widget.scale,
+        height: 50 * widget.scale,
+      );
+    }
+
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _animation!,
       builder: (context, child) {
         return Transform.rotate(
-          angle: -_animation.value, // Animation on the other side
+          angle: -_animation!.value, // Animation on the other side
           child: Image.asset(
             'assets/images/wavinghand.png', // Place your image in assets/images/
             width: 50 * widget.scale,
