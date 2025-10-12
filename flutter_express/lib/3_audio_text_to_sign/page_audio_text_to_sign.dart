@@ -618,6 +618,32 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
           ),
           Positioned(
             top: 56, // Lowered from 16 to 56
+            left: 16,
+            child: GestureDetector(
+              onTap: _showDisclaimerPopup,
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.info_outline,
+                  color: Color(0xFF334E7B),
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 56, // Lowered from 16 to 56
             right: 16,
             child: HelpIconWidget(
               helpTitle: 'Audio/Text Input',
