@@ -23,7 +23,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   final List<String> _mainConcernOptions = [
     "Word/Phrases No Match",
-    "Bug Found",
+    "Error Found",
     "Suggestion",
   ];
 

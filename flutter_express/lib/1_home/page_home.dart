@@ -14,15 +14,19 @@ import '../00_services/api_services.dart';
 class DraggableFilterDrawer extends StatefulWidget {
   final String sortBy;
   final String activeTab;
+  final String wordCountFilter;
   final Function(String) onSortChanged;
   final Function(String) onTabChanged;
+  final Function(String) onWordCountFilterChanged;
 
   const DraggableFilterDrawer({
     Key? key,
     required this.sortBy,
     required this.activeTab,
+    required this.wordCountFilter,
     required this.onSortChanged,
     required this.onTabChanged,
+    required this.onWordCountFilterChanged,
   }) : super(key: key);
 
   @override
@@ -32,12 +36,14 @@ class DraggableFilterDrawer extends StatefulWidget {
 class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
   late String _sortBy;
   late String _activeTab;
+  late String _wordCountFilter;
 
   @override
   void initState() {
     super.initState();
     _sortBy = widget.sortBy;
     _activeTab = widget.activeTab;
+    _wordCountFilter = widget.wordCountFilter;
   }
 
   @override
@@ -98,6 +104,15 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
                     ),
                     const SizedBox(height: 8),
                     _buildTabOptions(scale),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Word Count",
+                      style: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildWordCountOptions(scale),
                   ],
                 ),
               ),
@@ -212,6 +227,55 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
       ),
     );
   }
+
+  Widget _buildWordCountOptions(double scale) {
+    return Wrap(
+      spacing: 8 * scale,
+      runSpacing: 8 * scale,
+      children: [
+        _buildChip(
+          label: "All",
+          value: "all",
+          selected: _wordCountFilter == "all",
+          onSelected: (selected) {
+            setState(() => _wordCountFilter = "all");
+            widget.onWordCountFilterChanged("all");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "1 Word",
+          value: "1-word",
+          selected: _wordCountFilter == "1-word",
+          onSelected: (selected) {
+            setState(() => _wordCountFilter = "1-word");
+            widget.onWordCountFilterChanged("1-word");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "2 Words",
+          value: "2-words",
+          selected: _wordCountFilter == "2-words",
+          onSelected: (selected) {
+            setState(() => _wordCountFilter = "2-words");
+            widget.onWordCountFilterChanged("2-words");
+          },
+          scale: scale,
+        ),
+        _buildChip(
+          label: "3+ Words",
+          value: "3-words",
+          selected: _wordCountFilter == "3-words",
+          onSelected: (selected) {
+            setState(() => _wordCountFilter = "3-words");
+            widget.onWordCountFilterChanged("3-words");
+          },
+          scale: scale,
+        ),
+      ],
+    );
+  }
 }
 
 class Home extends StatefulWidget {
@@ -236,6 +300,13 @@ class _HomeState extends State<Home> {
   bool showAddModal = false;
   bool addLoading = false;
   String addInput = '';
+  
+  // A-Z Filter state
+  Set<String> selectedLetters = <String>{};
+  bool showLetterFilter = false;
+  
+  // Word count filter state
+  String wordCountFilter = 'all'; // 'all', '1-word', '2-words', '3-words'
 
   List<Map<String, dynamic>> cards = [];
   List<Map<String, dynamic>> filteredCards = [];
@@ -343,6 +414,38 @@ class _HomeState extends State<Home> {
           )
           .toList();
     }
+    
+    // Apply letter filter
+    if (selectedLetters.isNotEmpty) {
+      result = result.where((c) {
+        String word = (c['words'] ?? '').toString().trim();
+        if (word.isEmpty) return false;
+        String firstLetter = word[0].toUpperCase();
+        return selectedLetters.contains(firstLetter);
+      }).toList();
+    }
+    
+    // Apply word count filter
+    if (wordCountFilter != 'all') {
+      result = result.where((c) {
+        String words = (c['words'] ?? '').toString().trim();
+        if (words.isEmpty) return false;
+        
+        int wordCount = words.split(RegExp(r'\s+')).length;
+        
+        switch (wordCountFilter) {
+          case '1-word':
+            return wordCount == 1;
+          case '2-words':
+            return wordCount == 2;
+          case '3-words':
+            return wordCount >= 3;
+          default:
+            return true;
+        }
+      }).toList();
+    }
+    
     int naturalCompare(String a, String b) =>
         a.toLowerCase().compareTo(b.toLowerCase());
     if (sortBy == 'alpha') {
@@ -663,12 +766,17 @@ class _HomeState extends State<Home> {
                                   builder: (context) => DraggableFilterDrawer(
                                     sortBy: sortBy,
                                     activeTab: activeTab,
+                                    wordCountFilter: wordCountFilter,
                                     onSortChanged: (value) {
                                       setState(() => sortBy = value);
                                       _applyFilters();
                                     },
                                     onTabChanged: (value) {
                                       setState(() => activeTab = value);
+                                      _applyFilters();
+                                    },
+                                    onWordCountFilterChanged: (value) {
+                                      setState(() => wordCountFilter = value);
                                       _applyFilters();
                                     },
                                   ),
@@ -678,6 +786,11 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
+                      
+                      // A-Z Letter Filter Section
+                      SizedBox(height: 10 * scale),
+                      _buildLetterFilterSection(scale),
+                      
                       SizedBox(height: 20 * scale),
                     ],
                   ),
@@ -1319,9 +1432,153 @@ class _HomeState extends State<Home> {
       title,
       style: GoogleFonts.robotoMono(
         fontSize: 18 * scale,
-
         fontWeight: FontWeight.w900,
         color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildLetterFilterSection(double scale) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              "Filter by Letter:",
+              style: GoogleFonts.robotoMono(
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF334E7B),
+              ),
+            ),
+            Spacer(),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  showLetterFilter = !showLetterFilter;
+                });
+              },
+              child: Icon(
+                showLetterFilter ? Icons.expand_less : Icons.expand_more,
+                color: Color(0xFF334E7B),
+                size: 24 * scale,
+              ),
+            ),
+          ],
+        ),
+        if (showLetterFilter) ...[
+          SizedBox(height: 8 * scale),
+          _buildLetterCheckboxGrid(scale),
+          if (selectedLetters.isNotEmpty) ...[
+            SizedBox(height: 8 * scale),
+            Row(
+              children: [
+                Text(
+                  "Selected: ${selectedLetters.length} letters",
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 12 * scale,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                Spacer(),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedLetters.clear();
+                    });
+                    _applyFilters();
+                  },
+                  child: Text(
+                    "Clear All",
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 12 * scale,
+                      color: Color(0xFF334E7B),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _buildLetterCheckboxGrid(double scale) {
+    final letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    
+    return Container(
+      padding: EdgeInsets.all(12 * scale),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Color(0xFF334E7B).withOpacity(0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Wrap(
+        spacing: 6 * scale,
+        runSpacing: 6 * scale,
+        children: letters.map((letter) {
+          final isSelected = selectedLetters.contains(letter);
+          
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                if (isSelected) {
+                  selectedLetters.remove(letter);
+                } else {
+                  selectedLetters.add(letter);
+                }
+              });
+              _applyFilters();
+            },
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              width: 32 * scale,
+              height: 32 * scale,
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? Color(0xFF334E7B)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(6 * scale),
+                border: Border.all(
+                  color: Color(0xFF334E7B),
+                  width: 1.5 * scale,
+                ),
+                boxShadow: isSelected ? [
+                  BoxShadow(
+                    color: Color(0xFF334E7B).withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ] : [],
+              ),
+              child: Center(
+                child: Text(
+                  letter,
+                  style: GoogleFonts.robotoMono(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected 
+                        ? Colors.white
+                        : Color(0xFF334E7B),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

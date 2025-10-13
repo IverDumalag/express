@@ -6,7 +6,6 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
-import '../0_components/popup_information.dart';
 
 class SignToTextPage extends StatefulWidget {
   const SignToTextPage({super.key});
@@ -51,11 +50,46 @@ class _SignToTextPageState extends State<SignToTextPage> {
   }
 
   void _showDisclaimerPopup() async {
-    await PopupInformation.show(
-      context,
-      title: "Dataset Information",
-      message:
-          "Note: The dataset is limited and may not recognize a sign language.",
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Color(0xFF334E7B), width: 2),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 8,
+          title: Text(
+            "Dataset Information",
+            style: GoogleFonts.robotoMono(
+              color: Color(0xFF334E7B),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            "Note: The dataset is limited and may not recognize a sign language.",
+            style: GoogleFonts.robotoMono(
+              color: Color(0xFF334E7B),
+              fontSize: 14,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                "OK",
+                style: GoogleFonts.robotoMono(
+                  color: Color(0xFF2E5C9A),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -670,6 +704,11 @@ class _SignToTextPageState extends State<SignToTextPage> {
         iconTheme: const IconThemeData(color: Colors.white),
         automaticallyImplyLeading: false,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            onPressed: _showDisclaimerPopup,
+            tooltip: 'Dataset Information',
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline, color: Colors.white),
             onPressed: () {
