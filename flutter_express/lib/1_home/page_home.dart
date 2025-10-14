@@ -300,11 +300,11 @@ class _HomeState extends State<Home> {
   bool showAddModal = false;
   bool addLoading = false;
   String addInput = '';
-  
+
   // A-Z Filter state
   Set<String> selectedLetters = <String>{};
   bool showLetterFilter = false;
-  
+
   // Word count filter state
   String wordCountFilter = 'all'; // 'all', '1-word', '2-words', '3-words'
 
@@ -320,6 +320,17 @@ class _HomeState extends State<Home> {
   bool _needsRefresh = true;
 
   String userFullName = '';
+
+  // Normalize text for dataset search:
+  // - lowercase
+  // - remove all non-alphanumeric characters (including spaces and punctuation)
+  //   e.g., "DON'T UNDERSTAND" -> "dontunderstand"
+  String _normalizeForSearch(String input) {
+    final lower = input.toLowerCase();
+    // Remove any character that's not a-z or 0-9 (this also removes spaces)
+    final collapsed = lower.replaceAll(RegExp(r'[^a-z0-9]+'), '');
+    return collapsed;
+  }
 
   @override
   void initState() {
@@ -414,7 +425,7 @@ class _HomeState extends State<Home> {
           )
           .toList();
     }
-    
+
     // Apply letter filter
     if (selectedLetters.isNotEmpty) {
       result = result.where((c) {
@@ -424,15 +435,15 @@ class _HomeState extends State<Home> {
         return selectedLetters.contains(firstLetter);
       }).toList();
     }
-    
+
     // Apply word count filter
     if (wordCountFilter != 'all') {
       result = result.where((c) {
         String words = (c['words'] ?? '').toString().trim();
         if (words.isEmpty) return false;
-        
+
         int wordCount = words.split(RegExp(r'\s+')).length;
-        
+
         switch (wordCountFilter) {
           case '1-word':
             return wordCount == 1;
@@ -445,7 +456,7 @@ class _HomeState extends State<Home> {
         }
       }).toList();
     }
-    
+
     int naturalCompare(String a, String b) =>
         a.toLowerCase().compareTo(b.toLowerCase());
     if (sortBy == 'alpha') {
@@ -517,7 +528,8 @@ class _HomeState extends State<Home> {
     int isMatch = 0;
     bool matchFound = false;
     try {
-      final searchJson = await ApiService.trySearch(addInput);
+      final normalizedForSearch = _normalizeForSearch(addInput);
+      final searchJson = await ApiService.trySearch(normalizedForSearch);
       if (searchJson != null &&
           searchJson['public_id'] != null &&
           searchJson['all_files'] is List) {
@@ -608,6 +620,568 @@ class _HomeState extends State<Home> {
       _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters(); // Re-apply filters to update favorite list if activeTab is 'favorite'
+  }
+
+  // Load available words with sign language from the dataset
+  Future<Map<String, List<String>>> _loadAvailableWords() async {
+    try {
+      final String csvData = await DefaultAssetBundle.of(
+        context,
+      ).loadString('assets/dataset/wordsphrases.csv');
+
+      final Map<String, List<String>> categorizedWords = {};
+
+      final List<String> lines = csvData.split('\n');
+
+      // Skip header line
+      for (int i = 1; i < lines.length; i++) {
+        final String line = lines[i].trim();
+        if (line.isEmpty) continue;
+
+        final List<String> parts = line.split(',');
+        if (parts.length >= 3) {
+          final String label = parts[1].trim();
+          final String category = parts[2].trim();
+
+          if (!categorizedWords.containsKey(category)) {
+            categorizedWords[category] = [];
+          }
+          categorizedWords[category]!.add(label);
+        }
+      }
+
+      return categorizedWords;
+    } catch (e) {
+      print('Error loading wordsphrases dataset: $e');
+      return {};
+    }
+  }
+
+  void _showCategorySelection() async {
+    final Map<String, List<String>> availableWords =
+        await _loadAvailableWords();
+
+    if (availableWords.isEmpty) {
+      _showFeedbackPopup("Unable to load available words.", "error");
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final scale = scaleFactor(context);
+        return Dialog(
+          backgroundColor: Colors.white,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Color(0xFF334E7B), width: 2),
+          ),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 20 * scale,
+            vertical: 24 * scale,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 350 * scale,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24 * scale),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Select Category",
+                    style: GoogleFonts.robotoMono(
+                      color: Color(0xFF334E7B),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18 * scale,
+                    ),
+                  ),
+                  SizedBox(height: 12 * scale),
+                  Divider(color: Color(0xFF334E7B), thickness: 1),
+                  SizedBox(height: 16 * scale),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: availableWords.keys.length,
+                      itemBuilder: (context, index) {
+                        final String category = availableWords.keys.elementAt(
+                          index,
+                        );
+                        final int wordCount = availableWords[category]!.length;
+
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 8 * scale),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showWordSelection(
+                                  category,
+                                  availableWords[category]!,
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: EdgeInsets.all(16 * scale),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Color(0xFF334E7B).withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8 * scale,
+                                    vertical: 4 * scale,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(8 * scale),
+                                        decoration: BoxDecoration(
+                                          color: Color(
+                                            0xFF334E7B,
+                                          ).withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          _getCategoryIcon(category),
+                                          color: Color(0xFF334E7B),
+                                          size: 20 * scale,
+                                        ),
+                                      ),
+                                      SizedBox(width: 12 * scale),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _formatCategoryName(category),
+                                              style: GoogleFonts.robotoMono(
+                                                color: Color(0xFF334E7B),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14 * scale,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2 * scale),
+                                            Text(
+                                              "$wordCount words available",
+                                              style: GoogleFonts.robotoMono(
+                                                color: Colors.grey[600],
+                                                fontSize: 12 * scale,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: Color(0xFF334E7B),
+                                        size: 16 * scale,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 16 * scale),
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12 * scale,
+                        horizontal: 24 * scale,
+                      ),
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: GoogleFonts.robotoMono(
+                        color: Color(0xFF334E7B),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15 * scale,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showWordSelection(String category, List<String> words) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final scale = scaleFactor(context);
+        return Dialog(
+          backgroundColor: Colors.white,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Color(0xFF334E7B), width: 2),
+          ),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 20 * scale,
+            vertical: 24 * scale,
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 350 * scale,
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24 * scale),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showCategorySelection();
+                        },
+                        icon: Icon(Icons.arrow_back, color: Color(0xFF334E7B)),
+                      ),
+                      Expanded(
+                        child: Text(
+                          _formatCategoryName(category),
+                          style: GoogleFonts.robotoMono(
+                            color: Color(0xFF334E7B),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18 * scale,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(width: 48), // Balance the back button
+                    ],
+                  ),
+                  SizedBox(height: 12 * scale),
+                  Divider(color: Color(0xFF334E7B), thickness: 1),
+                  SizedBox(height: 16 * scale),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: words.length,
+                      itemBuilder: (context, index) {
+                        final String word = words[index];
+
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 8 * scale),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {
+                                // Show confirmation dialog before adding
+                                _showAddConfirmation(word);
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: EdgeInsets.all(16 * scale),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Color(0xFF334E7B).withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        word,
+                                        style: GoogleFonts.robotoMono(
+                                          color: Color(0xFF334E7B),
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14 * scale,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 16 * scale),
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12 * scale,
+                        horizontal: 24 * scale,
+                      ),
+                    ),
+                    child: Text(
+                      "Cancel",
+                      style: GoogleFonts.robotoMono(
+                        color: Color(0xFF334E7B),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15 * scale,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddConfirmation(String word) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final scale = scaleFactor(context);
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Color(0xFF334E7B), width: 2),
+          ),
+          title: Text(
+            "Add to Your Cards",
+            style: GoogleFonts.robotoMono(
+              color: Color(0xFF334E7B),
+              fontWeight: FontWeight.bold,
+              fontSize: 18 * scale,
+            ),
+          ),
+          content: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: "Do you want to add ",
+                  style: GoogleFonts.robotoMono(
+                    color: Color(0xFF334E7B),
+                    fontSize: 14 * scale,
+                  ),
+                ),
+                TextSpan(
+                  text: '"$word"',
+                  style: GoogleFonts.robotoMono(
+                    color: Color(0xFF334E7B),
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextSpan(
+                  text: " to your collection?",
+                  style: GoogleFonts.robotoMono(
+                    color: Color(0xFF334E7B),
+                    fontSize: 14 * scale,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.robotoMono(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(
+                  context,
+                ).pop(); // Just close the confirmation popup
+                await _handleAddWordFromCategory(word);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF2E5C9A),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                "Add",
+                style: GoogleFonts.robotoMono(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleAddWordFromCategory(String word) async {
+    if (word.trim().isEmpty) return;
+    setState(() => addLoading = true);
+
+    final normalizedInput = word.trim().toLowerCase();
+    if (cards.any(
+      (c) =>
+          (c['words'] ?? '').toString().trim().toLowerCase() == normalizedInput,
+    )) {
+      _showFeedbackPopup(
+        "You already have this entry in your collection.",
+        "error",
+      );
+      setState(() => addLoading = false);
+      return;
+    }
+
+    String signLanguageUrl = '';
+    int isMatch = 0;
+    bool matchFound = false;
+    try {
+      final normalizedForSearch = _normalizeForSearch(word);
+      final searchJson = await ApiService.trySearch(normalizedForSearch);
+      if (searchJson != null &&
+          searchJson['public_id'] != null &&
+          searchJson['all_files'] is List) {
+        final file = (searchJson['all_files'] as List).firstWhere(
+          (f) => f['public_id'] == searchJson['public_id'],
+          orElse: () => null,
+        );
+        if (file != null) {
+          signLanguageUrl = file['url'];
+          isMatch = 1;
+          matchFound = true;
+        }
+      }
+      final userId = UserSession.user?['user_id']?.toString() ?? "";
+      final insertJson = await ApiService.addCard(
+        userId: userId,
+        words: word,
+        signLanguageUrl: signLanguageUrl,
+        isMatch: isMatch,
+      );
+      if (insertJson['status'] == 201 || insertJson['status'] == "201") {
+        setState(() {
+          cards.insert(0, {
+            'entry_id': insertJson['entry_id'],
+            'words': word,
+            'sign_language': signLanguageUrl,
+            'is_favorite': 0,
+            'created_at': DateTime.now().toIso8601String(),
+            'status': 'active',
+          });
+          addInput = '';
+          showAddModal = false;
+          _needsRefresh = true; // Trigger refresh for Words/Phrases section
+        });
+        _applyFilters();
+
+        _showFeedbackPopup(
+          matchFound
+              ? "Match Found!"
+              : "No match found, but added to your list.",
+          matchFound ? "success" : "info",
+        );
+      } else {
+        _showFeedbackPopup(
+          "Unable to save your entry. Please try again.",
+          "error",
+        );
+      }
+    } catch (e) {
+      String errorMessage = "Unable to save your entry.";
+
+      // Check for specific error types
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        errorMessage = "Please check your internet connection and try again.";
+      } else if (e.toString().contains('duplicate')) {
+        errorMessage = "This entry already exists in your collection.";
+      }
+
+      _showFeedbackPopup(errorMessage, "error");
+    }
+    setState(() => addLoading = false);
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toUpperCase()) {
+      case 'GREETING':
+        return Icons.waving_hand;
+      case 'NUMBER':
+        return Icons.numbers;
+      case 'FAMILY':
+        return Icons.family_restroom;
+      case 'COLOR':
+        return Icons.palette;
+      case 'FOOD':
+        return Icons.restaurant;
+      case 'DRINK':
+        return Icons.local_drink;
+      case 'CALENDAR':
+        return Icons.calendar_today;
+      case 'DAYS':
+        return Icons.today;
+      case 'RELATIONSHIPS':
+        return Icons.people;
+      case 'SURVIVAL':
+        return Icons.help;
+      default:
+        return Icons.category;
+    }
+  }
+
+  String _formatCategoryName(String category) {
+    switch (category.toUpperCase()) {
+      case 'GREETING':
+        return 'Greetings';
+      case 'NUMBER':
+        return 'Numbers';
+      case 'FAMILY':
+        return 'Family';
+      case 'COLOR':
+        return 'Colors';
+      case 'FOOD':
+        return 'Food';
+      case 'DRINK':
+        return 'Drinks';
+      case 'CALENDAR':
+        return 'Calendar';
+      case 'DAYS':
+        return 'Days';
+      case 'RELATIONSHIPS':
+        return 'Relationships';
+      case 'SURVIVAL':
+        return 'Survival';
+      default:
+        return category;
+    }
   }
 
   double scaleFactor(BuildContext context) {
@@ -786,11 +1360,11 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      
+
                       // A-Z Letter Filter Section
                       SizedBox(height: 10 * scale),
                       _buildLetterFilterSection(scale),
-                      
+
                       SizedBox(height: 20 * scale),
                     ],
                   ),
@@ -940,71 +1514,142 @@ class _HomeState extends State<Home> {
                         ),
                         onChanged: (v) => addInput = v,
                       ),
-                      SizedBox(height: 24 * scale),
+                      SizedBox(height: 16 * scale),
+
+                      // Divider
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: addLoading
-                                  ? null
-                                  : () => setState(() => showAddModal = false),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: Color(0xFF334E7B),
-                                  width: 2,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 12 * scale,
-                                ),
-                              ),
-                              child: Text(
-                                "Cancel",
-                                style: GoogleFonts.robotoMono(
-                                  color: Color(0xFF334E7B),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 15 * scale,
-                                ),
+                          Expanded(child: Divider(color: Colors.grey[400])),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16 * scale,
+                            ),
+                            child: Text(
+                              "OR",
+                              style: GoogleFonts.robotoMono(
+                                fontSize: 12 * scale,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          SizedBox(width: 12 * scale),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: addLoading ? null : _handleAddWord,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF2E5C9A),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 12 * scale,
-                                ),
-                                elevation: 0,
-                              ),
-                              child: addLoading
-                                  ? SizedBox(
-                                      width: 20 * scale,
-                                      height: 20 * scale,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : Text(
-                                      "Add",
+                          Expanded(child: Divider(color: Colors.grey[400])),
+                        ],
+                      ),
+                      SizedBox(height: 16 * scale),
+
+                      // Words with sign language available button
+                      GestureDetector(
+                        onTap: _showCategorySelection,
+                        child: Container(
+                          padding: EdgeInsets.all(12 * scale),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF334E7B).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Color(0xFF334E7B),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 12 * scale),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Words with sign language available",
                                       style: GoogleFonts.robotoMono(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15 * scale,
+                                        color: Color(0xFF334E7B),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14 * scale,
                                       ),
                                     ),
-                            ),
+                                    SizedBox(height: 4 * scale),
+                                    Text(
+                                      "Browse categories with verified signs",
+                                      style: GoogleFonts.robotoMono(
+                                        color: Colors.grey[600],
+                                        fontSize: 11 * scale,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                      ),
+                      SizedBox(height: 24 * scale),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16 * scale),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: addLoading
+                                    ? null
+                                    : () =>
+                                          setState(() => showAddModal = false),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: Color(0xFF334E7B),
+                                    width: 2,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 12 * scale,
+                                  ),
+                                ),
+                                child: Text(
+                                  "Cancel",
+                                  style: GoogleFonts.robotoMono(
+                                    color: Color(0xFF334E7B),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15 * scale,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12 * scale),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: addLoading ? null : _handleAddWord,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF2E5C9A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 12 * scale,
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: addLoading
+                                    ? SizedBox(
+                                        width: 20 * scale,
+                                        height: 20 * scale,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Add",
+                                        style: GoogleFonts.robotoMono(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15 * scale,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -1508,16 +2153,13 @@ class _HomeState extends State<Home> {
 
   Widget _buildLetterCheckboxGrid(double scale) {
     final letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-    
+
     return Container(
       padding: EdgeInsets.all(12 * scale),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Color(0xFF334E7B).withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Color(0xFF334E7B).withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -1531,7 +2173,7 @@ class _HomeState extends State<Home> {
         runSpacing: 6 * scale,
         children: letters.map((letter) {
           final isSelected = selectedLetters.contains(letter);
-          
+
           return GestureDetector(
             onTap: () {
               setState(() {
@@ -1548,21 +2190,21 @@ class _HomeState extends State<Home> {
               width: 32 * scale,
               height: 32 * scale,
               decoration: BoxDecoration(
-                color: isSelected 
-                    ? Color(0xFF334E7B)
-                    : Colors.white,
+                color: isSelected ? Color(0xFF334E7B) : Colors.white,
                 borderRadius: BorderRadius.circular(6 * scale),
                 border: Border.all(
                   color: Color(0xFF334E7B),
                   width: 1.5 * scale,
                 ),
-                boxShadow: isSelected ? [
-                  BoxShadow(
-                    color: Color(0xFF334E7B).withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ] : [],
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Color(0xFF334E7B).withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ]
+                    : [],
               ),
               child: Center(
                 child: Text(
@@ -1570,9 +2212,7 @@ class _HomeState extends State<Home> {
                   style: GoogleFonts.robotoMono(
                     fontSize: 14 * scale,
                     fontWeight: FontWeight.bold,
-                    color: isSelected 
-                        ? Colors.white
-                        : Color(0xFF334E7B),
+                    color: isSelected ? Colors.white : Color(0xFF334E7B),
                   ),
                 ),
               ),

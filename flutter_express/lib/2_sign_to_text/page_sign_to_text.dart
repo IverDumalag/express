@@ -513,7 +513,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
       final uri = Uri.parse(
         _selectedModel == "alphabet"
             ? "https://express-nodejs-nc12.onrender.com/fsl-model-alphabet-predict"
-            : "https://express-nodejs-nc12.onrender.com/fsl-model-wordsphrases-predict",
+            : "https://express-nodejs-nc12.onrender.com/fsl-model-wordsphrases-limited",
       );
       final request = http.MultipartRequest("POST", uri)
         ..files.add(await http.MultipartFile.fromPath("image", file.path));
