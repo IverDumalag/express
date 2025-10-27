@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_express/global_variables.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../00_services/api_services.dart';
+import '../00_services/feedback_service.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({Key? key}) : super(key: key);
@@ -96,7 +96,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     setState(() => _loading = true);
 
     try {
-      final result = await ApiService.submitFeedback(
+      final result = await FeedbackService.insertFeedback(
         userId: user['user_id'].toString(),
         email: user['email'] ?? '',
         mainConcern: mainConcern,
@@ -105,7 +105,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
       setState(() => _loading = false);
 
-      if (result['status'] == 201 || result['status'] == "201") {
+      if (result.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -117,18 +117,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
         );
         Navigator.pop(context);
       } else {
-        String errorMessage = "We couldn't send your feedback right now.";
-
-        if (result['status'] == 400 || result['status'] == "400") {
-          errorMessage = "Please check that all fields are filled correctly.";
-        } else if (result['status'] == 500 || result['status'] == "500") {
-          errorMessage =
-              "Our servers are temporarily busy. Please try again later.";
-        }
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMessage, style: GoogleFonts.robotoMono()),
+            content: Text(
+              result.message ?? "We couldn't send your feedback right now.",
+              style: GoogleFonts.robotoMono(),
+            ),
             backgroundColor: Colors.red,
           ),
         );

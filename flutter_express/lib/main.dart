@@ -7,11 +7,10 @@ import 'more_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'page_landing.dart';
 import 'global_variables.dart';
-import '00_services/api_services.dart';
+import '00_services/supabase_config.dart';
 import '1_home/page_home.dart';
 import '2_sign_to_text/page_sign_to_text.dart';
 import '3_audio_text_to_sign/page_audio_text_to_sign.dart';
-import '4_settings/page_settings.dart';
 import 'intro_p1.dart';
 import 'intro_p2.dart';
 import 'intro_p3.dart';
@@ -19,7 +18,9 @@ import 'login.dart';
 import 'register.dart';
 import '5_profile/page_profile.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
   runApp(MyApp());
 }
 
@@ -63,8 +64,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Wake up backend services (run in background)
-    ApiService.wakeAllServices();
+    // No longer needed - using Supabase directly instead of PHP backend
+    // ApiService.wakeAllServices();
 
     final prefs = await SharedPreferences.getInstance();
 

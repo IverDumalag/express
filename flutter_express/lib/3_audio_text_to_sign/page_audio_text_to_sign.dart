@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import '../0_components/help_widget.dart';
 import '../0_components/popup_information.dart';
-import '../00_services/api_services.dart';
+import '../00_services/audio_phrases_words_service.dart';
 import 'audio_home_cards.dart';
 import '../global_variables.dart';
 
@@ -57,10 +59,13 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         UserSession.user?['user_id']?.toString() ??
         ""; // Replace with your logic
     try {
-      final phrases = await ApiService.fetchAudioPhrases(userId);
-      setState(
-        () => _phrases = phrases,
-      ); // Do NOT reverse, keep order as-is (oldest first)
+      final response =
+          await AudioPhrasesWordsService.getAudioPhrasesWordsByUserId(userId);
+      if (response.success && response.data != null) {
+        setState(
+          () => _phrases = response.data!,
+        ); // Do NOT reverse, keep order as-is (oldest first)
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
           _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
@@ -124,7 +129,12 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     );
 
     try {
-      final searchJson = await ApiService.trySearch(text.trim());
+      const trySearchUrl =
+          'https://express-nodejs-nc12.onrender.com/api/search';
+      final res = await http.get(
+        Uri.parse('$trySearchUrl?q=${Uri.encodeComponent(text.trim())}'),
+      );
+      final searchJson = jsonDecode(res.body);
       if (searchJson != null &&
           searchJson['public_id'] != null &&
           searchJson['all_files'] is List) {
@@ -177,26 +187,28 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
       ),
     );
 
-    final isMatch = matchFound ? 1 : 0;
-
     try {
-      final insertResult = await ApiService.insertAudioPhrase(
-        userId: userId,
-        words: text.trim(),
-        signLanguage: signLanguageUrl,
-        isMatch: isMatch,
-      );
+      final insertResult =
+          await AudioPhrasesWordsService.insertAudioPhrasesWords(
+            userId: userId,
+            words: text.trim(),
+            signLanguage: signLanguageUrl,
+            isMatch: matchFound,
+          );
       _textController.clear();
       await _loadPhrases();
 
       // Auto-open the result if submission was successful and match was found
-      if (matchFound && signLanguageUrl.isNotEmpty) {
+      if (matchFound &&
+          signLanguageUrl.isNotEmpty &&
+          insertResult.success &&
+          insertResult.data != null) {
         final newPhrase = {
-          'entry_id': insertResult['entry_id'] ?? '',
+          'entry_id': insertResult.data!['entry_id'] ?? '',
           'words': text.trim(),
           'sign_language': signLanguageUrl,
           'created_at': DateTime.now().toIso8601String(),
-          'is_match': isMatch,
+          'is_match': matchFound,
         };
 
         // Navigate to the detail screen automatically
@@ -231,8 +243,11 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
     if (userId.isEmpty) return;
 
     try {
-      final result = await ApiService.deleteAudioPhrase(userId: userId);
-      if (result['status'] == 200) {
+      final result =
+          await AudioPhrasesWordsService.deleteAudioPhrasesWordsByUserId(
+            userId,
+          );
+      if (result.success) {
         // Successfully deleted all phrases
         setState(() {
           _phrases.clear();
@@ -254,7 +269,7 @@ class _AudioTextToSignPageState extends State<AudioTextToSignPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error: ${result['message'] ?? 'Failed to delete entries'}',
+              'Error: ${result.message ?? 'Failed to delete entries'}',
               style: GoogleFonts.robotoMono(color: Colors.white),
             ),
             backgroundColor: Colors.red,

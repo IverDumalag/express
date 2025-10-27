@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../00_services/api_services.dart';
+import '../00_services/user_service.dart';
 import '../global_variables.dart';
 import '../0_components/popup_confirmation.dart';
 
@@ -641,22 +641,20 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                               if (!confirmed) return;
 
                               setState(() => loading = true);
-                              final result = await ApiService.editUser(
+                              final result = await UserService.updateUser(
                                 userId: widget.user['user_id'].toString(),
                                 email: widget.user['email'] ?? '',
-                                fName: fNameController.text.trim(),
-                                mName: mNameController.text.trim(),
-                                lName: lNameController.text.trim(),
-                                sex:
-                                    widget.user['sex'] ??
-                                    '', // Keep original value
-                                birthdate:
-                                    widget.user['birthdate'] ??
-                                    '', // Keep original value
+                                firstName: fNameController.text.trim(),
+                                middleName:
+                                    mNameController.text.trim().isNotEmpty
+                                    ? mNameController.text.trim()
+                                    : null,
+                                lastName: lNameController.text.trim(),
+                                sex: widget.user['sex'] ?? '',
+                                birthdate: widget.user['birthdate'] ?? '',
                               );
                               setState(() => loading = false);
-                              if (result['status'] == 200 ||
-                                  result['status'] == "200") {
+                              if (result.success && result.data != null) {
                                 Navigator.pop(context, {
                                   ...widget.user,
                                   'f_name': fNameController.text.trim(),
@@ -668,7 +666,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      result['message'] ?? "Update failed",
+                                      result.message ?? 'Update failed',
                                       style: GoogleFonts.robotoMono(),
                                     ),
                                   ),

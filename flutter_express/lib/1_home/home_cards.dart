@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_express/0_components/media_viewer.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../00_services/api_services.dart';
+import 'package:http/http.dart' as http;
+import '../00_services/phrases_words_service.dart';
 import '../0_components/popup_confirmation.dart';
 import '../0_components/popup_information.dart';
 import '../3_audio_text_to_sign/audio_home_cards.dart'; // For FullScreenMediaViewer
@@ -308,7 +310,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       bool matchFound = false;
 
       try {
-        final searchJson = await ApiService.trySearch(newWords);
+        const trySearchUrl =
+            'https://express-nodejs-nc12.onrender.com/api/search';
+        final res = await http.get(
+          Uri.parse('$trySearchUrl?q=${Uri.encodeComponent(newWords)}'),
+        );
+        final searchJson = jsonDecode(res.body);
         if (searchJson != null &&
             searchJson['public_id'] != null &&
             searchJson['all_files'] is List) {
@@ -338,12 +345,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
       }
 
       // Call API to update, now with sign_language
-      final result = await ApiService.editCard(
+      final result = await PhrasesWordsService.editPhrasesWords(
         entryId: entryId,
         words: newWords,
         signLanguage: signLanguageUrl,
       );
-      if (result['status'] == 200 || result['status'] == "200") {
+      if (result.success && result.data != null) {
         setState(() {
           editMode = false;
           widget.items[currentIndex]['words'] = newWords;
@@ -358,23 +365,12 @@ class _CardDetailScreenState extends State<CardDetailScreen> {
           );
         }
       } else {
-        // More specific error message based on status
-        String errorMessage = "Unable to save your changes.";
-        if (result['status'] == 404 || result['status'] == "404") {
-          errorMessage =
-              "This item could not be found. It may have been removed.";
-        } else if (result['status'] == 403 || result['status'] == "403") {
-          errorMessage = "You don't have permission to edit this item.";
-        } else if (result['status'] == 500 || result['status'] == "500") {
-          errorMessage =
-              "Server is temporarily unavailable. Please try again later.";
-        }
-
+        // Error saving - show error message
         if (context.mounted) {
           PopupInformation.show(
             context,
             title: "Save Failed",
-            message: errorMessage,
+            message: result.message ?? "Unable to save your changes.",
           );
         }
       }
