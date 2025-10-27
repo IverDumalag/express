@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../00_services/api_services.dart';
+import '../00_services/phrases_words_service.dart';
 import '../global_variables.dart';
 
 class ArchivedCardsPage extends StatefulWidget {
@@ -13,8 +13,11 @@ class ArchivedCardsPage extends StatefulWidget {
 class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
   Future<void> _restoreCard(String entryId) async {
     setState(() => _loading = true);
-    final result = await ApiService.restoreCard(entryId: entryId);
-    if (result['status'] == 200 || result['status'] == "200") {
+    final result = await PhrasesWordsService.updatePhrasesWordsStatus(
+      entryId: entryId,
+      status: 'active',
+    );
+    if (result.success) {
       setState(() {
         _archivedCards.removeWhere((c) => c['entry_id'] == entryId);
         _loading = false;
@@ -25,7 +28,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
     } else {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Restore failed')),
+        SnackBar(content: Text(result.message ?? 'Restore failed')),
       );
     }
   }
@@ -142,7 +145,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
       final toDelete = _selectedCards.toList();
       setState(() => _loading = true);
       for (final entryId in toDelete) {
-        await ApiService.deleteCard(entryId: entryId);
+        await PhrasesWordsService.deletePhrasesWords(entryId);
         _archivedCards.removeWhere((c) => c['entry_id'].toString() == entryId);
       }
       setState(() {
@@ -250,7 +253,10 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
       final toRestore = _selectedCards.toList();
       setState(() => _loading = true);
       for (final entryId in toRestore) {
-        await ApiService.restoreCard(entryId: entryId);
+        await PhrasesWordsService.updatePhrasesWordsStatus(
+          entryId: entryId,
+          status: 'active',
+        );
         _archivedCards.removeWhere((c) => c['entry_id'].toString() == entryId);
       }
       setState(() {
@@ -273,19 +279,23 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
   Future<void> _fetchArchivedCards() async {
     setState(() => _loading = true);
     final userId = UserSession.user?['user_id']?.toString() ?? "";
-    final allCards = await ApiService.fetchCards(userId);
+    final response = await PhrasesWordsService.getPhrasesWordsByUserId(userId);
     setState(() {
-      _archivedCards = allCards
-          .where((c) => c['status'] == 'archived')
-          .toList();
+      if (response.success && response.data != null) {
+        _archivedCards = response.data!
+            .where((c) => c['status'] == 'archived')
+            .toList();
+      } else {
+        _archivedCards = [];
+      }
       _loading = false;
     });
   }
 
   Future<void> _deleteCard(String entryId) async {
     setState(() => _loading = true);
-    final result = await ApiService.deleteCard(entryId: entryId);
-    if (result['status'] == 200 || result['status'] == "200") {
+    final result = await PhrasesWordsService.deletePhrasesWords(entryId);
+    if (result.success) {
       setState(() {
         _archivedCards.removeWhere((c) => c['entry_id'] == entryId);
         _loading = false;
@@ -303,7 +313,7 @@ class _ArchivedCardsPageState extends State<ArchivedCardsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            result['message'] ?? 'Delete failed',
+            result.message ?? 'Delete failed',
             style: GoogleFonts.robotoMono(),
           ),
         ),

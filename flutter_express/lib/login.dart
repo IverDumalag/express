@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_express/00_services/api_services.dart';
+import 'package:flutter_express/00_services/user_service.dart';
 import 'package:flutter_express/global_variables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,16 +23,41 @@ class _LoginState extends State<Login> {
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    print('Login: Form validated, starting submission');
+
     setState(() {
       loading = true;
       error = null;
     });
+
     _formKey.currentState!.save();
+
+    print('Login: Email = $email');
+    print('Login: Password length = ${password.length}');
+
     try {
-      final result = await ApiService.login(email, password);
-      if (result['status'] == 200) {
-        final user = result['user'];
+      print('Login: Calling UserService.loginUser');
+
+      final result = await UserService.loginUser(
+        email: email,
+        password: password,
+      );
+
+      print(
+        'Login: UserService.loginUser returned - success: ${result.success}',
+      );
+
+      if (result.success && result.data != null) {
+        final user = result.data!;
+
+        print(
+          'Login: User data received - ID: ${user['user_id']}, Role: ${user['role']}',
+        );
+
+        // Check if user is admin (reject admin logins)
         if (user['role'] == 'admin' || user['role'] == 'superadmin') {
+          print('Login: Admin login rejected');
           setState(() {
             error = 'Invalid credentials';
             loading = false;
@@ -40,10 +65,12 @@ class _LoginState extends State<Login> {
           return;
         }
 
+        print('Login: Setting user session');
         // Set user session
         UserSession.setUser(user);
 
         // Save login state and user data to SharedPreferences
+        print('Login: Saving to SharedPreferences');
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('seenIntro', true);
         await prefs.setBool('isLoggedIn', true);
@@ -52,21 +79,28 @@ class _LoginState extends State<Login> {
         final userDataString = jsonEncode(user);
         await prefs.setString('userData', userDataString);
 
+        print('Login: Showing success popup');
+
         await PopupInformation.show(
           context,
           title: "Login Successful",
           message: "Welcome!",
           onOk: () {
+            print('Login: Navigating to /landing');
             Navigator.pushReplacementNamed(context, '/landing');
           },
         );
         GlobalVariables.currentIndex = 0;
       } else {
+        print('Login: Login failed - ${result.message ?? result.error}');
         setState(() {
-          error = result['message'] ?? 'Login failed';
+          error = result.message ?? result.error;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Login: EXCEPTION - $e');
+      print('Login: Stack trace - $stackTrace');
+
       String errorMessage = "We couldn't log you in right now.";
 
       // Check for specific error types
@@ -90,9 +124,12 @@ class _LoginState extends State<Login> {
         error = errorMessage;
       });
     }
+
     setState(() {
       loading = false;
     });
+
+    print('Login: Submit completed - loading: false, error: $error');
   }
 
   @override

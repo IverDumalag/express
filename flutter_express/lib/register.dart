@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '00_services/api_services.dart';
+import '00_services/user_service.dart';
+import '00_services/phrases_words_service.dart';
 import '0_components/popup_information.dart';
 import '4_settings/about_page.dart';
 
@@ -224,9 +225,9 @@ class _RegisterState extends State<Register> {
 
     try {
       // Check if email already exists
-      bool emailExists = await ApiService.checkEmailExists(email.trim());
+      final emailCheckResult = await UserService.checkEmailExists(email.trim());
 
-      if (emailExists) {
+      if (emailCheckResult.success && emailCheckResult.data == true) {
         await PopupInformation.show(
           context,
           title: "Email Already Registered",
@@ -337,28 +338,28 @@ class _RegisterState extends State<Register> {
     });
 
     try {
-      final result = await ApiService.register(
+      final result = await UserService.registerUser(
         email: email,
         password: password,
-        fName: fName,
-        mName: mName,
-        lName: lName,
+        firstName: fName,
+        middleName: mName.isNotEmpty ? mName : null,
+        lastName: lName,
         sex: sex,
         birthdate: birthdate,
       );
 
-      if (result['status'] == 201) {
+      if (result.success && result.data != null) {
         // Registration successful, create default cards
-        String newUserId = result['user_id']?.toString() ?? '';
+        String newUserId = result.data!['user_id']?.toString() ?? '';
 
         if (newUserId.isNotEmpty) {
           // Create default "Hello" card
           try {
-            await ApiService.addCard(
+            await PhrasesWordsService.insertPhrasesWords(
               userId: newUserId,
               words: 'Hello',
-              signLanguageUrl: '', // Empty URL as default
-              isMatch: 0, // Default not matched
+              signLanguage: '', // Empty URL as default
+              isMatch: false, // Default not matched
             );
           } catch (e) {
             print('Failed to create Hello card: $e');
@@ -366,11 +367,11 @@ class _RegisterState extends State<Register> {
 
           // Create default "Good Morning" card
           try {
-            await ApiService.addCard(
+            await PhrasesWordsService.insertPhrasesWords(
               userId: newUserId,
               words: 'Good Morning',
-              signLanguageUrl: '', // Empty URL as default
-              isMatch: 0, // Default not matched
+              signLanguage: '', // Empty URL as default
+              isMatch: false, // Default not matched
             );
           } catch (e) {
             print('Failed to create Good Morning card: $e');
@@ -388,7 +389,7 @@ class _RegisterState extends State<Register> {
         );
       } else {
         setState(() {
-          error = result['message'] ?? 'Registration failed';
+          error = result.message;
         });
       }
     } catch (e) {

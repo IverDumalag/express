@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import '../0_components/popup_information.dart';
 import 'popup_home_welcome.dart';
 import 'waving_hand.dart';
 import '../main.dart';
 import '../global_variables.dart';
 import 'home_cards.dart';
-import '../00_services/api_services.dart';
+import '../00_services/phrases_words_service.dart';
 
 // Add the DraggableFilterDrawer class here
 class DraggableFilterDrawer extends StatefulWidget {
@@ -402,11 +404,16 @@ class _HomeState extends State<Home> {
   Future<void> _fetchCards() async {
     setState(() => loading = true);
     final userId = UserSession.user?['user_id']?.toString() ?? "";
-    final data = await ApiService.fetchCards(userId);
+    final response = await PhrasesWordsService.getPhrasesWordsByUserId(userId);
     setState(() {
-      cards = data.where((c) => c['status'] == 'active').toList();
+      if (response.success && response.data != null) {
+        cards = response.data!.where((c) => c['status'] == 'active').toList();
+        _favoriteCount = cards.where((c) => c['is_favorite'] == true).length;
+      } else {
+        cards = [];
+        _favoriteCount = 0;
+      }
       loading = false;
-      _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
     });
     _applyFilters();
   }
@@ -489,6 +496,32 @@ class _HomeState extends State<Home> {
     setState(() => filteredCards = result);
   }
 
+  // Try search helper method (uses express-nodejs for sign language video lookup)
+  Future<Map<String, dynamic>?> _trySearch(String query) async {
+    try {
+      const trySearchUrl =
+          'https://express-nodejs-nc12.onrender.com/api/search';
+      final res = await http.get(
+        Uri.parse('$trySearchUrl?q=${Uri.encodeComponent(query)}'),
+      );
+      return jsonDecode(res.body);
+    } catch (e) {
+      print('Try search error: $e');
+      return null;
+    }
+  }
+
+  // Helper method for FutureBuilder to fetch cards
+  Future<List<Map<String, dynamic>>> _fetchCardsForFutureBuilder(
+    String userId,
+  ) async {
+    final response = await PhrasesWordsService.getPhrasesWordsByUserId(userId);
+    if (response.success && response.data != null) {
+      return response.data!;
+    }
+    return [];
+  }
+
   void _showPopupNotice(BuildContext context) async {
     WelcomePopup.show(context);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -529,7 +562,8 @@ class _HomeState extends State<Home> {
     bool matchFound = false;
     try {
       final normalizedForSearch = _normalizeForSearch(addInput);
-      final searchJson = await ApiService.trySearch(normalizedForSearch);
+      // Note: trySearch is still using express-nodejs service for sign language video lookup
+      final searchJson = await _trySearch(normalizedForSearch);
       if (searchJson != null &&
           searchJson['public_id'] != null &&
           searchJson['all_files'] is List) {
@@ -544,19 +578,19 @@ class _HomeState extends State<Home> {
         }
       }
       final userId = UserSession.user?['user_id']?.toString() ?? "";
-      final insertJson = await ApiService.addCard(
+      final insertResult = await PhrasesWordsService.insertPhrasesWords(
         userId: userId,
         words: addInput,
-        signLanguageUrl: signLanguageUrl,
-        isMatch: isMatch,
+        signLanguage: signLanguageUrl,
+        isMatch: isMatch == 1,
       );
-      if (insertJson['status'] == 201 || insertJson['status'] == "201") {
+      if (insertResult.success && insertResult.data != null) {
         setState(() {
           cards.insert(0, {
-            'entry_id': insertJson['entry_id'],
+            'entry_id': insertResult.data!['entry_id'],
             'words': addInput,
             'sign_language': signLanguageUrl,
-            'is_favorite': 0,
+            'is_favorite': false,
             'created_at': DateTime.now().toIso8601String(),
             'status': 'active',
           });
@@ -594,7 +628,10 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _handleArchive(String entryId) async {
-    await ApiService.updateStatus(entryId: entryId, status: "archived");
+    await PhrasesWordsService.updatePhrasesWordsStatus(
+      entryId: entryId,
+      status: "archived",
+    );
     setState(() {
       cards.removeWhere((c) => c['entry_id'] == entryId);
       _needsRefresh = true; // Trigger refresh for Words/Phrases section
@@ -605,9 +642,9 @@ class _HomeState extends State<Home> {
 
   Future<void> _handleFavorite(String entryId, bool isFavorite) async {
     // Call your API to update favorite status
-    await ApiService.updateFavoriteStatus(
+    await PhrasesWordsService.updatePhrasesWordsFavorite(
       entryId: entryId,
-      isFavorite: isFavorite ? 1 : 0,
+      isFavorite: isFavorite,
     );
     setState(() {
       cards = cards.map((c) {
@@ -1065,7 +1102,7 @@ class _HomeState extends State<Home> {
     bool matchFound = false;
     try {
       final normalizedForSearch = _normalizeForSearch(word);
-      final searchJson = await ApiService.trySearch(normalizedForSearch);
+      final searchJson = await _trySearch(normalizedForSearch);
       if (searchJson != null &&
           searchJson['public_id'] != null &&
           searchJson['all_files'] is List) {
@@ -1080,19 +1117,19 @@ class _HomeState extends State<Home> {
         }
       }
       final userId = UserSession.user?['user_id']?.toString() ?? "";
-      final insertJson = await ApiService.addCard(
+      final insertResult = await PhrasesWordsService.insertPhrasesWords(
         userId: userId,
         words: word,
-        signLanguageUrl: signLanguageUrl,
-        isMatch: isMatch,
+        signLanguage: signLanguageUrl,
+        isMatch: isMatch == 1,
       );
-      if (insertJson['status'] == 201 || insertJson['status'] == "201") {
+      if (insertResult.success && insertResult.data != null) {
         setState(() {
           cards.insert(0, {
-            'entry_id': insertJson['entry_id'],
+            'entry_id': insertResult.data!['entry_id'],
             'words': word,
             'sign_language': signLanguageUrl,
-            'is_favorite': 0,
+            'is_favorite': false,
             'created_at': DateTime.now().toIso8601String(),
             'status': 'active',
           });
@@ -1226,7 +1263,7 @@ class _HomeState extends State<Home> {
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
                   future: _needsRefresh
-                      ? ApiService.fetchCards(
+                      ? _fetchCardsForFutureBuilder(
                           UserSession.user?['user_id']?.toString() ?? "",
                         )
                       : null,
@@ -1245,7 +1282,7 @@ class _HomeState extends State<Home> {
                       final favoritePhrases = snapshot.data!
                           .where(
                             (phrase) =>
-                                phrase['is_favorite'] == 1 &&
+                                phrase['is_favorite'] == true &&
                                 phrase['status'] == 'active',
                           )
                           .toList();
@@ -1371,7 +1408,7 @@ class _HomeState extends State<Home> {
                 ),
                 FutureBuilder<List<Map<String, dynamic>>>(
                   future: _needsRefresh
-                      ? ApiService.fetchCards(
+                      ? _fetchCardsForFutureBuilder(
                           UserSession.user?['user_id']?.toString() ?? "",
                         )
                       : null,
