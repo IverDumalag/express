@@ -1,83 +1,62 @@
-# exPress
-## A Mobile Application for Seamless Communication Between Abled and Deaf Individuals
-
-### National University of Dasmariñas: Capstone Project
-
----
-
-## Group: Owlets
-- **Dumalag, Iver Marl**
-- **Garcia, Alyssa Umiko**
-- **Ross, Angel Aisha**
+# exPress Mobile Application
+A vision-based communication mobile app designed to bridge communication between Deaf and hearing individuals using **TensorFlow**, **Computer Vision**, and **Machine Learning**.  
+Built with **Flutter**, exPress translates Filipino Sign Language (FSL) into text and converts text or audio into sign-language videos.
 
 ---
 
-## Overview
+## 👥 Developed By
+**exPress Capstone Team – National University Dasmariñas**
+- **Iver Marl Dumalag** – Backend Developer / Database Architect  
+- **Alyssa Umiko Garcia** – Project Manager / Frontend Developer  
+- **Angel Aisha Ross** – Frontend Developer 
 
-**exPress** is a mobile application designed to allow abled people to connect within deaf communities seamlessly and vice-versa. With features like sign language to text and text/audio to sign language conversion, exPress breaks down the barrier between abled people and deaf individuals.
-
----
-
-## Features
-
-- **Real-Time Translation:** Translation between sign language and text/audio.
+Advised by: **Ms. Alyssa C. Vicente**
 
 ---
 
+## 📌 Features
 
-## Technology Stack
+### 🔤 FSL to Text (Sign-to-Text)
+Uses TensorFlow Lite + OpenCV + MediaPipe to detect and convert FSL gestures into text.
 
-- **Frontend:** Flutter (Dart)
-- **Backend:** Render
-- **Database:** MySQL
-- **Other Tools:** Git, Android Studio, Xcode, Docker
+### 🔊 Audio/Text to FSL
+Converts typed text or spoken input into corresponding FSL images/videos.
 
----
+### 📚 Customizable Word & Phrase Library
+Allows users to save, view, archive, and restore personalized cards.
 
-## Installation
+### 🗣 Text-to-Speech
+Reads words/phrases aloud for easier Deaf → hearing communication.
 
-### Prerequisites
-- [Flutter SDK](https://flutter.dev/docs/get-started/install)
-- [Dart SDK](https://dart.dev/get-dart) (usually included with Flutter)
-- [Android Studio](https://developer.android.com/studio)
-- Node.js & npm
-- A device or emulator for testing
-
-### Steps
-
-1. **Clone the repository:**
-	```sh
-	git clone <repo-url>
-	cd express/flutter_express
-	```
-2. **Install dependencies:**
-	```sh
-	flutter pub get
-	```
-3. **Run the app:**
-	```sh
-	flutter run
-	```
-	- For Android/iOS, ensure an emulator or device is connected.
-	- For web: `flutter run -d chrome`
+### 📩 Feedback System
+Allows users to send suggestions or concerns for system improvement.
 
 ---
 
-## Contributing
+## 🛠 Tech Stack
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
+### Mobile Framework  
+- Flutter (Dart)
+
+### Machine Learning  
+- TensorFlow Lite  
+- MediaPipe  
+- OpenCV  
+
+### APIs  
+- Text-to-Speech  
+- Speech-to-Text  
+- Cloudinary (media hosting)
+
+### Backend  
+- PHP REST API (Render + Docker)  
+- MySQL Database  
 
 ---
 
-## Contact
-
-For questions or collaboration, contact:
-- Iver Marl Dumalag
-- Alyssa Umiko Garcia
-- Angel Aisha Ross
-
-
+## 🚀 Installation (APK)
+1. Download the APK from the project link or QR code.  
+2. Allow installation from unknown sources.  
+3. Install and open the app.  
+4. Complete registration + OTP verification.  
+5. Start bridging communication.
