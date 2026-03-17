@@ -10,6 +10,8 @@ import '../0_components/popup_information.dart';
 import '../3_audio_text_to_sign/audio_home_cards.dart'; // For FullScreenMediaViewer
 import 'dart:async';
 
+bool _isFavoriteValue(dynamic v) => v == true || v == 1;
+
 class InteractiveStarIcon extends StatefulWidget {
   final double scale;
   final bool initialStarred;
@@ -772,7 +774,7 @@ class Words_Phrases_Cards extends StatelessWidget {
         final phrase = data[index];
         final String displayText = phrase['words'];
         final String entryId = phrase['entry_id'];
-        final bool isFavorited = (phrase['is_favorite'] == 1);
+        final bool isFavorited = _isFavoriteValue(phrase['is_favorite']);
 
         return GestureDetector(
           onTap: () {
@@ -836,6 +838,7 @@ class Words_Phrases_Cards extends StatelessWidget {
                           ),
                         ),
                         InteractiveStarIcon(
+                          key: ValueKey('star_$entryId'),
                           scale: scale,
                           initialStarred: isFavorited,
                           onToggle: (bool isStarred) {
@@ -896,8 +899,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
           final phrase = data[index];
           final String displayText = phrase['words'];
           final String entryId = phrase['entry_id'];
-          final bool isFavorited =
-              (phrase['is_favorite'] == 1); // Use 'is_favorite' key
+          final bool isFavorited = _isFavoriteValue(phrase['is_favorite']);
 
           return GestureDetector(
             onTap: () {
@@ -966,6 +968,7 @@ class Favorite_Words_Phrases_Cards extends StatelessWidget {
                         ),
                         SizedBox(width: 5 * scale),
                         InteractiveStarIcon(
+                          key: ValueKey('star_$entryId'),
                           scale: scale,
                           initialStarred: isFavorited,
                           onToggle: (bool isStarred) {

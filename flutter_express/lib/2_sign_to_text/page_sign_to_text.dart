@@ -34,7 +34,22 @@ class _SignToTextPageState extends State<SignToTextPage> {
   Rect? _cropRect;
   Offset? _dragStart;
   bool _isDragging = false;
-  String _dragMode = ''; // corner/edge/move/create
+  String _dragMode = '';
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Bug 3 fix: use a GlobalKey on the camera container so _maybeCropFile and
+  // _onPanUpdate both reference the exact same rendered pixel dimensions,
+  // eliminating the mismatch caused by re-computing from MediaQuery.
+  // ─────────────────────────────────────────────────────────────────────────
+  final GlobalKey _cameraContainerKey = GlobalKey();
+
+  /// Returns the rendered size of the camera preview container, or null if
+  /// the RenderBox hasn't been laid out yet.
+  Size? get _cameraContainerSize {
+    final rb =
+        _cameraContainerKey.currentContext?.findRenderObject() as RenderBox?;
+    return rb?.size;
+  }
 
   final models = {"alphabet": "Alphabet", "words": "Words/Phrases"};
 
@@ -43,7 +58,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
     super.initState();
     _initCamera();
 
-    // Show disclaimer popup when entering the screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showDisclaimerPopup();
     });
@@ -57,14 +71,14 @@ class _SignToTextPageState extends State<SignToTextPage> {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
-            side: BorderSide(color: Color(0xFF334E7B), width: 2),
+            side: const BorderSide(color: Color(0xFF334E7B), width: 2),
           ),
           backgroundColor: Colors.white,
           elevation: 8,
           title: Text(
             "Dataset Information",
             style: GoogleFonts.robotoMono(
-              color: Color(0xFF334E7B),
+              color: const Color(0xFF334E7B),
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -72,7 +86,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
           content: Text(
             "Note: The dataset is limited and may not recognize a sign language.",
             style: GoogleFonts.robotoMono(
-              color: Color(0xFF334E7B),
+              color: const Color(0xFF334E7B),
               fontSize: 14,
             ),
           ),
@@ -82,7 +96,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
               child: Text(
                 "OK",
                 style: GoogleFonts.robotoMono(
-                  color: Color(0xFF2E5C9A),
+                  color: const Color(0xFF2E5C9A),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -113,7 +127,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
       await _cameraController!.initialize();
       if (mounted) setState(() {});
 
-      // Start sending every 4 seconds
       _timer = Timer.periodic(const Duration(seconds: 4), (_) => _sendFrame());
     }
   }
@@ -121,16 +134,12 @@ class _SignToTextPageState extends State<SignToTextPage> {
   Future<void> _toggleFlash() async {
     if (_cameraController != null && _cameraController!.value.isInitialized) {
       try {
-        setState(() {
-          _isFlashOn = !_isFlashOn;
-        });
+        setState(() => _isFlashOn = !_isFlashOn);
         await _cameraController!.setFlashMode(
           _isFlashOn ? FlashMode.torch : FlashMode.off,
         );
       } catch (e) {
-        setState(() {
-          _isFlashOn = false;
-        });
+        setState(() => _isFlashOn = false);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -151,12 +160,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
     if (_cameras != null && _cameras!.length > 1) {
       _timer?.cancel();
 
-      // Turn off flash before switching cameras
       if (_cameraController != null && _isFlashOn) {
         await _cameraController!.setFlashMode(FlashMode.off);
-        setState(() {
-          _isFlashOn = false;
-        });
+        setState(() => _isFlashOn = false);
       }
 
       await _cameraController?.dispose();
@@ -171,7 +177,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
 
       await _cameraController!.initialize();
 
-      // RESET CROP to avoid mirror mismatch after flipping
       setState(() {
         _cropRect = null;
         _isCropped = false;
@@ -179,26 +184,26 @@ class _SignToTextPageState extends State<SignToTextPage> {
 
       if (mounted) setState(() {});
 
-      // Restart timer
       _timer = Timer.periodic(const Duration(seconds: 4), (_) => _sendFrame());
     }
   }
 
   void _toggleCrop() {
-    setState(() {
-      _isCropped = !_isCropped;
-    });
+    setState(() => _isCropped = !_isCropped);
 
     if (_isCropped) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final size = MediaQuery.of(context).size;
-        final cameraWidth = size.width * 0.8;
-        final cameraHeight = cameraWidth * (4 / 3);
-        final cropSize = cameraWidth * 0.6;
+        // Bug 3 fix: use the GlobalKey to get the actual rendered size
+        final containerSize = _cameraContainerSize;
+        if (containerSize == null) return;
+
+        final cameraW = containerSize.width;
+        final cameraH = containerSize.height;
+        final cropSize = cameraW * 0.6;
 
         setState(() {
           _cropRect = Rect.fromCenter(
-            center: Offset(cameraWidth / 2, cameraHeight / 2),
+            center: Offset(cameraW / 2, cameraH / 2),
             width: cropSize,
             height: cropSize,
           );
@@ -212,8 +217,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
   String _detectCropHandle(Offset position) {
     if (_cropRect == null) return '';
 
-    const handleSize = 30.0; // Increased touch area for web/mobile
-    const edgeThickness = 25.0; // Increased edge detection area
+    const handleSize = 30.0;
+    const edgeThickness = 25.0;
 
     // Corners
     if ((position.dx - _cropRect!.left).abs() < handleSize &&
@@ -255,10 +260,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
       return 'edge_right';
     }
 
-    // Inside crop area
     if (_cropRect!.contains(position)) return 'move';
 
-    return 'create'; // Dragging on empty space creates a new rect
+    return 'create';
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -274,12 +278,13 @@ class _SignToTextPageState extends State<SignToTextPage> {
     final currentPos = details.localPosition;
     final delta = currentPos - _dragStart!;
 
-    // Bounds must match the painted area
-    final size = MediaQuery.of(context).size;
-    final cameraWidth = size.width * 0.8;
-    final cameraHeight = cameraWidth * (4 / 3);
+    // Bug 3 fix: use the GlobalKey-derived size instead of recalculating
+    // from MediaQuery. This guarantees the bounds match the painted overlay.
+    final containerSize = _cameraContainerSize;
+    final cameraWidth =
+        containerSize?.width ?? MediaQuery.of(context).size.width * 0.8;
+    final cameraHeight = containerSize?.height ?? cameraWidth * (4 / 3);
 
-    // Initialize rect on first create
     if (_dragMode == 'create' && _cropRect == null) {
       final left = _dragStart!.dx < currentPos.dx
           ? _dragStart!.dx
@@ -302,6 +307,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
           bottom.clamp(0.0, cameraHeight),
         );
       });
+      // Bug 3 fix: update _dragStart so the next event computes a correct delta
+      _dragStart = currentPos;
       return;
     }
 
@@ -417,7 +424,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
           final bottom = _dragStart!.dy > currentPos.dy
               ? _dragStart!.dy
               : currentPos.dy;
-
           _cropRect = Rect.fromLTRB(
             left.clamp(0.0, cameraWidth),
             top.clamp(0.0, cameraHeight),
@@ -428,7 +434,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
       }
     });
 
-    _dragStart = currentPos; // smooth continuous drag
+    // Bug 3 fix: _dragStart must be updated AFTER the setState so that the
+    // next event computes an incremental delta, not an accumulated one.
+    _dragStart = currentPos;
   }
 
   void _onPanEnd(DragEndDetails details) {
@@ -447,20 +455,19 @@ class _SignToTextPageState extends State<SignToTextPage> {
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return original;
 
-    // Overlay preview dimensions
-    final screenSize = MediaQuery.of(context).size;
-    final previewW = screenSize.width * 0.8;
-    final previewH = previewW * (4 / 3);
+    // Bug 3 fix: use the GlobalKey-derived container size instead of
+    // recomputing from MediaQuery (which may include padding/margins).
+    final containerSize = _cameraContainerSize;
+    final previewW =
+        containerSize?.width ?? MediaQuery.of(context).size.width * 0.8;
+    final previewH = containerSize?.height ?? previewW * (4 / 3);
 
-    // Real image size
     final imgW = decoded.width.toDouble();
     final imgH = decoded.height.toDouble();
 
-    // Scale from preview space -> pixels
     final scaleX = imgW / previewW;
     final scaleY = imgH / previewH;
 
-    // Mirror handling for front camera
     final isFront =
         _cameras != null &&
         _cameras!.isNotEmpty &&
@@ -496,8 +503,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
   }
 
   Future<void> _sendFrame() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized)
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
+    }
 
     setState(() => _isFlickering = true);
     Timer(const Duration(milliseconds: 200), () {
@@ -532,11 +540,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
             final decoded = jsonDecode(responseData);
             String predictionText = "";
 
-            // Try to get label from response
             if (decoded is Map && decoded.containsKey("label")) {
               predictionText = decoded["label"].toString().trim();
             } else if (decoded is Map && decoded.containsKey("error")) {
-              // Handle cases where backend doesn't include label field
               String errorMsg = decoded["error"].toString().toLowerCase();
               if (errorMsg.contains("no hand") ||
                   errorMsg.contains("hand not found")) {
@@ -553,7 +559,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
             }
 
             if (predictionText.isNotEmpty && predictionText != "Waiting...") {
-              // Handle fallback responses from backend
               if (predictionText.toLowerCase() == "no hand detected" ||
                   predictionText.toLowerCase() == "no person detected" ||
                   predictionText.toLowerCase() == "nosign") {
@@ -594,7 +599,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
           } catch (e) {
             final cleaned = responseData.replaceAll('"', '').trim();
             if (cleaned.isNotEmpty && cleaned != "Waiting...") {
-              // Check for error messages that indicate no detection
               if (cleaned.toLowerCase().contains("no hand") ||
                   cleaned.toLowerCase().contains("hand not found") ||
                   cleaned.toLowerCase() == "no hand detected" ||
@@ -627,7 +631,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
                 return;
               }
 
-              // Valid prediction - add to text
               setState(() {
                 _prediction = cleaned;
                 if (_selectedModel == "alphabet") {
@@ -648,9 +651,9 @@ class _SignToTextPageState extends State<SignToTextPage> {
         }
       } else {
         if (mounted) {
-          setState(() {
-            _prediction = "Unable to connect to translation service";
-          });
+          setState(
+            () => _prediction = "Unable to connect to translation service",
+          );
         }
       }
     } catch (e) {
@@ -663,9 +666,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
             e.toString().contains('permission')) {
           errorMessage = "Camera access needed for translation";
         }
-        setState(() {
-          _prediction = errorMessage;
-        });
+        setState(() => _prediction = errorMessage);
       }
     }
   }
@@ -686,8 +687,6 @@ class _SignToTextPageState extends State<SignToTextPage> {
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 400;
     final cameraWidth = screenSize.width * 0.8;
-    // Use fixed 4:3 aspect ratio for the container
-    // Camera will fill this space and excess will be cropped
     final cameraHeight = cameraWidth * (4 / 3);
 
     return Scaffold(
@@ -831,8 +830,12 @@ class _SignToTextPageState extends State<SignToTextPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Camera preview with crop functionality
+            // ── Camera preview ────────────────────────────────────────────
+            // Bug 3 fix: attach the GlobalKey to the camera container so that
+            // both the overlay painter and _maybeCropFile reference the same
+            // rendered size.
             Container(
+              key: _cameraContainerKey, // ← GlobalKey attached here
               width: cameraWidth,
               height: cameraHeight,
               margin: const EdgeInsets.all(16),
@@ -853,7 +856,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                         _cameraController!.value.isInitialized
                     ? Stack(
                         children: [
-                          // 1) Camera preview (bottom) - uses BoxFit.cover to fill and crop excess
+                          // 1) Camera preview
                           Positioned.fill(
                             child: FittedBox(
                               fit: BoxFit.cover,
@@ -869,7 +872,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                             ),
                           ),
 
-                          // 2) Scan overlay (visual only) — DO NOT capture gestures
+                          // 2) Scan overlay (visual only)
                           Positioned.fill(
                             child: IgnorePointer(
                               ignoring: true,
@@ -904,7 +907,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                             ),
                           ),
 
-                          // 3) Camera info (also non-interactive)
+                          // 3) Camera info label
                           Positioned(
                             bottom: 10,
                             right: 10,
@@ -940,7 +943,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                             ),
                           ),
 
-                          // 4) Crop instructions (non-interactive)
+                          // 4) Crop instructions banner
                           if (_isCropped)
                             Positioned(
                               top: 10,
@@ -969,7 +972,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
                               ),
                             ),
 
-                          // 5) CROP OVERLAY (top-most, captures gestures)
+                          // 5) Crop overlay (gesture layer, topmost)
                           if (_isCropped)
                             Positioned.fill(
                               child: MouseRegion(
@@ -1022,7 +1025,7 @@ class _SignToTextPageState extends State<SignToTextPage> {
               ),
             ),
 
-            // Controls section
+            // ── Controls section ──────────────────────────────────────────
             Container(
               width: double.infinity,
               constraints: BoxConstraints(
@@ -1087,8 +1090,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
 
                   const SizedBox(height: 20),
 
-                  // Crop status
-                  if (_isCropped)
+                  // Crop status indicator
+                  if (_isCropped) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -1119,8 +1122,8 @@ class _SignToTextPageState extends State<SignToTextPage> {
                         ],
                       ),
                     ),
-
-                  if (_isCropped) const SizedBox(height: 20),
+                    const SizedBox(height: 20),
+                  ],
 
                   // Translation text field
                   Column(
@@ -1289,7 +1292,7 @@ class CropOverlayPainter extends CustomPainter {
       canvas.drawCircle(edge, edgeHandleSize / 2, edgeHandlePaint);
     }
 
-    // Grid
+    // Rule-of-thirds grid
     final gridPaint = Paint()
       ..color = const Color(0xFF334E7B).withOpacity(0.3)
       ..style = PaintingStyle.stroke

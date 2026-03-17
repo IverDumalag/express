@@ -12,6 +12,12 @@ import '../global_variables.dart';
 import 'home_cards.dart';
 import '../00_services/phrases_words_service.dart';
 
+// ─────────────────────────────────────────────
+// Bug 1 fix: unified favorite-value helper
+// Supabase returns bool; after a toggle we store int – normalise both.
+// ─────────────────────────────────────────────
+bool _isFav(dynamic v) => v == true || v == 1;
+
 // Add the DraggableFilterDrawer class here
 class DraggableFilterDrawer extends StatefulWidget {
   final String sortBy;
@@ -50,76 +56,81 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    final scale = MediaQuery.of(context).size.width / 375.0;
+    // Bug 4 fix: use LayoutBuilder so scale is based on actual available width
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = constraints.maxWidth / 375.0;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.3,
-      maxChildSize: 0.7,
-      builder: (BuildContext context, ScrollController scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 10,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              // Drag handle indicator
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40 * scale,
-                height: 5 * scale,
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.circular(10),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.7,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    spreadRadius: 5,
+                  ),
+                ],
               ),
-              Expanded(
-                child: ListView(
-                  controller: scrollController,
-                  padding: EdgeInsets.all(20 * scale),
-                  children: [
-                    Text(
-                      "Sort by",
-                      style: GoogleFonts.robotoMono(
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Column(
+                children: [
+                  // Drag handle indicator
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    width: 40 * scale,
+                    height: 5 * scale,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 8),
-                    _buildSortOptions(scale),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Show",
-                      style: GoogleFonts.robotoMono(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      padding: EdgeInsets.all(20 * scale),
+                      children: [
+                        Text(
+                          "Sort by",
+                          style: GoogleFonts.robotoMono(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildSortOptions(scale),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Show",
+                          style: GoogleFonts.robotoMono(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTabOptions(scale),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Word Count",
+                          style: GoogleFonts.robotoMono(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildWordCountOptions(scale),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    _buildTabOptions(scale),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Word Count",
-                      style: GoogleFonts.robotoMono(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildWordCountOptions(scale),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -222,10 +233,7 @@ class _DraggableFilterDrawerState extends State<DraggableFilterDrawer> {
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8 * scale),
-        side: BorderSide(
-          color: selected ? const Color(0xFF334E7B) : const Color(0xFF334E7B),
-          width: 1 * scale,
-        ),
+        side: BorderSide(color: const Color(0xFF334E7B), width: 1 * scale),
       ),
     );
   }
@@ -319,8 +327,6 @@ class _HomeState extends State<Home> {
   final int _numSlides = 3;
 
   bool _popupShown = false;
-  bool _needsRefresh = true;
-
   String userFullName = '';
 
   // Normalize text for dataset search:
@@ -329,7 +335,6 @@ class _HomeState extends State<Home> {
   //   e.g., "DON'T UNDERSTAND" -> "dontunderstand"
   String _normalizeForSearch(String input) {
     final lower = input.toLowerCase();
-    // Remove any character that's not a-z or 0-9 (this also removes spaces)
     final collapsed = lower.replaceAll(RegExp(r'[^a-z0-9]+'), '');
     return collapsed;
   }
@@ -408,7 +413,8 @@ class _HomeState extends State<Home> {
     setState(() {
       if (response.success && response.data != null) {
         cards = response.data!.where((c) => c['status'] == 'active').toList();
-        _favoriteCount = cards.where((c) => c['is_favorite'] == true).length;
+        // Bug 1 fix: use _isFav() helper for consistent boolean coercion
+        _favoriteCount = cards.where((c) => _isFav(c['is_favorite'])).length;
       } else {
         cards = [];
         _favoriteCount = 0;
@@ -420,9 +426,12 @@ class _HomeState extends State<Home> {
 
   void _applyFilters() {
     List<Map<String, dynamic>> result = List.from(cards);
+
+    // Bug 1 fix: use _isFav() helper instead of == 1
     if (activeTab == 'favorite') {
-      result = result.where((c) => c['is_favorite'] == 1).toList();
+      result = result.where((c) => _isFav(c['is_favorite'])).toList();
     }
+
     if (search.trim().isNotEmpty) {
       result = result
           .where(
@@ -511,17 +520,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-  // Helper method for FutureBuilder to fetch cards
-  Future<List<Map<String, dynamic>>> _fetchCardsForFutureBuilder(
-    String userId,
-  ) async {
-    final response = await PhrasesWordsService.getPhrasesWordsByUserId(userId);
-    if (response.success && response.data != null) {
-      return response.data!;
-    }
-    return [];
-  }
-
   void _showPopupNotice(BuildContext context) async {
     WelcomePopup.show(context);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -562,7 +560,6 @@ class _HomeState extends State<Home> {
     bool matchFound = false;
     try {
       final normalizedForSearch = _normalizeForSearch(addInput);
-      // Note: trySearch is still using express-nodejs service for sign language video lookup
       final searchJson = await _trySearch(normalizedForSearch);
       if (searchJson != null &&
           searchJson['public_id'] != null &&
@@ -590,13 +587,13 @@ class _HomeState extends State<Home> {
             'entry_id': insertResult.data!['entry_id'],
             'words': addInput,
             'sign_language': signLanguageUrl,
+            // Bug 1 fix: store as bool for consistency with Supabase return type
             'is_favorite': false,
             'created_at': DateTime.now().toIso8601String(),
             'status': 'active',
           });
           addInput = '';
           showAddModal = false;
-          _needsRefresh = true; // Trigger refresh for Words/Phrases section
         });
         _applyFilters();
         _showFeedbackPopup(
@@ -614,7 +611,6 @@ class _HomeState extends State<Home> {
     } catch (e) {
       String errorMessage = "Unable to save your entry.";
 
-      // Check for specific error types
       if (e.toString().contains('SocketException') ||
           e.toString().contains('TimeoutException')) {
         errorMessage = "Please check your internet connection and try again.";
@@ -634,29 +630,45 @@ class _HomeState extends State<Home> {
     );
     setState(() {
       cards.removeWhere((c) => c['entry_id'] == entryId);
-      _needsRefresh = true; // Trigger refresh for Words/Phrases section
     });
     _applyFilters();
     _showFeedbackPopup("Archived!", "info");
   }
 
   Future<void> _handleFavorite(String entryId, bool isFavorite) async {
-    // Call your API to update favorite status
-    await PhrasesWordsService.updatePhrasesWordsFavorite(
-      entryId: entryId,
-      isFavorite: isFavorite,
-    );
+    final previousCards = List<Map<String, dynamic>>.from(cards);
+
     setState(() {
       cards = cards.map((c) {
         if (c['entry_id'] == entryId) {
-          return {...c, 'is_favorite': isFavorite ? 1 : 0};
+          return {...c, 'is_favorite': isFavorite};
         }
         return c;
       }).toList();
-      _needsRefresh = true; // Trigger refresh for both sections
-      _favoriteCount = cards.where((c) => c['is_favorite'] == 1).length;
+      _favoriteCount = cards.where((c) => _isFav(c['is_favorite'])).length;
     });
-    _applyFilters(); // Re-apply filters to update favorite list if activeTab is 'favorite'
+    _applyFilters();
+
+    final response = await PhrasesWordsService.updatePhrasesWordsFavorite(
+      entryId: entryId,
+      isFavorite: isFavorite,
+    );
+
+    if (!response.success) {
+      if (!mounted) return;
+      setState(() {
+        cards = previousCards;
+        _favoriteCount = cards.where((c) => _isFav(c['is_favorite'])).length;
+      });
+      _applyFilters();
+      _showFeedbackPopup(
+        'Unable to update favorite right now. Please try again.',
+        'error',
+      );
+      return;
+    }
+
+    if (!mounted) return;
   }
 
   // Load available words with sign language from the dataset
@@ -670,7 +682,6 @@ class _HomeState extends State<Home> {
 
       final List<String> lines = csvData.split('\n');
 
-      // Skip header line
       for (int i = 1; i < lines.length; i++) {
         final String line = lines[i].trim();
         if (line.isEmpty) continue;
@@ -909,7 +920,7 @@ class _HomeState extends State<Home> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      SizedBox(width: 48), // Balance the back button
+                      SizedBox(width: 48),
                     ],
                   ),
                   SizedBox(height: 12 * scale),
@@ -928,7 +939,6 @@ class _HomeState extends State<Home> {
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: () {
-                                // Show confirmation dialog before adding
                                 _showAddConfirmation(word);
                               },
                               borderRadius: BorderRadius.circular(8),
@@ -1054,9 +1064,7 @@ class _HomeState extends State<Home> {
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(
-                  context,
-                ).pop(); // Just close the confirmation popup
+                Navigator.of(context).pop();
                 await _handleAddWordFromCategory(word);
               },
               style: ElevatedButton.styleFrom(
@@ -1129,13 +1137,13 @@ class _HomeState extends State<Home> {
             'entry_id': insertResult.data!['entry_id'],
             'words': word,
             'sign_language': signLanguageUrl,
+            // Bug 1 fix: store as bool
             'is_favorite': false,
             'created_at': DateTime.now().toIso8601String(),
             'status': 'active',
           });
           addInput = '';
           showAddModal = false;
-          _needsRefresh = true; // Trigger refresh for Words/Phrases section
         });
         _applyFilters();
 
@@ -1154,7 +1162,6 @@ class _HomeState extends State<Home> {
     } catch (e) {
       String errorMessage = "Unable to save your entry.";
 
-      // Check for specific error types
       if (e.toString().contains('SocketException') ||
           e.toString().contains('TimeoutException')) {
         errorMessage = "Please check your internet connection and try again.";
@@ -1226,275 +1233,70 @@ class _HomeState extends State<Home> {
     return MediaQuery.of(context).size.width / baseWidth;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final scale = scaleFactor(context);
-    return Scaffold(
+  // ─────────────────────────────────────────────
+  // Add-word modal extracted as a method so it can
+  // be shown as a bottom sheet that respects the
+  // keyboard inset – fixes the overflow on mobile.
+  // ─────────────────────────────────────────────
+  void _showAddModal(BuildContext context, double scale) {
+    // Reset input each time the sheet is opened
+    addInput = '';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // ← required for keyboard-aware sizing
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(scale),
-                SizedBox(height: 40 * scale),
-                Row(
-                  children: [
-                    SizedBox(width: 20 * scale),
-                    _buildSectionTitle("Favorites", scale),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 30 * scale),
-                          child: Text(
-                            '(${_favoriteCount})',
-                            style: GoogleFonts.robotoMono(
-                              fontSize: 15 * scale,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              // ← this is the key fix: pad the sheet up by the keyboard height
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _needsRefresh
-                      ? _fetchCardsForFutureBuilder(
-                          UserSession.user?['user_id']?.toString() ?? "",
-                        )
-                      : null,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          style: GoogleFonts.robotoMono(),
-                        ),
-                      );
-                    } else {
-                      _needsRefresh = false;
-                      final favoritePhrases = snapshot.data!
-                          .where(
-                            (phrase) =>
-                                phrase['is_favorite'] == true &&
-                                phrase['status'] == 'active',
-                          )
-                          .toList();
-                      if (favoritePhrases.isEmpty) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                          child: Container(
-                            margin: EdgeInsets.only(top: 10 * scale),
-                            child: Text(
-                              'Still empty, nothing to be found here',
-                              style: GoogleFonts.robotoMono(
-                                fontSize: 15 * scale,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                      return Favorite_Words_Phrases_Cards(
-                        data: favoritePhrases,
-                        cardColor: cardColor,
-                        scale: scale,
-                        onFavoriteToggle: _handleFavorite,
-                        onDelete: _handleArchive,
-                      );
-                    }
-                  },
-                ),
-                SizedBox(height: 30 * scale),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildSectionTitle("Words/Phrases", scale),
-                          // Icons removed as they are now present beside the search bar
-                        ],
-                      ),
-                      SizedBox(height: 10 * scale),
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.60,
-                            child: TextField(
-                              style: GoogleFonts.robotoMono(),
-                              decoration: InputDecoration(
-                                hintText: "",
-                                hintStyle: GoogleFonts.robotoMono(),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(
-                                    color: Color(0xFF334E7B),
-                                  ),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: Color(0xFF334E7B),
-                                ),
-                              ),
-                              onChanged: (v) {
-                                setState(() => search = v);
-                                _applyFilters();
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 10 * scale),
-                          IconButton(
-                            icon: Icon(Icons.add, color: Color(0xFF334E7B)),
-                            onPressed: () =>
-                                setState(() => showAddModal = true),
-                          ),
-                          Container(
-                            width: 40 * scale,
-                            alignment: Alignment.center,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.filter_list,
-                                color: Color(0xFF334E7B),
-                              ),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => DraggableFilterDrawer(
-                                    sortBy: sortBy,
-                                    activeTab: activeTab,
-                                    wordCountFilter: wordCountFilter,
-                                    onSortChanged: (value) {
-                                      setState(() => sortBy = value);
-                                      _applyFilters();
-                                    },
-                                    onTabChanged: (value) {
-                                      setState(() => activeTab = value);
-                                      _applyFilters();
-                                    },
-                                    onWordCountFilterChanged: (value) {
-                                      setState(() => wordCountFilter = value);
-                                      _applyFilters();
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // A-Z Letter Filter Section
-                      SizedBox(height: 10 * scale),
-                      _buildLetterFilterSection(scale),
-
-                      SizedBox(height: 20 * scale),
-                    ],
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    24 * scale,
+                    20 * scale,
+                    24 * scale,
+                    24 * scale,
                   ),
-                ),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _needsRefresh
-                      ? _fetchCardsForFutureBuilder(
-                          UserSession.user?['user_id']?.toString() ?? "",
-                        )
-                      : null,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          style: GoogleFonts.robotoMono(),
-                        ),
-                      );
-                    } else {
-                      _needsRefresh = false;
-                      // Ensure filteredCards is populated based on fresh data
-                      // This might cause a slight delay, but ensures consistency
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _fetchCards(); // Re-fetch to apply filters based on latest data
-                      });
-
-                      if (filteredCards.isEmpty) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                          child: Container(
-                            margin: EdgeInsets.only(top: 10 * scale),
-                            child: Text(
-                              'No matching words or phrases found. Try adjusting your search or filters.',
-                              style: GoogleFonts.robotoMono(
-                                fontSize: 18 * scale,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                      return Words_Phrases_Cards(
-                        data:
-                            filteredCards, // Use filteredCards for this section
-                        cardColor: cardColor,
-                        scale: scale,
-                        onFavoriteToggle: _handleFavorite,
-                        onDelete: _handleArchive,
-                      );
-                    }
-                  },
-                ),
-                SizedBox(height: 20 * scale), // Add some bottom padding
-              ],
-            ),
-          ),
-          if (showAddModal)
-            Dialog(
-              backgroundColor: Colors.white,
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-                side: BorderSide(color: Color(0xFF334E7B), width: 2),
-              ),
-              insetPadding: EdgeInsets.symmetric(
-                horizontal: 20 * scale,
-                vertical: 24 * scale,
-              ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 300 * scale),
-                child: Padding(
-                  padding: EdgeInsets.all(24 * scale),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Drag handle
+                      Center(
+                        child: Container(
+                          width: 40 * scale,
+                          height: 4 * scale,
+                          margin: EdgeInsets.only(bottom: 16 * scale),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
                       Center(
                         child: Text(
                           "Add Word/Phrase",
                           style: GoogleFonts.robotoMono(
-                            color: Color(0xFF334E7B),
+                            color: const Color(0xFF334E7B),
                             fontWeight: FontWeight.bold,
                             fontSize: 18 * scale,
                           ),
                         ),
                       ),
                       SizedBox(height: 12 * scale),
-                      Divider(color: Color(0xFF334E7B), thickness: 1),
+                      Divider(color: const Color(0xFF334E7B), thickness: 1),
                       SizedBox(height: 16 * scale),
 
-                      // Disclaimer about dataset limitations
+                      // Disclaimer
                       Container(
                         padding: EdgeInsets.all(12 * scale),
                         decoration: BoxDecoration(
@@ -1531,7 +1333,7 @@ class _HomeState extends State<Home> {
 
                       TextField(
                         style: GoogleFonts.robotoMono(
-                          color: Color(0xFF334E7B),
+                          color: const Color(0xFF334E7B),
                           fontWeight: FontWeight.w500,
                         ),
                         decoration: InputDecoration(
@@ -1542,18 +1344,22 @@ class _HomeState extends State<Home> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Color(0xFF334E7B)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF334E7B),
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Color(0xFF2E5C9A)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF2E5C9A),
+                            ),
                           ),
                         ),
                         onChanged: (v) => addInput = v,
                       ),
                       SizedBox(height: 16 * scale),
 
-                      // Divider
+                      // OR divider
                       Row(
                         children: [
                           Expanded(child: Divider(color: Colors.grey[400])),
@@ -1575,16 +1381,19 @@ class _HomeState extends State<Home> {
                       ),
                       SizedBox(height: 16 * scale),
 
-                      // Words with sign language available button
+                      // Browse categories button
                       GestureDetector(
-                        onTap: _showCategorySelection,
+                        onTap: () {
+                          Navigator.pop(sheetContext); // close sheet first
+                          _showCategorySelection();
+                        },
                         child: Container(
                           padding: EdgeInsets.all(12 * scale),
                           decoration: BoxDecoration(
-                            color: Color(0xFF334E7B).withOpacity(0.1),
+                            color: const Color(0xFF334E7B).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Color(0xFF334E7B),
+                              color: const Color(0xFF334E7B),
                               width: 1.5,
                             ),
                           ),
@@ -1598,7 +1407,7 @@ class _HomeState extends State<Home> {
                                     Text(
                                       "Words with sign language available",
                                       style: GoogleFonts.robotoMono(
-                                        color: Color(0xFF334E7B),
+                                        color: const Color(0xFF334E7B),
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14 * scale,
                                       ),
@@ -1619,80 +1428,294 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       SizedBox(height: 24 * scale),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: addLoading
-                                    ? null
-                                    : () =>
-                                          setState(() => showAddModal = false),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: Color(0xFF334E7B),
-                                    width: 2,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 12 * scale,
-                                  ),
+
+                      // Action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: addLoading
+                                  ? null
+                                  : () => Navigator.pop(sheetContext),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Color(0xFF334E7B),
+                                  width: 2,
                                 ),
-                                child: Text(
-                                  "Cancel",
-                                  style: GoogleFonts.robotoMono(
-                                    color: Color(0xFF334E7B),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15 * scale,
-                                  ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12 * scale,
+                                ),
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: GoogleFonts.robotoMono(
+                                  color: const Color(0xFF334E7B),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15 * scale,
                                 ),
                               ),
                             ),
-                            SizedBox(width: 12 * scale),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: addLoading ? null : _handleAddWord,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF2E5C9A),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 12 * scale,
-                                  ),
-                                  elevation: 0,
+                          ),
+                          SizedBox(width: 12 * scale),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: addLoading
+                                  ? null
+                                  : () async {
+                                      Navigator.pop(sheetContext);
+                                      await _handleAddWord();
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2E5C9A),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: addLoading
-                                    ? SizedBox(
-                                        width: 20 * scale,
-                                        height: 20 * scale,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        "Add",
-                                        style: GoogleFonts.robotoMono(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15 * scale,
-                                        ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12 * scale,
+                                ),
+                                elevation: 0,
+                              ),
+                              child: addLoading
+                                  ? SizedBox(
+                                      width: 20 * scale,
+                                      height: 20 * scale,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
                                       ),
-                              ),
+                                    )
+                                  : Text(
+                                      "Add",
+                                      style: GoogleFonts.robotoMono(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15 * scale,
+                                      ),
+                                    ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
+            );
+          },
+        );
+      },
+    );
+
+    // Keep showAddModal in sync so existing logic still works
+    setState(() => showAddModal = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = scaleFactor(context);
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(scale),
+                SizedBox(height: 40 * scale),
+                Row(
+                  children: [
+                    SizedBox(width: 20 * scale),
+                    _buildSectionTitle("Favorites", scale),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 30 * scale),
+                          child: Text(
+                            '($_favoriteCount)',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 15 * scale,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // Read directly from local `cards` state — no FutureBuilder.
+                // _handleFavorite / _handleArchive / _fetchCards all update
+                // `cards` synchronously, so the UI always reflects the latest.
+                Builder(
+                  builder: (context) {
+                    if (loading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final favoritePhrases = cards
+                        .where(
+                          (c) =>
+                              _isFav(c['is_favorite']) &&
+                              c['status'] == 'active',
+                        )
+                        .toList();
+                    if (favoritePhrases.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                        child: Container(
+                          margin: EdgeInsets.only(top: 10 * scale),
+                          child: Text(
+                            'Still empty, nothing to be found here',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 15 * scale,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return Favorite_Words_Phrases_Cards(
+                      data: favoritePhrases,
+                      cardColor: cardColor,
+                      scale: scale,
+                      onFavoriteToggle: _handleFavorite,
+                      onDelete: _handleArchive,
+                    );
+                  },
+                ),
+                SizedBox(height: 30 * scale),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [_buildSectionTitle("Words/Phrases", scale)],
+                      ),
+                      SizedBox(height: 10 * scale),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.60,
+                            child: TextField(
+                              style: GoogleFonts.robotoMono(),
+                              decoration: InputDecoration(
+                                hintText: "",
+                                hintStyle: GoogleFonts.robotoMono(),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF334E7B),
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.search,
+                                  color: Color(0xFF334E7B),
+                                ),
+                              ),
+                              onChanged: (v) {
+                                setState(() => search = v);
+                                _applyFilters();
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 10 * scale),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add,
+                              color: Color(0xFF334E7B),
+                            ),
+                            // Keyboard-safe bottom sheet instead of Stack overlay
+                            onPressed: () => _showAddModal(context, scale),
+                          ),
+                          SizedBox(
+                            width: 40 * scale,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.filter_list,
+                                color: Color(0xFF334E7B),
+                              ),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => DraggableFilterDrawer(
+                                    sortBy: sortBy,
+                                    activeTab: activeTab,
+                                    wordCountFilter: wordCountFilter,
+                                    onSortChanged: (value) {
+                                      setState(() => sortBy = value);
+                                      _applyFilters();
+                                    },
+                                    onTabChanged: (value) {
+                                      setState(() => activeTab = value);
+                                      _applyFilters();
+                                    },
+                                    onWordCountFilterChanged: (value) {
+                                      setState(() => wordCountFilter = value);
+                                      _applyFilters();
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // A-Z Letter Filter Section
+                      SizedBox(height: 10 * scale),
+                      _buildLetterFilterSection(scale),
+                      SizedBox(height: 20 * scale),
+                    ],
+                  ),
+                ),
+                // Read directly from local `filteredCards` state — no FutureBuilder.
+                Builder(
+                  builder: (context) {
+                    if (loading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (filteredCards.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                        child: Container(
+                          margin: EdgeInsets.only(top: 10 * scale),
+                          child: Text(
+                            'No matching words or phrases found. Try adjusting your search or filters.',
+                            style: GoogleFonts.robotoMono(
+                              fontSize: 18 * scale,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return Words_Phrases_Cards(
+                      data: filteredCards,
+                      cardColor: cardColor,
+                      scale: scale,
+                      onFavoriteToggle: _handleFavorite,
+                      onDelete: _handleArchive,
+                    );
+                  },
+                ),
+                SizedBox(height: 20 * scale),
+              ],
             ),
+          ),
+          // Removed the old Stack-based Dialog for showAddModal.
+          // It is now a keyboard-safe bottom sheet via _showAddModal().
         ],
       ),
     );
@@ -1708,7 +1731,6 @@ class _HomeState extends State<Home> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Add a tappable Row for the tip icon above the greeting
           GestureDetector(
             onTap: () {
               showDialog(
@@ -1718,12 +1740,12 @@ class _HomeState extends State<Home> {
                   elevation: 8,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
-                    side: BorderSide(color: Color(0xFF334E7B), width: 2),
+                    side: const BorderSide(color: Color(0xFF334E7B), width: 2),
                   ),
                   title: Text(
                     'Hi!',
                     style: GoogleFonts.robotoMono(
-                      color: Color(0xFF334E7B),
+                      color: const Color(0xFF334E7B),
                       fontWeight: FontWeight.bold,
                       fontSize: 18 * scale,
                     ),
@@ -1731,7 +1753,7 @@ class _HomeState extends State<Home> {
                   content: Text(
                     'This is the homepage. Explore to use your favorites, words, and phrases. You may add words and phrases by navigating through this section.',
                     style: GoogleFonts.robotoMono(
-                      color: Color(0xFF334E7B),
+                      color: const Color(0xFF334E7B),
                       fontSize: 15 * scale,
                     ),
                     textAlign: TextAlign.justify,
@@ -1742,7 +1764,7 @@ class _HomeState extends State<Home> {
                       child: Text(
                         'Close',
                         style: GoogleFonts.robotoMono(
-                          color: Color(0xFF2E5C9A),
+                          color: const Color(0xFF2E5C9A),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1755,8 +1777,8 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Icon(
-                  Icons.help, // Filled question mark tip icon
-                  color: Color(0xFF334E7B),
+                  Icons.help,
+                  color: const Color(0xFF334E7B),
                   size: 28 * scale,
                 ),
               ],
@@ -1781,9 +1803,9 @@ class _HomeState extends State<Home> {
                         text: greetingMessage.split(',').first,
                         style: GoogleFonts.robotoMono(
                           fontSize: 21 * scale,
-                          color: Color(0xFF2E5C9A),
+                          color: const Color(0xFF2E5C9A),
                           fontWeight: FontWeight.w300,
-                          shadows: [
+                          shadows: const [
                             Shadow(
                               blurRadius: 4,
                               color: Colors.white,
@@ -1799,9 +1821,9 @@ class _HomeState extends State<Home> {
                           ),
                           style: GoogleFonts.robotoMono(
                             fontSize: 22 * scale,
-                            color: Color(0xFF2E5C9A),
+                            color: const Color(0xFF2E5C9A),
                             fontWeight: FontWeight.w600,
-                            shadows: [
+                            shadows: const [
                               Shadow(
                                 blurRadius: 4,
                                 color: Colors.white,
@@ -1818,12 +1840,15 @@ class _HomeState extends State<Home> {
           ),
           SizedBox(height: 0.1 * scale),
           Container(
-            height: 120 * scale, // Reduced height
-            padding: EdgeInsets.all(8 * scale), // Reduced padding
+            height: 120 * scale,
+            padding: EdgeInsets.all(8 * scale),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(16 * scale),
-              border: Border.all(color: Color(0xFF334E7B), width: 2 * scale),
+              border: Border.all(
+                color: const Color(0xFF334E7B),
+                width: 2 * scale,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.2),
@@ -1836,9 +1861,7 @@ class _HomeState extends State<Home> {
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(
-                    left: 20 * scale,
-                  ), // Move slides a bit to the right
+                  padding: EdgeInsets.only(left: 20 * scale),
                   child: _pageController != null
                       ? PageView(
                           controller: _pageController,
@@ -1863,7 +1886,7 @@ class _HomeState extends State<Home> {
                             _buildSlide('Have', 'Fun!', scale, fontSize: 18),
                           ],
                         )
-                      : Container(), // Fallback when _pageController is null
+                      : Container(),
                 ),
                 Positioned(
                   bottom: 8 * scale,
@@ -1903,9 +1926,7 @@ class _HomeState extends State<Home> {
   }) {
     if (text1 == 'Welcome to ex' && text2 == 'Press!') {
       return GestureDetector(
-        onTap: () {
-          // Keep your navigation logic here if needed
-        },
+        onTap: () {},
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -1939,7 +1960,7 @@ class _HomeState extends State<Home> {
                           style: GoogleFonts.robotoMono(
                             fontSize: 23 * scale,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF2E5C9A),
+                            color: const Color(0xFF2E5C9A),
                           ),
                         ),
                       ],
@@ -1996,7 +2017,7 @@ class _HomeState extends State<Home> {
                           style: GoogleFonts.robotoMono(
                             fontSize: 23 * scale,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF2E5C9A),
+                            color: const Color(0xFF2E5C9A),
                           ),
                         ),
                       ],
@@ -2040,7 +2061,7 @@ class _HomeState extends State<Home> {
                       style: GoogleFonts.robotoMono(
                         fontSize: 23 * scale,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF2E5C9A),
+                        color: const Color(0xFF2E5C9A),
                       ),
                     ),
                   ],
@@ -2048,7 +2069,6 @@ class _HomeState extends State<Home> {
               ),
             ),
             SizedBox(width: 12 * scale),
-
             WavingHandIcon(scale: scale),
           ],
         ),
@@ -2081,7 +2101,6 @@ class _HomeState extends State<Home> {
                     text1,
                     style: GoogleFonts.robotoMono(
                       fontSize: fontSize * scale,
-
                       fontWeight: FontWeight.w900,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -2093,9 +2112,8 @@ class _HomeState extends State<Home> {
                     text2,
                     style: GoogleFonts.robotoMono(
                       fontSize: fontSize * scale,
-
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2E5C9A),
+                      color: const Color(0xFF2E5C9A),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -2131,10 +2149,10 @@ class _HomeState extends State<Home> {
               style: GoogleFonts.robotoMono(
                 fontSize: 14 * scale,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF334E7B),
+                color: const Color(0xFF334E7B),
               ),
             ),
-            Spacer(),
+            const Spacer(),
             GestureDetector(
               onTap: () {
                 setState(() {
@@ -2143,7 +2161,7 @@ class _HomeState extends State<Home> {
               },
               child: Icon(
                 showLetterFilter ? Icons.expand_less : Icons.expand_more,
-                color: Color(0xFF334E7B),
+                color: const Color(0xFF334E7B),
                 size: 24 * scale,
               ),
             ),
@@ -2163,7 +2181,7 @@ class _HomeState extends State<Home> {
                     color: Colors.grey[600],
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 TextButton(
                   onPressed: () {
                     setState(() {
@@ -2175,7 +2193,7 @@ class _HomeState extends State<Home> {
                     "Clear All",
                     style: GoogleFonts.robotoMono(
                       fontSize: 12 * scale,
-                      color: Color(0xFF334E7B),
+                      color: const Color(0xFF334E7B),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -2196,12 +2214,15 @@ class _HomeState extends State<Home> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFF334E7B).withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: const Color(0xFF334E7B).withOpacity(0.3),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -2223,22 +2244,22 @@ class _HomeState extends State<Home> {
               _applyFilters();
             },
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 200),
               width: 32 * scale,
               height: 32 * scale,
               decoration: BoxDecoration(
-                color: isSelected ? Color(0xFF334E7B) : Colors.white,
+                color: isSelected ? const Color(0xFF334E7B) : Colors.white,
                 borderRadius: BorderRadius.circular(6 * scale),
                 border: Border.all(
-                  color: Color(0xFF334E7B),
+                  color: const Color(0xFF334E7B),
                   width: 1.5 * scale,
                 ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Color(0xFF334E7B).withOpacity(0.3),
+                          color: const Color(0xFF334E7B).withOpacity(0.3),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ]
                     : [],
@@ -2249,7 +2270,7 @@ class _HomeState extends State<Home> {
                   style: GoogleFonts.robotoMono(
                     fontSize: 14 * scale,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : Color(0xFF334E7B),
+                    color: isSelected ? Colors.white : const Color(0xFF334E7B),
                   ),
                 ),
               ),

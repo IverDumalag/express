@@ -1,5 +1,12 @@
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bug 2 fix: cache remote videos to disk so they play offline after first load.
+// Uses flutter_cache_manager (add to pubspec.yaml if not already present):
+//   flutter_cache_manager: ^3.3.1
+// ─────────────────────────────────────────────────────────────────────────────
 
 class MediaViewer extends StatelessWidget {
   final String filePath;
@@ -52,7 +59,7 @@ class _NoMatchFound extends StatelessWidget {
               size: 64,
               color: Colors.grey[400],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'No Match Found',
               textAlign: TextAlign.center,
@@ -62,7 +69,7 @@ class _NoMatchFound extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Unsupported media type',
               textAlign: TextAlign.center,
@@ -92,7 +99,7 @@ class _ImageViewer extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -113,7 +120,7 @@ class _ImageViewer extends StatelessWidget {
                                     loadingProgress.expectedTotalBytes!
                               : null,
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
+                          valueColor: const AlwaysStoppedAnimation<Color>(
                             Colors.blue,
                           ),
                         ),
@@ -131,7 +138,7 @@ class _ImageViewer extends StatelessWidget {
                             size: 64,
                             color: Colors.grey[400],
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Image not available',
                             style: TextStyle(
@@ -158,7 +165,7 @@ class _ImageViewer extends StatelessWidget {
                             size: 64,
                             color: Colors.grey[400],
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Image not available',
                             style: TextStyle(
@@ -177,6 +184,10 @@ class _ImageViewer extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bug 2 fix: resolve a cached local file before initialising the controller.
+// If the file is already on disk we skip the network entirely.
+// ─────────────────────────────────────────────────────────────────────────────
 class _VideoPlayerWidget extends StatefulWidget {
   final String filePath;
   final VoidCallback? onFullScreenToggle;
@@ -192,10 +203,11 @@ class _VideoPlayerWidget extends StatefulWidget {
 }
 
 class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   double _playbackSpeed = 1.0;
   final List<double> _speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
   bool _isBuffering = false;
+  bool _initError = false;
 
   final double displayWidth = 300;
   final double progressBarThickness = 6.0;
@@ -204,51 +216,82 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    if (widget.filePath.startsWith('http') ||
-        widget.filePath.startsWith('https')) {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.filePath),
-      );
-    } else {
-      _controller = VideoPlayerController.asset(widget.filePath);
-    }
+    _initController();
+  }
 
-    _controller
-        .initialize()
-        .then((_) {
-          if (mounted) {
-            setState(() {});
-          }
-        })
-        .catchError((error) {
-          // Video loading failed - the UI will handle this gracefully
-          print("Error initializing video: $error");
-        });
+  /// Resolve a local cached file (or fall back to network) then initialise.
+  Future<void> _initController() async {
+    try {
+      VideoPlayerController controller;
 
-    _controller.addListener(() {
-      if (mounted) {
-        setState(() {
-          _isBuffering = _controller.value.isBuffering;
-        });
+      final isNetwork =
+          widget.filePath.startsWith('http') ||
+          widget.filePath.startsWith('https');
+
+      if (isNetwork) {
+        // Try to get a cached version first
+        final FileInfo? cached = await DefaultCacheManager().getFileFromCache(
+          widget.filePath,
+        );
+
+        if (cached != null && await cached.file.exists()) {
+          debugPrint('Media cache hit: ${widget.filePath}');
+          // Serve from disk – works offline
+          controller = VideoPlayerController.file(cached.file);
+        } else {
+          debugPrint('Media cache miss: ${widget.filePath}');
+          // Not cached yet: play from network and download in background
+          controller = VideoPlayerController.networkUrl(
+            Uri.parse(widget.filePath),
+          );
+          // Kick off background caching (fire-and-forget)
+          DefaultCacheManager()
+              .downloadFile(widget.filePath)
+              .then((_) => debugPrint('Media cached: ${widget.filePath}'))
+              .catchError((e) => debugPrint('Media cache download failed: $e'));
+        }
+      } else {
+        controller = VideoPlayerController.asset(widget.filePath);
       }
-    });
+
+      await controller.initialize();
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
+
+      controller.addListener(() {
+        if (mounted) {
+          setState(() {
+            _isBuffering = controller.value.isBuffering;
+          });
+        }
+      });
+
+      setState(() => _controller = controller);
+    } catch (e) {
+      debugPrint("Error initializing video: $e");
+      if (mounted) setState(() => _initError = true);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   void _togglePlayPause() {
+    if (_controller == null) return;
     setState(() {
-      _controller.value.isPlaying ? _controller.pause() : _controller.play();
+      _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_controller.value.isInitialized) {
+    // Error state
+    if (_initError) {
       return Center(
         child: Container(
           width: displayWidth,
@@ -260,11 +303,40 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(
+              Icon(
+                Icons.error_outline_rounded,
+                size: 48,
+                color: Colors.grey[400],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Video unavailable',
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Loading / initialising state
+    if (_controller == null || !_controller!.value.isInitialized) {
+      return Center(
+        child: Container(
+          width: displayWidth,
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Loading video...',
                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
@@ -284,7 +356,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -296,10 +368,12 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
             alignment: Alignment.center,
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
                 child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
+                  aspectRatio: _controller!.value.aspectRatio,
+                  child: VideoPlayer(_controller!),
                 ),
               ),
 
@@ -308,11 +382,11 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                 Container(
                   width: 60,
                   height: 60,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
@@ -326,12 +400,12 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                   child: GestureDetector(
                     onTap: widget.onFullScreenToggle,
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.fullscreen,
                         color: Colors.white,
                         size: 20,
@@ -344,49 +418,48 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
 
           // Controls section
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey[900],
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
             ),
             child: Column(
               children: [
                 _CustomProgressBar(
-                  controller: _controller,
+                  controller: _controller!,
                   width: displayWidth - 32,
                   height: progressBarThickness,
                   circleDiameter: circleDiameter,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Time indicator
                     Text(
-                      _formatDuration(_controller.value.position),
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      _formatDuration(_controller!.value.position),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
-
-                    // Control buttons
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Column(
                           children: [
                             IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.arrow_left_rounded,
                                 color: Colors.white,
                                 size: 28,
                               ),
                               onPressed: () {
-                                _controller.seekTo(
-                                  _controller.value.position -
-                                      Duration(seconds: 1),
+                                _controller!.seekTo(
+                                  _controller!.value.position -
+                                      const Duration(seconds: 1),
                                 );
                               },
                             ),
-                            Text(
+                            const Text(
                               '1s',
                               style: TextStyle(
                                 color: Colors.white,
@@ -395,7 +468,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                             ),
                           ],
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
@@ -403,7 +476,7 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              _controller.value.isPlaying
+                              _controller!.value.isPlaying
                                   ? Icons.pause_rounded
                                   : Icons.play_arrow_rounded,
                               color: Colors.white,
@@ -412,23 +485,23 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                             onPressed: _togglePlayPause,
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Column(
                           children: [
                             IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.arrow_right_rounded,
                                 color: Colors.white,
                                 size: 28,
                               ),
                               onPressed: () {
-                                _controller.seekTo(
-                                  _controller.value.position +
-                                      Duration(seconds: 1),
+                                _controller!.seekTo(
+                                  _controller!.value.position +
+                                      const Duration(seconds: 1),
                                 );
                               },
                             ),
-                            Text(
+                            const Text(
                               '1s',
                               style: TextStyle(
                                 color: Colors.white,
@@ -439,38 +512,36 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
                         ),
                       ],
                     ),
-
-                    // Right side controls
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Speed selector
-                        PopupMenuButton<double>(
-                          icon: Icon(Icons.speed_rounded, color: Colors.white),
-                          itemBuilder: (context) => _speedOptions.map((speed) {
-                            return PopupMenuItem<double>(
-                              value: speed,
-                              child: Text('${speed}x'),
-                            );
-                          }).toList(),
-                          onSelected: (newSpeed) {
-                            setState(() {
-                              _playbackSpeed = newSpeed;
-                              _controller.setPlaybackSpeed(_playbackSpeed);
-                            });
-                          },
-                        ),
-                      ],
+                    PopupMenuButton<double>(
+                      icon: const Icon(
+                        Icons.speed_rounded,
+                        color: Colors.white,
+                      ),
+                      itemBuilder: (context) => _speedOptions.map((speed) {
+                        return PopupMenuItem<double>(
+                          value: speed,
+                          child: Text('${speed}x'),
+                        );
+                      }).toList(),
+                      onSelected: (newSpeed) {
+                        setState(() {
+                          _playbackSpeed = newSpeed;
+                          _controller!.setPlaybackSpeed(_playbackSpeed);
+                        });
+                      },
                     ),
                   ],
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      _formatDuration(_controller.value.duration),
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      _formatDuration(_controller!.value.duration),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -513,8 +584,9 @@ class _CustomProgressBar extends StatelessWidget {
 
   void _seekToRelativePosition(Offset localPosition) {
     if (!controller.value.isInitialized ||
-        controller.value.duration == Duration.zero)
+        controller.value.duration == Duration.zero) {
       return;
+    }
 
     final newRatio = localPosition.dx / width;
     final clampedRatio = newRatio.clamp(0.0, 1.0);
@@ -540,7 +612,7 @@ class _CustomProgressBar extends StatelessWidget {
       onHorizontalDragUpdate: (details) {
         _seekToRelativePosition(details.localPosition);
       },
-      child: Container(
+      child: SizedBox(
         width: width,
         height: height,
         child: Stack(
